@@ -1,0 +1,68 @@
+services:
+  web:
+    build:
+      context: .
+      target: runtime
+      args:
+        # $UID must be exported for this to work as it's not an environment variable but a shell variable
+        - UID
+    user: docker_user
+    volumes:
+      - .:/code:delegated
+    ports:
+      - '80:80'
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0.32
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/setup.sql
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: jouwweb
+      MYSQL_DATABASE: dev
+      MYSQL_USER: jouwweb
+      MYSQL_PASSWORD: jouwweb
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    healthcheck:
+      test: "/usr/bin/mysql --user=jouwweb --password=jouwweb --execute \"SHOW DATABASES;\""
+      interval: 3s
+      timeout: 1s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.9
+    ports:
+      - '8000:80'
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=jouwweb
+      - PMA_PASSWORD=jouwweb
+    depends_on:
+      - mysql
+    volumes:
+      - /sessions
+
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+###< doctrine/doctrine-bundle ###
+
+volumes:
+  qdrant-data:
+  mysql-data:
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###

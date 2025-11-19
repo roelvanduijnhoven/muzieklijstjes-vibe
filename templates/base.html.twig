@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}register{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.png">
+    {% block stylesheets %}
+        <link href="/assets/bootstrap-5.3.1-dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    {% endblock %}
+
+    {% block javascripts %}
+        <script src="/assets/bootstrap-5.3.1-dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    {% endblock %}
+</head>
+<body>
+<h1>
+    register
+</h1>
+<div class="container">
+
+    <div class="flash-messages">
+        {% for group, messages in app.flashes() %}
+            {% for message in messages %}
+                <div class="alert alert-{{ group }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    {% block body %}{% endblock %}
+</div>
+</body>
+</html>
