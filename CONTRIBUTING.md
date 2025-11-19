@@ -49,6 +49,8 @@ You will need the following tools installed on your local machine:
 
 ## Development Workflow
 
+Always run within the container, using the `.run` command! This is where PHP, et cetera, is set up.
+
 ### Helper Scripts
 
 The project includes two helper scripts in the root directory to simplify running commands:

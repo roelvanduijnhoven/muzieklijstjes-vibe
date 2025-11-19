@@ -1,0 +1,199 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\AlbumListRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: AlbumListRepository::class)]
+class AlbumList
+{
+    public const TYPE_ORDERED = 'ordered';
+    public const TYPE_UNORDERED = 'unordered';
+    public const TYPE_AGGREGATE = 'aggregate';
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $type = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\ManyToOne(inversedBy: 'albumLists')]
+    private ?Magazine $magazine = null;
+
+    #[ORM\ManyToOne(inversedBy: 'albumLists')]
+    private ?Critic $critic = null;
+
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'aggregatedIn')]
+    private Collection $sources;
+
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'sources')]
+    private Collection $aggregatedIn;
+
+    #[ORM\OneToMany(targetEntity: AlbumListItem::class, mappedBy: 'albumList')]
+    private Collection $listItems;
+
+    public function __construct()
+    {
+        $this->sources = new ArrayCollection();
+        $this->aggregatedIn = new ArrayCollection();
+        $this->listItems = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getMagazine(): ?Magazine
+    {
+        return $this->magazine;
+    }
+
+    public function setMagazine(?Magazine $magazine): static
+    {
+        $this->magazine = $magazine;
+
+        return $this;
+    }
+
+    public function getCritic(): ?Critic
+    {
+        return $this->critic;
+    }
+
+    public function setCritic(?Critic $critic): static
+    {
+        $this->critic = $critic;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getSources(): Collection
+    {
+        return $this->sources;
+    }
+
+    public function addSource(self $source): static
+    {
+        if (!$this->sources->contains($source)) {
+            $this->sources->add($source);
+        }
+
+        return $this;
+    }
+
+    public function removeSource(self $source): static
+    {
+        $this->sources->removeElement($source);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getAggregatedIn(): Collection
+    {
+        return $this->aggregatedIn;
+    }
+
+    public function addAggregatedIn(self $aggregatedIn): static
+    {
+        if (!$this->aggregatedIn->contains($aggregatedIn)) {
+            $this->aggregatedIn->add($aggregatedIn);
+            $aggregatedIn->addSource($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAggregatedIn(self $aggregatedIn): static
+    {
+        if ($this->aggregatedIn->removeElement($aggregatedIn)) {
+            $aggregatedIn->removeSource($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AlbumListItem>
+     */
+    public function getListItems(): Collection
+    {
+        return $this->listItems;
+    }
+
+    public function addListItem(AlbumListItem $listItem): static
+    {
+        if (!$this->listItems->contains($listItem)) {
+            $this->listItems->add($listItem);
+            $listItem->setAlbumList($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListItem(AlbumListItem $listItem): static
+    {
+        if ($this->listItems->removeElement($listItem)) {
+            // set the owning side to null (unless already changed)
+            if ($listItem->getAlbumList() === $this) {
+                $listItem->setAlbumList(null);
+            }
+        }
+
+        return $this;
+    }
+}
+
