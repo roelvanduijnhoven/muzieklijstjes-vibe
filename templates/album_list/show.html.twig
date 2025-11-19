@@ -51,15 +51,25 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Pos</th>
+                {# Show mentions column first if list has mentions #}
+                {% if hasMentions %}
+                    <th>Mentions</th>
+                {% elseif list.type == 'ordered' %}
+                    {# Show position column first for ordered lists without mentions #}
+                    <th>Pos</th>
+                {% endif %}
                 <th>Album</th>
                 <th>Artist</th>
             </tr>
         </thead>
         <tbody>
-        {% for item in list.listItems %}
+        {% for item in items %}
             <tr>
-                <td>{{ item.position }}</td>
+                {% if hasMentions %}
+                    <td>{{ item.mentions }}</td>
+                {% elseif list.type == 'ordered' %}
+                    <td>{{ item.position }}</td>
+                {% endif %}
                 <td><a href="{{ path('app_album_show', {id: item.album.id}) }}">{{ item.album.title }}</a></td>
                 <td><a href="{{ path('app_artist_show', {id: item.album.artist.id}) }}">{{ item.album.artist.name }}</a></td>
             </tr>

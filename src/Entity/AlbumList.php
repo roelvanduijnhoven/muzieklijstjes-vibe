@@ -34,6 +34,9 @@ class AlbumList
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $important = false;
+
     #[ORM\ManyToOne(inversedBy: 'albumLists')]
     private ?Magazine $magazine = null;
 
@@ -223,6 +226,18 @@ class AlbumList
                 $listItem->setAlbumList(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isImportant(): bool
+    {
+        return $this->important;
+    }
+
+    public function setImportant(bool $important): static
+    {
+        $this->important = $important;
 
         return $this;
     }

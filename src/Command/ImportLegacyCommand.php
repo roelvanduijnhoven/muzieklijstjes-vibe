@@ -255,12 +255,16 @@ class ImportLegacyCommand extends Command
             // I'll leave description empty or duplicate title?
             // Better: if I have extra info, put it in description. But I don't.
             // I'll set description to null to avoid duplication unless needed.
-            $list->setDescription(null); 
+            $list->setDescription(null);
             
+            // Import canon field as important
+            $list->setImportant((bool)$row['canon']);
+            
+            // Initially set type based on legacy type, but we'll update AK types later
             $type = match(strtoupper($row['type'])) {
                 'POS' => AlbumList::TYPE_ORDERED,
                 'GP'  => AlbumList::TYPE_UNORDERED,
-                'AK'  => AlbumList::TYPE_AGGREGATE,
+                'AK'  => AlbumList::TYPE_ORDERED, // Will change to AGGREGATE later if has sources
                 default => AlbumList::TYPE_ORDERED
             };
             $list->setType($type);
@@ -315,7 +319,8 @@ class ImportLegacyCommand extends Command
             
             $item->setAlbumList($listRef);
             $item->setAlbum($albumRef);
-            $item->setPosition($row['pos'] ?: null);
+            $item->setPosition($row['pos'] !== null && $row['pos'] !== '' ? (int)$row['pos'] : null);
+            $item->setMentions($row['ak'] !== null && $row['ak'] !== '' ? (int)$row['ak'] : null);
             
             $this->entityManager->persist($item);
             
@@ -417,5 +422,18 @@ class ImportLegacyCommand extends Command
         }
         
         $io->progressFinish();
+        
+        // 4. Update lists to AGGREGATE type if they have sources
+        $io->section('Updating aggregate list types');
+        $conn = $this->entityManager->getConnection();
+        $conn->executeStatement(
+            "UPDATE album_list al 
+             SET type = 'aggregate' 
+             WHERE EXISTS (
+                 SELECT 1 FROM album_list_album_list alas 
+                 WHERE alas.album_list_source = al.id
+             )"
+        );
+        $io->writeln('Updated lists with sources to aggregate type');
     }
 }

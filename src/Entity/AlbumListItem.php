@@ -24,6 +24,9 @@ class AlbumListItem
     #[ORM\Column(nullable: true)]
     private ?int $position = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $mentions = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +64,18 @@ class AlbumListItem
     public function setPosition(?int $position): static
     {
         $this->position = $position;
+
+        return $this;
+    }
+
+    public function getMentions(): ?int
+    {
+        return $this->mentions;
+    }
+
+    public function setMentions(?int $mentions): static
+    {
+        $this->mentions = $mentions;
 
         return $this;
     }

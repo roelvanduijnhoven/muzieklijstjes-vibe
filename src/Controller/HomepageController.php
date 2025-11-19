@@ -18,8 +18,9 @@ class HomepageController extends AbstractController
         $limit = 50;
         $offset = ($page - 1) * $limit;
 
+        // Only show important (canon) lists on the homepage
         $lists = $entityManager->getRepository(AlbumList::class)->findBy(
-            [],
+            ['important' => true],
             ['title' => 'ASC'],
             $limit,
             $offset
