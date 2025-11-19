@@ -25,6 +25,12 @@ class AlbumList
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $code = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $releaseYear = null;
+
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
@@ -41,6 +47,7 @@ class AlbumList
     private Collection $aggregatedIn;
 
     #[ORM\OneToMany(targetEntity: AlbumListItem::class, mappedBy: 'albumList')]
+    #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $listItems;
 
     public function __construct()
@@ -75,6 +82,30 @@ class AlbumList
     public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): static
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    public function getReleaseYear(): ?int
+    {
+        return $this->releaseYear;
+    }
+
+    public function setReleaseYear(?int $releaseYear): static
+    {
+        $this->releaseYear = $releaseYear;
 
         return $this;
     }

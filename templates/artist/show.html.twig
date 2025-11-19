@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ artist.name }}</li>
+      </ol>
+    </nav>
+
+    <h1>{{ artist.name }}</h1>
+    
+    {% if artist.albums|length > 0 %}
+    <h3>Albums</h3>
+    <ul>
+    {% for album in artist.albums %}
+        <li><a href="{{ path('app_album_show', {id: album.id}) }}">{{ album.title }}</a> ({{ album.releaseYear }})</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}
+

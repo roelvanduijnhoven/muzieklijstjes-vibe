@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ list.title }}</li>
+      </ol>
+    </nav>
+
+    <h1>
+        {{ list.title }}
+        {% if list.releaseYear %}
+            <span class="text-muted fs-4">({{ list.releaseYear }})</span>
+        {% endif %}
+    </h1>
+    
+    <div class="mb-3">
+        {% if list.code %}
+            <span class="badge bg-light text-dark border">{{ list.code }}</span>
+        {% endif %}
+        {% if list.magazine %}
+            <span class="badge bg-secondary">{{ list.magazine.name }}</span>
+        {% endif %}
+        {% if list.type == 'aggregate' %}
+            <span class="badge bg-primary">Aggregate</span>
+        {% endif %}
+    </div>
+
+    {% if list.description %}
+        <p class="lead">{{ list.description }}</p>
+    {% endif %}
+    
+    <hr>
+    
+    {% if list.sources|length > 0 %}
+    <div class="mb-4">
+        <h3>Sources / Contributors</h3>
+        <div class="list-group list-group-horizontal flex-wrap">
+        {% for source in list.sources %}
+            <a href="{{ path('app_list_show', {id: source.id}) }}" class="list-group-item list-group-item-action flex-fill" style="max-width: 300px;">
+                {{ source.title }}
+            </a>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <h3>Items</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Pos</th>
+                <th>Album</th>
+                <th>Artist</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in list.listItems %}
+            <tr>
+                <td>{{ item.position }}</td>
+                <td><a href="{{ path('app_album_show', {id: item.album.id}) }}">{{ item.album.title }}</a></td>
+                <td><a href="{{ path('app_artist_show', {id: item.album.artist.id}) }}">{{ item.album.artist.name }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

@@ -22,7 +22,7 @@ class AlbumListItem
     private ?Album $album = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $rank = null;
+    private ?int $position = null;
 
     public function getId(): ?int
     {
@@ -53,14 +53,14 @@ class AlbumListItem
         return $this;
     }
 
-    public function getRank(): ?int
+    public function getPosition(): ?int
     {
-        return $this->rank;
+        return $this->position;
     }
 
-    public function setRank(?int $rank): static
+    public function setPosition(?int $position): static
     {
-        $this->rank = $rank;
+        $this->position = $position;
 
         return $this;
     }
