@@ -24,9 +24,13 @@ class Critic
     #[ORM\OneToMany(targetEntity: AlbumList::class, mappedBy: 'critic')]
     private Collection $albumLists;
 
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'critic')]
+    private Collection $reviews;
+
     public function __construct()
     {
         $this->albumLists = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -87,6 +91,36 @@ class Critic
             // set the owning side to null (unless already changed)
             if ($albumList->getCritic() === $this) {
                 $albumList->setCritic(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Review>
+     */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
+    public function addReview(Review $review): static
+    {
+        if (!$this->reviews->contains($review)) {
+            $this->reviews->add($review);
+            $review->setCritic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReview(Review $review): static
+    {
+        if ($this->reviews->removeElement($review)) {
+            // set the owning side to null (unless already changed)
+            if ($review->getCritic() === $this) {
+                $review->setCritic(null);
             }
         }
 

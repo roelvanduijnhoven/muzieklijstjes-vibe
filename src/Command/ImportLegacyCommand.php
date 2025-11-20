@@ -8,6 +8,7 @@ use App\Entity\AlbumListItem;
 use App\Entity\Artist;
 use App\Entity\Critic;
 use App\Entity\Magazine;
+use App\Entity\Review;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -66,6 +67,9 @@ class ImportLegacyCommand extends Command
         $io->section('Importing Albums');
         $this->importAlbums($io);
 
+        $io->section('Importing Reviews');
+        $this->importReviews($io);
+
         $io->section('Importing Lists');
         $this->importLists($io);
 
@@ -83,6 +87,7 @@ class ImportLegacyCommand extends Command
             'album_list_item',
             'album_list_album_list',
             'album_list',
+            'review',
             'album',
             'artist',
             'critic',
@@ -226,6 +231,56 @@ class ImportLegacyCommand extends Command
         foreach ($batch as $legacyId => $entity) {
             $this->albumMap[$legacyId] = $entity->getId();
         }
+        $this->entityManager->clear();
+        $io->progressFinish();
+    }
+
+    private function importReviews(SymfonyStyle $io): void
+    {
+        $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM recensie');
+        $io->progressStart(count($rows));
+
+        $batchSize = 1000;
+        $i = 0;
+
+        foreach ($rows as $row) {
+            if (!isset($this->albumMap[$row['album_id']])) {
+                continue;
+            }
+
+            $review = new Review();
+            
+            // Relations
+            $albumRef = $this->entityManager->getReference(Album::class, $this->albumMap[$row['album_id']]);
+            $review->setAlbum($albumRef);
+
+            if ($row['recensent_id'] && isset($this->criticMap[$row['recensent_id']])) {
+                $criticRef = $this->entityManager->getReference(Critic::class, $this->criticMap[$row['recensent_id']]);
+                $review->setCritic($criticRef);
+            }
+
+            if ($row['tijdschrift_id'] && isset($this->magazineMap[$row['tijdschrift_id']])) {
+                $magRef = $this->entityManager->getReference(Magazine::class, $this->magazineMap[$row['tijdschrift_id']]);
+                $review->setMagazine($magRef);
+            }
+
+            // Fields
+            $review->setYear($row['jaar'] ? (int)$row['jaar'] : null);
+            $review->setMonth($row['maand'] ? (int)$row['maand'] : null);
+            $review->setIssueNumber($row['nummer'] !== '0' ? $row['nummer'] : null);
+            $review->setRating($row['waardering'] !== null ? (float)$row['waardering'] : null);
+            $review->setRubric($row['rubriek'] ?: null);
+
+            $this->entityManager->persist($review);
+
+            if ((++$i % $batchSize) === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+            $io->progressAdvance();
+        }
+
+        $this->entityManager->flush();
         $this->entityManager->clear();
         $io->progressFinish();
     }

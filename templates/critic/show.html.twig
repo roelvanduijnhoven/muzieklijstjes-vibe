@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ critic.name }}</li>
+      </ol>
+    </nav>
+
+    <h1>{{ critic.name }}</h1>
+    {% if critic.bio %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <p class="card-text">{{ critic.bio|nl2br }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Lists</h3>
+            {% if critic.albumLists is not empty %}
+                <div class="list-group mb-4">
+                    {% for list in critic.albumLists %}
+                        <a href="{{ path('app_list_show', {id: list.id}) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ list.title }}</h5>
+                                <small>{{ list.releaseYear }}</small>
+                            </div>
+                            <p class="mb-1">
+                                {% if list.type == 'ordered' %}
+                                    Ordered List
+                                {% elseif list.type == 'unordered' %}
+                                    Unordered List
+                                {% elseif list.type == 'aggregate' %}
+                                    Aggregate List
+                                {% else %}
+                                    {{ list.type|capitalize }}
+                                {% endif %}
+                            </p>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No lists found for this critic.</p>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <h3>Reviews</h3>
+            {% if critic.reviews is not empty %}
+                <div class="list-group mb-4">
+                    {% for review in critic.reviews %}
+                        <a href="{{ path('app_album_show', {id: review.album.id}) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ review.album.title }}</h5>
+                                <small>
+                                    {% if review.rating %}
+                                        <span class="badge bg-primary">{{ review.rating }}</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <p class="mb-1">
+                                by {{ review.album.artist.name }}
+                            </p>
+                            <small class="text-muted">
+                                {% if review.year %}
+                                    {{ review.year }}
+                                {% endif %}
+                                {% if review.magazine %}
+                                    in {{ review.magazine.name }}
+                                {% endif %}
+                            </small>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No reviews found for this critic.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

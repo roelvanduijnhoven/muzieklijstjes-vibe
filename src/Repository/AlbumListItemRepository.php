@@ -20,5 +20,21 @@ class AlbumListItemRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AlbumListItem::class);
     }
+
+    /**
+     * @return AlbumListItem[]
+     */
+    public function findByAlbumId(int $albumId): array
+    {
+        return $this->createQueryBuilder('i')
+            ->join('i.albumList', 'l')
+            ->addSelect('l')
+            ->where('i.album = :albumId')
+            ->setParameter('albumId', $albumId)
+            ->orderBy('l.releaseYear', 'DESC')
+            ->addOrderBy('l.title', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
 

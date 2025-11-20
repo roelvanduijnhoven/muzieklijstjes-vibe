@@ -43,5 +43,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Artists', 'fas fa-microphone', \App\Entity\Artist::class);
         yield MenuItem::linkToCrud('Critics', 'fas fa-pen-fancy', \App\Entity\Critic::class);
         yield MenuItem::linkToCrud('Magazines', 'fas fa-newspaper', \App\Entity\Magazine::class);
+        yield MenuItem::linkToCrud('Reviews', 'fas fa-star', \App\Entity\Review::class);
     }
 }
