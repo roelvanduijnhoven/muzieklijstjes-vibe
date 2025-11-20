@@ -46,10 +46,10 @@ class AlbumList
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'aggregatedIn')]
     private Collection $sources;
 
-    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'sources')]
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'aggregatedIn')]
     private Collection $aggregatedIn;
 
-    #[ORM\OneToMany(targetEntity: AlbumListItem::class, mappedBy: 'albumList')]
+    #[ORM\OneToMany(targetEntity: AlbumListItem::class, mappedBy: 'albumList', cascade: ['persist'])]
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $listItems;
 
@@ -58,6 +58,11 @@ class AlbumList
         $this->sources = new ArrayCollection();
         $this->aggregatedIn = new ArrayCollection();
         $this->listItems = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->title ?? '';
     }
 
     public function getId(): ?int
@@ -242,4 +247,3 @@ class AlbumList
         return $this;
     }
 }
-

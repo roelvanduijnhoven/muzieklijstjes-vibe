@@ -13,6 +13,7 @@
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
+        "easycorp/easyadmin-bundle": "^4.20",
         "google/cloud-storage": "*",
         "guzzlehttp/guzzle": "^7.8",
         "symfony/console": "6.3.*",
@@ -26,7 +27,7 @@
         "symfony/twig-bundle": "6.3.*",
         "symfony/yaml": "6.3.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0",
+        "twig/twig": "3.15",
         "webmozart/assert": "^1.11"
     },
     "config": {

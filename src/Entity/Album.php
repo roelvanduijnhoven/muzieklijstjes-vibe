@@ -23,6 +23,11 @@ class Album
     #[ORM\JoinColumn(nullable: false)]
     private ?Artist $artist = null;
 
+    public function __toString(): string
+    {
+        return $this->title ?? '';
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,4 +69,3 @@ class Album
         return $this;
     }
 }
-
