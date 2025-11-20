@@ -57,6 +57,10 @@ class AggregateAlbumListCrudController extends AbstractCrudController
         // Select other lists to aggregate
         yield AssociationField::new('sources')
             ->setLabel('Source Lists')
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb->andWhere('entity.type != :aggregateType')
+                    ->setParameter('aggregateType', AlbumList::TYPE_AGGREGATE);
+            })
             ->autocomplete(); 
     }
 
