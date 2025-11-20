@@ -42,10 +42,42 @@ class AlbumListController extends AbstractController
         }
         // TYPE_UNORDERED and TYPE_AGGREGATE lists: no sorting needed
         
+        $computedItems = [];
+        if ($albumList->getType() === AlbumList::TYPE_AGGREGATE) {
+            $scores = [];
+            $albums = [];
+
+            foreach ($albumList->getSources() as $sourceList) {
+                foreach ($sourceList->getListItems() as $item) {
+                    $album = $item->getAlbum();
+                    if (!$album) {
+                        continue;
+                    }
+                    
+                    $albumId = $album->getId();
+                    if (!isset($scores[$albumId])) {
+                        $scores[$albumId] = 0;
+                        $albums[$albumId] = $album;
+                    }
+                    $scores[$albumId]++;
+                }
+            }
+
+            arsort($scores);
+
+            foreach ($scores as $albumId => $score) {
+                $computedItems[] = [
+                    'album' => $albums[$albumId],
+                    'score' => $score,
+                ];
+            }
+        }
+
         return $this->render('album_list/show.html.twig', [
             'list' => $albumList,
             'items' => $items,
             'hasMentions' => $hasMentions,
+            'computedItems' => $computedItems,
         ]);
     }
 }

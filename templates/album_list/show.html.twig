@@ -36,18 +36,47 @@
     
     {% if list.sources|length > 0 %}
     <div class="mb-4">
-        <h3>Sources / Contributors</h3>
-        <div class="list-group list-group-horizontal flex-wrap">
-        {% for source in list.sources %}
-            <a href="{{ path('app_list_show', {id: source.id}) }}" class="list-group-item list-group-item-action flex-fill" style="max-width: 300px;">
-                {{ source.title }}
-            </a>
-        {% endfor %}
+        <h3>
+            <button class="btn btn-link text-decoration-none p-0 text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#sourcesCollapse" aria-expanded="false" aria-controls="sourcesCollapse">
+                Sources / Contributors ▾
+            </button>
+        </h3>
+        <div class="collapse" id="sourcesCollapse">
+            <div class="list-group list-group-horizontal flex-wrap mt-2">
+            {% for source in list.sources %}
+                <a href="{{ path('app_list_show', {id: source.id}) }}" class="list-group-item list-group-item-action flex-fill" style="max-width: 300px;">
+                    {{ source.title }}
+                </a>
+            {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
 
-    <h3>Items</h3>
+    {% if computedItems|length > 0 %}
+    <h3>Albums in List</h3>
+    <table class="table table-striped mb-5">
+        <thead>
+            <tr>
+                <th>Score</th>
+                <th>Album</th>
+                <th>Artist</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in computedItems %}
+            <tr>
+                <td>{{ item.score }}</td>
+                <td><a href="{{ path('app_album_show', {id: item.album.id}) }}">{{ item.album.title }}</a></td>
+                <td><a href="{{ path('app_artist_show', {id: item.album.artist.id}) }}">{{ item.album.artist.name }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if list.type != 'aggregate' %}
+    <h3>Albums in List</h3>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -76,6 +105,7 @@
         {% endfor %}
         </tbody>
     </table>
+    {% endif %}
 </div>
 {% endblock %}
 

@@ -429,5 +429,15 @@ class ImportLegacyCommand extends Command
              )"
         );
         $io->writeln('Updated mentioned lists with sources to aggregate type');
+
+        // 5. Prune items from aggregate lists
+        $io->section('Pruning items from aggregate lists');
+        $conn->executeStatement(
+            "DELETE FROM album_list_item 
+             WHERE album_list_id IN (
+                 SELECT id FROM album_list WHERE type = 'aggregate'
+             )"
+        );
+        $io->writeln('Removed stored items from aggregate lists');
     }
 }
