@@ -247,14 +247,6 @@ class ImportLegacyCommand extends Command
             $list->setTitle($row['omschrijving'] ?: $row['lijst']); // Fallback if empty
             $list->setCode($row['lijst']);
             $list->setReleaseYear((int)$row['jaar']);
-            $list->setDescription($row['omschrijving']); // Keep desc for now? Or remove?
-            // User said: "map the omschrijving field in lijsten to be the name of the list"
-            // So description is now title. 
-            // Legacy 'omschrijving' was imported to 'description' previously.
-            // Now I'll clear description or use it for something else?
-            // I'll leave description empty or duplicate title?
-            // Better: if I have extra info, put it in description. But I don't.
-            // I'll set description to null to avoid duplication unless needed.
             $list->setDescription(null);
             
             // Import canon field as important
@@ -264,7 +256,7 @@ class ImportLegacyCommand extends Command
             $type = match(strtoupper($row['type'])) {
                 'POS' => AlbumList::TYPE_ORDERED,
                 'GP'  => AlbumList::TYPE_UNORDERED,
-                'AK'  => AlbumList::TYPE_ORDERED, // Will change to AGGREGATE later if has sources
+                'AK'  => AlbumList::TYPE_MENTIONED, // Default AK to MENTIONED initially
                 default => AlbumList::TYPE_ORDERED
             };
             $list->setType($type);
@@ -424,16 +416,18 @@ class ImportLegacyCommand extends Command
         $io->progressFinish();
         
         // 4. Update lists to AGGREGATE type if they have sources
+        // Only update those that were originally imported as MENTIONED (AK) but turned out to be AGGREGATES
+        // because they have sources.
         $io->section('Updating aggregate list types');
         $conn = $this->entityManager->getConnection();
         $conn->executeStatement(
             "UPDATE album_list al 
              SET type = 'aggregate' 
-             WHERE EXISTS (
+             WHERE type = 'mentioned' AND EXISTS (
                  SELECT 1 FROM album_list_album_list alas 
                  WHERE alas.album_list_source = al.id
              )"
         );
-        $io->writeln('Updated lists with sources to aggregate type');
+        $io->writeln('Updated mentioned lists with sources to aggregate type');
     }
 }
