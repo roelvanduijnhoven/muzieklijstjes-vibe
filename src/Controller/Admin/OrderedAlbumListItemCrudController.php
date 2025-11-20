@@ -8,7 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 
-class AlbumListItemCrudController extends AbstractCrudController
+class OrderedAlbumListItemCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -20,10 +20,10 @@ class AlbumListItemCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             AssociationField::new('album')
-                ->autocomplete() // Crucial for performance
+                ->autocomplete()
                 ->setRequired(true),
-            IntegerField::new('position'),
-            IntegerField::new('mentions')->hideOnIndex(),
+            IntegerField::new('position')->setLabel('Rank'),
+            IntegerField::new('mentions')->hideOnIndex()->hideOnForm(),
         ];
     }
 }

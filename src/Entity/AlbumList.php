@@ -12,6 +12,7 @@ class AlbumList
 {
     public const TYPE_ORDERED = 'ordered';
     public const TYPE_UNORDERED = 'unordered';
+    public const TYPE_MENTIONED = 'mentioned';
     public const TYPE_AGGREGATE = 'aggregate';
 
     #[ORM\Id]

@@ -27,6 +27,24 @@ class AlbumListItem
     #[ORM\Column(nullable: true)]
     private ?int $mentions = null;
 
+    public function __toString(): string
+    {
+        $albumTitle = $this->album ? $this->album->getTitle() : 'Unknown Album';
+        $artistName = $this->album && $this->album->getArtist() ? $this->album->getArtist()->getName() : 'Unknown Artist';
+        
+        $display = sprintf('%s - %s', $albumTitle, $artistName);
+
+        if ($this->position) {
+            $display = sprintf('#%d %s', $this->position, $display);
+        }
+        
+        if ($this->mentions) {
+            $display .= sprintf(' (%d mentions)', $this->mentions);
+        }
+
+        return $display;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -80,4 +98,3 @@ class AlbumListItem
         return $this;
     }
 }
-

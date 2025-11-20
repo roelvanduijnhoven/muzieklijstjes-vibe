@@ -15,7 +15,7 @@ class DashboardController extends AbstractDashboardController
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
-        return $this->redirect($adminUrlGenerator->setController(StandardAlbumListCrudController::class)->generateUrl());
+        return $this->redirect($adminUrlGenerator->setController(OrderedAlbumListCrudController::class)->generateUrl());
     }
 
     public function configureDashboard(): Dashboard
@@ -29,8 +29,12 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
 
         yield MenuItem::section('Lists');
-        yield MenuItem::linkToCrud('Standard Lists', 'fas fa-list-ol', \App\Entity\AlbumList::class)
-            ->setController(StandardAlbumListCrudController::class);
+        yield MenuItem::linkToCrud('Ordered Lists', 'fas fa-list-ol', \App\Entity\AlbumList::class)
+            ->setController(OrderedAlbumListCrudController::class);
+        yield MenuItem::linkToCrud('Unordered Lists', 'fas fa-list-ul', \App\Entity\AlbumList::class)
+            ->setController(UnorderedAlbumListCrudController::class);
+        yield MenuItem::linkToCrud('Mentioned Lists', 'fas fa-comment-dots', \App\Entity\AlbumList::class)
+            ->setController(MentionedAlbumListCrudController::class);
         yield MenuItem::linkToCrud('Aggregate Lists', 'fas fa-layer-group', \App\Entity\AlbumList::class)
             ->setController(AggregateAlbumListCrudController::class);
 
