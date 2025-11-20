@@ -20,7 +20,7 @@ class MagazineCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('name'),
-            UrlField::new('website'),
+            UrlField::new('website')->hideOnIndex(),
         ];
     }
 }

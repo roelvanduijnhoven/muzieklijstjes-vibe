@@ -29,9 +29,9 @@ class AlbumCrudController extends AbstractCrudController
     {
         return [
             IdField::new('id')->hideOnForm(),
+            AssociationField::new('artist'),
             TextField::new('title'),
             IntegerField::new('releaseYear'),
-            AssociationField::new('artist'),
             ImageField::new('imageUrl', 'Cover')
                 ->setBasePath($this->getParameter('app.album_cover_base_url'))
                 ->hideOnForm(),

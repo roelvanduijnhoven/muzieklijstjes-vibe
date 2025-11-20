@@ -47,7 +47,6 @@ class MentionedAlbumListCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('title');
-        yield HiddenField::new('type')->setEmptyData(AlbumList::TYPE_MENTIONED);
         
         yield IntegerField::new('releaseYear');
         yield TextareaField::new('description')->hideOnIndex();
@@ -55,10 +54,14 @@ class MentionedAlbumListCrudController extends AbstractCrudController
         yield AssociationField::new('magazine');
         yield AssociationField::new('critic');
         
+        yield IntegerField::new('listItemCount', 'Albums')
+            ->onlyOnIndex();
+
         yield CollectionField::new('listItems')
             ->useEntryCrudForm(MentionedAlbumListItemCrudController::class)
             ->setEntryIsComplex(true)
-            ->setLabel('Albums with Mentions');
+            ->setLabel('Albums with Mentions')
+            ->hideOnIndex();
     }
 
     public function createEntity(string $entityFqcn)

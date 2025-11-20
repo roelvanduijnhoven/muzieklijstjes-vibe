@@ -20,7 +20,7 @@ class CriticCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('name'),
-            TextEditorField::new('bio'),
+            TextEditorField::new('bio')->hideOnIndex(),
         ];
     }
 }

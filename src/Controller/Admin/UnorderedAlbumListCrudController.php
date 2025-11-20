@@ -47,7 +47,6 @@ class UnorderedAlbumListCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('title');
-        yield HiddenField::new('type')->setEmptyData(AlbumList::TYPE_UNORDERED);
         
         yield IntegerField::new('releaseYear');
         yield TextareaField::new('description')->hideOnIndex();
