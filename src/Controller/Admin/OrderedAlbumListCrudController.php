@@ -55,10 +55,14 @@ class OrderedAlbumListCrudController extends AbstractCrudController
         yield AssociationField::new('magazine');
         yield AssociationField::new('critic');
         
+        yield IntegerField::new('listItemCount', 'Albums')
+            ->onlyOnIndex();
+
         yield CollectionField::new('listItems')
             ->useEntryCrudForm(OrderedAlbumListItemCrudController::class)
             ->setEntryIsComplex(true)
-            ->setLabel('Ranked Albums');
+            ->setLabel('Ranked Albums')
+            ->hideOnIndex();
     }
 
     public function createEntity(string $entityFqcn)
@@ -68,4 +72,3 @@ class OrderedAlbumListCrudController extends AbstractCrudController
         return $entity;
     }
 }
-

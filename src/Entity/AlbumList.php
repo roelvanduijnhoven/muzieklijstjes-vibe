@@ -50,7 +50,7 @@ class AlbumList
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'aggregatedIn')]
     private Collection $aggregatedIn;
 
-    #[ORM\OneToMany(targetEntity: AlbumListItem::class, mappedBy: 'albumList', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: AlbumListItem::class, mappedBy: 'albumList', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $listItems;
 
@@ -64,6 +64,11 @@ class AlbumList
     public function __toString(): string
     {
         return $this->title ?? '';
+    }
+
+    public function getListItemCount(): int
+    {
+        return $this->listItems->count();
     }
 
     public function getId(): ?int
