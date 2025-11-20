@@ -23,6 +23,12 @@ class Album
     #[ORM\JoinColumn(nullable: false)]
     private ?Artist $artist = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageUrl = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $imageFetchFailed = false;
+
     public function __toString(): string
     {
         $artistName = $this->artist ? $this->artist->getName() : 'Unknown Artist';
@@ -66,6 +72,30 @@ class Album
     public function setArtist(?Artist $artist): static
     {
         $this->artist = $artist;
+
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): static
+    {
+        $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    public function isImageFetchFailed(): bool
+    {
+        return $this->imageFetchFailed;
+    }
+
+    public function setImageFetchFailed(bool $imageFetchFailed): static
+    {
+        $this->imageFetchFailed = $imageFetchFailed;
 
         return $this;
     }

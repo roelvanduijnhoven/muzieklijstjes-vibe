@@ -10,6 +10,11 @@
     </nav>
 
     <h1>{{ album.title }}</h1>
+    {% if album.imageUrl %}
+        <div class="mb-3">
+            <img src="{{ coverBaseUrl }}{{ album.imageUrl }}" alt="Cover for {{ album.title }}" class="img-fluid rounded shadow" style="max-width: 300px;">
+        </div>
+    {% endif %}
     <p>Artist: <a href="{{ path('app_artist_show', {id: album.artist.id}) }}">{{ album.artist.name }}</a></p>
     <p>Year: {{ album.releaseYear }}</p>
 </div>

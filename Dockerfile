@@ -9,7 +9,7 @@ RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
 RUN composer self-update 2.6.6 # Later versions don't allow root
 
-RUN apt-get update && apt-get install -y libxml2 zlib1g-dev git unzip
+RUN apt-get update && apt-get install -y libxml2 zlib1g-dev git unzip libpng-dev libjpeg-dev libfreetype6-dev
 
 # Make sure we can run this container locally as well without leading to permission problems.
 RUN useradd docker_user --user-group --create-home --uid ${UID:-1000}
@@ -29,7 +29,8 @@ RUN echo 'PassEnv QDRANT_HOST PEXELS_API_KEY UNSPLASH_API_KEY IMAGE_UTILS_HOST D
 # Configure PHP
 COPY resources/docker/php.ini $PHP_INI_DIR/php.ini
 
-RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-install pdo_mysql gd
 
 WORKDIR "/code"
 

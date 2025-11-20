@@ -67,4 +67,38 @@ A meta-list constructed computationally from other lists.
 *   **Critic:** The author of a specific list.
 *   **Magazine/Publication:** The entity where the list was published. Users can filter data by Magazine.
 
-        
+🎵 Album Covers
+---------------
+
+The application automatically fetches album covers from MusicBrainz and stores them in DigitalOcean Spaces (or any S3-compatible storage).
+
+### Configuration
+
+Ensure the following variables are set in your `.env` or `.env.local`:
+
+```dotenv
+DO_SPACES_REGION=ams3
+DO_SPACES_ENDPOINT=https://ams3.digitaloceanspaces.com
+DO_SPACES_KEY=your_key
+DO_SPACES_SECRET=your_secret
+DO_SPACES_BUCKET=your_bucket
+ALBUM_COVER_BASE_URL=https://your_bucket.ams3.digitaloceanspaces.com/
+```
+
+### Fetching Covers
+
+To fetch missing covers, run the following command inside the container:
+
+```bash
+# Fetch covers for up to 50 albums (default)
+./runapp app:fetch-covers
+
+# Fetch covers for a specific number of albums
+./runapp app:fetch-covers --limit=1000
+```
+
+This command:
+1. Searches MusicBrainz for albums without a cover.
+2. Downloads the cover art (if found).
+3. Resizes it to 300x300px.
+4. Uploads it to the configured S3 bucket.

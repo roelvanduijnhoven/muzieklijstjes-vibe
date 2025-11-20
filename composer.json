@@ -9,6 +9,7 @@
         "ext-iconv": "*",
         "amphp/file": "^3.2",
         "amphp/http-client": "^5.2",
+        "aws/aws-sdk-php": "^3.362",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.4",
