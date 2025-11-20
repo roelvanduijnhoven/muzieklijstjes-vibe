@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Artist;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ArtistCrudController extends AbstractCrudController
@@ -19,6 +20,7 @@ class ArtistCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('name'),
+            IntegerField::new('albums.count', 'Album Count')->hideOnForm(),
         ];
     }
 }

@@ -1,0 +1,33 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Welcome to Register Vibe Admin{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Admin Guidelines</h5>
+                    <p class="card-text">Here are some tips and pointers for managing the system:</p>
+                    
+                    <ul>
+                        <li><strong>Lists Management:</strong>
+                            <ul>
+                                <li>Use <em>Ordered Lists</em> for ranked data (e.g., Top 10).</li>
+                                <li>Use <em>Unordered Lists</em> for collections without ranking.</li>
+                                <li><em>Aggregate Lists</em> are derived from other lists. Ensure you select the correct source lists.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Data Integrity:</strong>
+                            <ul>
+                                <li>When adding <em>Albums</em>, try to ensure the Artist exists first.</li>
+                                <li><em>Reviews</em> should link to either a Magazine or a Critic (or both).</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
