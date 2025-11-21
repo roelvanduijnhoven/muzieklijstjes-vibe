@@ -37,9 +37,15 @@ class AlbumListController extends AbstractController
             });
         } elseif ($sort === 'artist') {
             usort($items, function($a, $b) use ($direction) {
-                $valA = $a->getAlbum()->getArtist()->getName();
-                $valB = $b->getAlbum()->getArtist()->getName();
-                return $direction === 'asc' ? strcasecmp($valA, $valB) : strcasecmp($valB, $valA);
+                $artistA = $a->getAlbum()->getArtist();
+                $artistB = $b->getAlbum()->getArtist();
+                
+                $valA = $artistA->getSortName() ?? $artistA->getName();
+                $valB = $artistB->getSortName() ?? $artistB->getName();
+                
+                $cmp = strcasecmp($valA, $valB);
+                
+                return $direction === 'asc' ? $cmp : -$cmp;
             });
         } elseif ($sort === 'position') {
             if ($hasMentions) {
@@ -109,9 +115,15 @@ class AlbumListController extends AbstractController
                 });
             } elseif ($sort === 'artist') {
                 usort($computedItems, function($a, $b) use ($direction) {
-                    $valA = $a['album']->getArtist()->getName();
-                    $valB = $b['album']->getArtist()->getName();
-                    return $direction === 'asc' ? strcasecmp($valA, $valB) : strcasecmp($valB, $valA);
+                    $artistA = $a['album']->getArtist();
+                    $artistB = $b['album']->getArtist();
+                    
+                    $valA = $artistA->getSortName() ?? $artistA->getName();
+                    $valB = $artistB->getSortName() ?? $artistB->getName();
+                    
+                    $cmp = strcasecmp($valA, $valB);
+                    
+                    return $direction === 'asc' ? $cmp : -$cmp;
                 });
             } elseif ($sort === 'position') {
                 usort($computedItems, function($a, $b) use ($direction) {

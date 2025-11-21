@@ -18,6 +18,12 @@ class Critic
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $sortName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $abbreviation = null;
+
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $bio = null;
 
@@ -51,6 +57,30 @@ class Critic
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getSortName(): ?string
+    {
+        return $this->sortName;
+    }
+
+    public function setSortName(?string $sortName): static
+    {
+        $this->sortName = $sortName;
+
+        return $this;
+    }
+
+    public function getAbbreviation(): ?string
+    {
+        return $this->abbreviation;
+    }
+
+    public function setAbbreviation(?string $abbreviation): static
+    {
+        $this->abbreviation = $abbreviation;
 
         return $this;
     }

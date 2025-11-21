@@ -18,6 +18,9 @@ class Artist
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $sortName = null;
+
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'artist')]
     private Collection $albums;
 
@@ -44,6 +47,18 @@ class Artist
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getSortName(): ?string
+    {
+        return $this->sortName;
+    }
+
+    public function setSortName(?string $sortName): static
+    {
+        $this->sortName = $sortName;
 
         return $this;
     }

@@ -116,6 +116,8 @@ class ImportLegacyCommand extends Command
         foreach ($rows as $row) {
             $artist = new Artist();
             $artist->setName($row['artiest']);
+            $artist->setSortName($row['sArtiest']);
+            
             $this->entityManager->persist($artist);
             
             $batch[$row['id']] = $artist;
@@ -146,19 +148,36 @@ class ImportLegacyCommand extends Command
         $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM tijdschrift');
         $io->progressStart(count($rows));
 
+        $i = 0;
+        $batch = [];
+
         foreach ($rows as $row) {
             $magazine = new Magazine();
             $magazine->setName($row['tijdschrift']);
             $this->entityManager->persist($magazine);
-            $this->entityManager->flush(); // Small table, flush immediately to get ID
             
-            $newId = $magazine->getId();
-            $this->magazineMap[$row['id']] = $newId; 
-            $this->magazineMap[strtolower(trim($row['tijdschrift']))] = $newId;
+            $batch[] = ['entity' => $magazine, 'id' => $row['id'], 'name' => $row['tijdschrift']];
+            
+            if ((++$i % 100) === 0) {
+                 $this->entityManager->flush();
+                 foreach ($batch as $item) {
+                     $this->magazineMap[$item['id']] = $item['entity']->getId();
+                     $this->magazineMap[strtolower(trim($item['name']))] = $item['entity']->getId();
+                 }
+                 $this->entityManager->clear();
+                 $batch = [];
+            }
             
             $io->progressAdvance();
         }
+        
+        $this->entityManager->flush();
+        foreach ($batch as $item) {
+             $this->magazineMap[$item['id']] = $item['entity']->getId();
+             $this->magazineMap[strtolower(trim($item['name']))] = $item['entity']->getId();
+        }
         $this->entityManager->clear();
+        
         $io->progressFinish();
     }
 
@@ -167,9 +186,14 @@ class ImportLegacyCommand extends Command
         $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM recensent');
         $io->progressStart(count($rows));
 
+        $i = 0;
+        $batch = [];
+
         foreach ($rows as $row) {
             $critic = new Critic();
             $critic->setName($row['recensent']);
+            $critic->setSortName($row['sRecensent']);
+            $critic->setAbbreviation($row['aRecensent']);
             
             $bioParts = [];
             if ($row['geboorteJaar']) $bioParts[] = 'Born: ' . $row['geboorteJaar'];
@@ -181,15 +205,28 @@ class ImportLegacyCommand extends Command
             }
 
             $this->entityManager->persist($critic);
-            $this->entityManager->flush();
-            
-            $newId = $critic->getId();
-            $this->criticMap[$row['id']] = $newId;
-            $this->criticMap[strtolower(trim($row['recensent']))] = $newId;
+            $batch[] = ['entity' => $critic, 'id' => $row['id'], 'name' => $row['recensent']];
+
+            if ((++$i % 1000) === 0) {
+                $this->entityManager->flush();
+                foreach ($batch as $item) {
+                    $this->criticMap[$item['id']] = $item['entity']->getId();
+                    $this->criticMap[strtolower(trim($item['name']))] = $item['entity']->getId();
+                }
+                $this->entityManager->clear();
+                $batch = [];
+            }
 
             $io->progressAdvance();
         }
+
+        $this->entityManager->flush();
+        foreach ($batch as $item) {
+            $this->criticMap[$item['id']] = $item['entity']->getId();
+            $this->criticMap[strtolower(trim($item['name']))] = $item['entity']->getId();
+        }
         $this->entityManager->clear();
+        
         $io->progressFinish();
     }
 

@@ -67,6 +67,22 @@ A meta-list constructed computationally from other lists.
 *   **Critic:** The author of a specific list.
 *   **Magazine/Publication:** The entity where the list was published. Users can filter data by Magazine.
 
+### Importing Legacy Data
+
+To import data from the legacy MySQL database, use the `app:import-legacy` command.
+
+**Important:** Due to the large dataset size, you should run the import with the `--no-debug` flag to avoid memory exhaustion issues caused by Doctrine's debug data collection.
+
+```bash
+# Run import (resets existing data)
+./runapp app:import-legacy --reset --no-debug
+```
+
+This command will:
+1. Truncate existing tables (if `--reset` is used).
+2. Import Artists, Magazines, Critics, Albums, Reviews, and Lists.
+3. Create individual critic lists derived from aggregate lists.
+
 🎵 Album Covers
 ---------------
 
