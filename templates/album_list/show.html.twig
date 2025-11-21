@@ -58,9 +58,30 @@
     <table class="table table-striped mb-5">
         <thead>
             <tr>
-                <th>Score</th>
-                <th>Album</th>
-                <th>Artist</th>
+                <th>
+                    <a href="{{ path('app_list_show', {id: list.id, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'desc' ? 'asc' : 'desc')}) }}">
+                        Score
+                        {% if currentSort == 'position' %}
+                            {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ path('app_list_show', {id: list.id, sort: 'album', direction: (currentSort == 'album' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                        Album
+                        {% if currentSort == 'album' %}
+                            {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ path('app_list_show', {id: list.id, sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                        Artist
+                        {% if currentSort == 'artist' %}
+                            {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                        {% endif %}
+                    </a>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -82,13 +103,41 @@
             <tr>
                 {# Show mentions column first if list has mentions #}
                 {% if hasMentions %}
-                    <th>Mentions</th>
+                    <th>
+                        <a href="{{ path('app_list_show', {id: list.id, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'desc' ? 'asc' : 'desc')}) }}">
+                            Mentions
+                            {% if currentSort == 'position' %}
+                                {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                            {% endif %}
+                        </a>
+                    </th>
                 {% elseif list.type == 'ordered' %}
                     {# Show position column first for ordered lists without mentions #}
-                    <th>Pos</th>
+                    <th>
+                        <a href="{{ path('app_list_show', {id: list.id, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                            Pos
+                            {% if currentSort == 'position' %}
+                                {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                            {% endif %}
+                        </a>
+                    </th>
                 {% endif %}
-                <th>Album</th>
-                <th>Artist</th>
+                <th>
+                    <a href="{{ path('app_list_show', {id: list.id, sort: 'album', direction: (currentSort == 'album' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                        Album
+                        {% if currentSort == 'album' %}
+                            {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ path('app_list_show', {id: list.id, sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                        Artist
+                        {% if currentSort == 'artist' %}
+                            {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                        {% endif %}
+                    </a>
+                </th>
             </tr>
         </thead>
         <tbody>
