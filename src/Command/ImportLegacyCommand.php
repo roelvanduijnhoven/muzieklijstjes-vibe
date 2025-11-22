@@ -11,6 +11,7 @@ use App\Entity\Feature;
 use App\Entity\Genre;
 use App\Entity\Magazine;
 use App\Entity\Review;
+use App\Enum\AlbumFormat;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -310,6 +311,8 @@ class ImportLegacyCommand extends Command
         foreach ($rows as $row) {
             $magazine = new Magazine();
             $magazine->setName($row['tijdschrift']);
+            $magazine->setAbbreviation($row['afkorting'] ?: null);
+            $magazine->setHighestPossibleRating((int)$row['waardering']);
             $this->entityManager->persist($magazine);
             
             $batch[] = ['entity' => $magazine, 'id' => $row['id'], 'name' => $row['tijdschrift']];
@@ -371,14 +374,15 @@ class ImportLegacyCommand extends Command
             $critic->setSortName($row['sRecensent']);
             $critic->setAbbreviation($row['aRecensent']);
             
-            $bioParts = [];
-            if ($row['geboorteJaar']) $bioParts[] = 'Born: ' . $row['geboorteJaar'];
-            if ($row['sterfteJaar']) $bioParts[] = 'Died: ' . $row['sterfteJaar'];
-            if ($row['url']) $bioParts[] = 'URL: ' . $row['url'];
-            
-            if (!empty($bioParts)) {
-                $critic->setBio(implode("\n", $bioParts));
-            }
+            // Map new fields
+            $critic->setBirthYear($row['geboorteJaar'] ? (int)$row['geboorteJaar'] : null);
+            $critic->setDeathYear($row['sterfteJaar'] ? (int)$row['sterfteJaar'] : null);
+            $critic->setUrl($row['url'] ?: null);
+
+            // Bio no longer needs to contain these fields, but if there's other bio info in legacy (none seen in schema), we'd use it.
+            // Since there is no 'bio' column in legacy 'recensent' table (only name, sortName, abbr, dates, url), 
+            // and we are now mapping dates/url to dedicated fields, we can leave bio empty or NULL.
+            $critic->setBio(null);
 
             $this->entityManager->persist($critic);
             $batch[] = ['entity' => $critic, 'id' => $row['id'], 'name' => $row['recensent']];
@@ -471,6 +475,16 @@ class ImportLegacyCommand extends Command
             $album = new Album();
             $album->setTitle($row['album']);
             $album->setReleaseYear((int)$row['jaar']);
+            $album->setCatalogueNumber($row['titelnummer'] ?: null);
+            $album->setExternalUrl($row['url'] ?: null);
+            $album->setOwnedByHans((bool)$row['hd']);
+            
+            if ($row['materiaal']) {
+                $album->setFormat(AlbumFormat::fromLegacyCode($row['materiaal']));
+            } else {
+                // Default to CD if material is not set
+                $album->setFormat(AlbumFormat::CD);
+            }
             
             // Use Reference
             $artistRef = $this->entityManager->getReference(Artist::class, $this->artistMap[$row['artiest_id']]);
@@ -565,6 +579,8 @@ class ImportLegacyCommand extends Command
             $list->setCode($row['lijst']);
             $list->setReleaseYear((int)$row['jaar']);
             $list->setDescription(null);
+            $list->setExternalUrl($row['url'] ?: null);
+            $list->setVisible((bool)$row['zichtbaar']);
             
             // Import canon field as important
             $list->setImportant((bool)$row['canon']);

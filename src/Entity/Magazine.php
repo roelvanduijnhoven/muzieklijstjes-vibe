@@ -21,6 +21,12 @@ class Magazine
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $website = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $abbreviation = null;
+
+    #[ORM\Column(type: 'smallint', nullable: true)]
+    private ?int $highestPossibleRating = null;
+
     #[ORM\OneToMany(targetEntity: AlbumList::class, mappedBy: 'magazine')]
     private Collection $albumLists;
 
@@ -63,6 +69,30 @@ class Magazine
     public function setWebsite(?string $website): static
     {
         $this->website = $website;
+
+        return $this;
+    }
+
+    public function getAbbreviation(): ?string
+    {
+        return $this->abbreviation;
+    }
+
+    public function setAbbreviation(?string $abbreviation): static
+    {
+        $this->abbreviation = $abbreviation;
+
+        return $this;
+    }
+
+    public function getHighestPossibleRating(): ?int
+    {
+        return $this->highestPossibleRating;
+    }
+
+    public function setHighestPossibleRating(?int $highestPossibleRating): static
+    {
+        $this->highestPossibleRating = $highestPossibleRating;
 
         return $this;
     }

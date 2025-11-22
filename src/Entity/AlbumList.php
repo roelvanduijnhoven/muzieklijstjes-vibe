@@ -38,6 +38,12 @@ class AlbumList
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $important = false;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $externalUrl = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $visible = true;
+
     #[ORM\ManyToOne(inversedBy: 'albumLists')]
     private ?Magazine $magazine = null;
 
@@ -264,6 +270,30 @@ class AlbumList
     public function setImportant(bool $important): static
     {
         $this->important = $important;
+
+        return $this;
+    }
+
+    public function getExternalUrl(): ?string
+    {
+        return $this->externalUrl;
+    }
+
+    public function setExternalUrl(?string $externalUrl): static
+    {
+        $this->externalUrl = $externalUrl;
+
+        return $this;
+    }
+
+    public function isVisible(): bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(bool $visible): static
+    {
+        $this->visible = $visible;
 
         return $this;
     }

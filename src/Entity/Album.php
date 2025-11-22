@@ -31,6 +31,18 @@ class Album
     #[ORM\Column(options: ['default' => false])]
     private bool $imageFetchFailed = false;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $catalogueNumber = null;
+
+    #[ORM\Column(type: 'string', enumType: \App\Enum\AlbumFormat::class, nullable: true)]
+    private ?\App\Enum\AlbumFormat $format = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $externalUrl = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $ownedByHans = false;
+
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'album', orphanRemoval: true)]
     private Collection $reviews;
 
@@ -106,6 +118,54 @@ class Album
     public function setImageFetchFailed(bool $imageFetchFailed): static
     {
         $this->imageFetchFailed = $imageFetchFailed;
+
+        return $this;
+    }
+
+    public function getCatalogueNumber(): ?string
+    {
+        return $this->catalogueNumber;
+    }
+
+    public function setCatalogueNumber(?string $catalogueNumber): static
+    {
+        $this->catalogueNumber = $catalogueNumber;
+
+        return $this;
+    }
+
+    public function getFormat(): ?\App\Enum\AlbumFormat
+    {
+        return $this->format;
+    }
+
+    public function setFormat(?\App\Enum\AlbumFormat $format): static
+    {
+        $this->format = $format;
+
+        return $this;
+    }
+
+    public function getExternalUrl(): ?string
+    {
+        return $this->externalUrl;
+    }
+
+    public function setExternalUrl(?string $externalUrl): static
+    {
+        $this->externalUrl = $externalUrl;
+
+        return $this;
+    }
+
+    public function isOwnedByHans(): bool
+    {
+        return $this->ownedByHans;
+    }
+
+    public function setOwnedByHans(bool $ownedByHans): static
+    {
+        $this->ownedByHans = $ownedByHans;
 
         return $this;
     }

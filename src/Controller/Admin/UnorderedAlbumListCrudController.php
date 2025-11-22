@@ -17,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use Doctrine\ORM\QueryBuilder;
 
 class UnorderedAlbumListCrudController extends AbstractCrudController
@@ -51,6 +52,8 @@ class UnorderedAlbumListCrudController extends AbstractCrudController
         yield IntegerField::new('releaseYear');
         yield TextareaField::new('description')->hideOnIndex();
         yield BooleanField::new('important');
+        yield BooleanField::new('visible');
+        yield UrlField::new('externalUrl')->hideOnIndex();
         yield AssociationField::new('genre');
         yield AssociationField::new('magazine');
         yield AssociationField::new('critic');

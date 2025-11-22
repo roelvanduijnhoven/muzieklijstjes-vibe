@@ -27,6 +27,15 @@ class Critic
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $bio = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $birthYear = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $deathYear = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $url = null;
+
     #[ORM\OneToMany(targetEntity: AlbumList::class, mappedBy: 'critic')]
     private Collection $albumLists;
 
@@ -101,6 +110,42 @@ class Critic
     public function setBio(?string $bio): static
     {
         $this->bio = $bio;
+
+        return $this;
+    }
+
+    public function getBirthYear(): ?int
+    {
+        return $this->birthYear;
+    }
+
+    public function setBirthYear(?int $birthYear): static
+    {
+        $this->birthYear = $birthYear;
+
+        return $this;
+    }
+
+    public function getDeathYear(): ?int
+    {
+        return $this->deathYear;
+    }
+
+    public function setDeathYear(?int $deathYear): static
+    {
+        $this->deathYear = $deathYear;
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): static
+    {
+        $this->url = $url;
 
         return $this;
     }

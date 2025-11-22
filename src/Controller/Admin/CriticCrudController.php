@@ -7,8 +7,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Config;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 
 class CriticCrudController extends AbstractCrudController
 {
@@ -30,6 +32,9 @@ class CriticCrudController extends AbstractCrudController
             TextField::new('name'),
             TextField::new('sortName')->hideOnIndex(),
             TextField::new('abbreviation', 'Abbreviation (Code)')->hideOnIndex(),
+            IntegerField::new('birthYear')->hideOnIndex(),
+            IntegerField::new('deathYear')->hideOnIndex(),
+            UrlField::new('url')->hideOnIndex(),
             TextEditorField::new('bio')->hideOnIndex(),
             AssociationField::new('genres')->autocomplete(),
             AssociationField::new('features')->autocomplete(),

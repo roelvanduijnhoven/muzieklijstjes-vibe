@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Magazine;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 
@@ -20,7 +21,9 @@ class MagazineCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('name'),
+            TextField::new('abbreviation'),
             UrlField::new('website')->hideOnIndex(),
+            IntegerField::new('highestPossibleRating'),
         ];
     }
 }
