@@ -29,7 +29,7 @@ class CriticCrudController extends AbstractCrudController
     {
         return [
             IdField::new('id')->hideOnForm(),
-            TextField::new('name'),
+            TextField::new('name')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             TextField::new('sortName')->hideOnIndex(),
             TextField::new('abbreviation', 'Abbreviation (Code)')->hideOnIndex(),
             IntegerField::new('birthYear')->hideOnIndex(),

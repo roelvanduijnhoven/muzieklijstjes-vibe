@@ -47,7 +47,7 @@ class UnorderedAlbumListCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield TextField::new('title');
+        yield TextField::new('title')->setTemplatePath('admin/field/link_to_edit.html.twig');
         
         yield IntegerField::new('releaseYear');
         yield TextareaField::new('description')->hideOnIndex();

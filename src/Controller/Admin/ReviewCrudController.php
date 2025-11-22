@@ -19,7 +19,7 @@ class ReviewCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->hideOnForm();
+        yield IdField::new('id')->hideOnForm()->setTemplatePath('admin/field/link_to_edit.html.twig');
         yield AssociationField::new('album')->autocomplete();
         yield AssociationField::new('critic')->autocomplete();
         yield AssociationField::new('magazine')->autocomplete();

@@ -1,0 +1,11 @@
+{# templates/admin/field/link_to_edit.html.twig #}
+{% if field.formattedValue is not empty %}
+    <a href="{{ ea_url()
+        .setController(field.dto.customOptions.get('actionController') ?? ea.crud.controllerFqcn)
+        .setAction('edit')
+        .setEntityId(entity.primaryKeyValue) }}">
+        {{ field.formattedValue }}
+    </a>
+{% else %}
+    <span class="badge badge-secondary">Is Empty</span>
+{% endif %}
