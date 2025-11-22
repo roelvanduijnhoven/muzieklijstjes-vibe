@@ -124,3 +124,4 @@ This command:
 
 - The rubric of the original dataset does not contain a newsletter
 - Have the original dataset contain all rows from the stretch it
+- The list ofdescriptions Should map correctly to magazines Using their short name

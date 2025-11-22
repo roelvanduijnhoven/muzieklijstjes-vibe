@@ -316,10 +316,20 @@ class ImportLegacyCommand extends Command
             
             if ((++$i % 100) === 0) {
                  $this->entityManager->flush();
-                 foreach ($batch as $item) {
-                     $this->magazineMap[$item['id']] = $item['entity']->getId();
-                     $this->magazineMap[strtolower(trim($item['name']))] = $item['entity']->getId();
-                 }
+            foreach ($batch as $item) {
+                $this->magazineMap[$item['id']] = $item['entity']->getId();
+                $name = strtolower(trim($item['name']));
+                $this->magazineMap[$name] = $item['entity']->getId();
+
+                // Also map short name (before parenthesis) to handle cases like "Heaven (1999-nu)" matching "Heaven"
+                if (str_contains($name, '(')) {
+                    $parts = explode('(', $name);
+                    $shortName = trim($parts[0]);
+                    if ($shortName !== '' && !isset($this->magazineMap[$shortName])) {
+                        $this->magazineMap[$shortName] = $item['entity']->getId();
+                    }
+                }
+            }
                  $this->entityManager->clear();
                  $batch = [];
             }
@@ -329,8 +339,18 @@ class ImportLegacyCommand extends Command
         
         $this->entityManager->flush();
         foreach ($batch as $item) {
-             $this->magazineMap[$item['id']] = $item['entity']->getId();
-             $this->magazineMap[strtolower(trim($item['name']))] = $item['entity']->getId();
+            $this->magazineMap[$item['id']] = $item['entity']->getId();
+            $name = strtolower(trim($item['name']));
+            $this->magazineMap[$name] = $item['entity']->getId();
+
+            // Also map short name (before parenthesis)
+            if (str_contains($name, '(')) {
+                $parts = explode('(', $name);
+                $shortName = trim($parts[0]);
+                if ($shortName !== '' && !isset($this->magazineMap[$shortName])) {
+                    $this->magazineMap[$shortName] = $item['entity']->getId();
+                }
+            }
         }
         $this->entityManager->clear();
         
