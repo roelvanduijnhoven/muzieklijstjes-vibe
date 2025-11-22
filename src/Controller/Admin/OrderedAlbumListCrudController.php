@@ -51,6 +51,7 @@ class OrderedAlbumListCrudController extends AbstractCrudController
         yield IntegerField::new('releaseYear');
         yield TextareaField::new('description')->hideOnIndex();
         yield BooleanField::new('important');
+        yield AssociationField::new('genre');
         yield AssociationField::new('magazine');
         yield AssociationField::new('critic');
         
