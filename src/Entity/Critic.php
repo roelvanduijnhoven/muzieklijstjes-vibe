@@ -33,10 +33,14 @@ class Critic
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'critic')]
     private Collection $reviews;
 
+    #[ORM\ManyToMany(targetEntity: Genre::class, inversedBy: 'critics')]
+    private Collection $genres;
+
     public function __construct()
     {
         $this->albumLists = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->genres = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -153,6 +157,30 @@ class Critic
                 $review->setCritic(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Genre>
+     */
+    public function getGenres(): Collection
+    {
+        return $this->genres;
+    }
+
+    public function addGenre(Genre $genre): static
+    {
+        if (!$this->genres->contains($genre)) {
+            $this->genres->add($genre);
+        }
+
+        return $this;
+    }
+
+    public function removeGenre(Genre $genre): static
+    {
+        $this->genres->removeElement($genre);
 
         return $this;
     }

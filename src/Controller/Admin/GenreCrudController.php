@@ -2,25 +2,23 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Critic;
+use App\Entity\Genre;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Config;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class CriticCrudController extends AbstractCrudController
+class GenreCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return Critic::class;
+        return Genre::class;
     }
 
     public function configureConfig(Config $config): Config
     {
         return $config
-            ->setDefaultSort(['sortName' => 'ASC', 'abbreviation' => 'ASC']);
+            ->setDefaultSort(['name' => 'ASC']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -28,10 +26,6 @@ class CriticCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('name'),
-            TextField::new('sortName')->hideOnIndex(),
-            TextField::new('abbreviation', 'Abbreviation (Code)')->hideOnIndex(),
-            TextEditorField::new('bio')->hideOnIndex(),
-            AssociationField::new('genres')->autocomplete(),
         ];
     }
 }

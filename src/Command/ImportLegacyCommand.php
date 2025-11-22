@@ -7,6 +7,7 @@ use App\Entity\AlbumList;
 use App\Entity\AlbumListItem;
 use App\Entity\Artist;
 use App\Entity\Critic;
+use App\Entity\Genre;
 use App\Entity\Magazine;
 use App\Entity\Review;
 use Doctrine\DBAL\Connection;
@@ -30,6 +31,8 @@ class ImportLegacyCommand extends Command
     private array $criticMap = []; // key: id (int) -> ID (int)
     private array $albumMap = []; // key: id (int) -> ID (int)
     private array $listMap = []; // key: id (int) -> ID (int)
+    private array $genreMap = []; // key: id (int) -> ID (int) (for 'genre' table)
+    private array $soortMap = []; // key: id (int) -> ID (int) (for 'soort' table)
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -55,6 +58,9 @@ class ImportLegacyCommand extends Command
         // Disable logging for performance
         $this->entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
 
+        $io->section('Importing Genres');
+        $this->importGenres($io);
+
         $io->section('Importing Artists');
         $this->importArtists($io);
 
@@ -63,6 +69,9 @@ class ImportLegacyCommand extends Command
 
         $io->section('Importing Critics');
         $this->importCritics($io);
+
+        $io->section('Linking Critics to Genres');
+        $this->linkCriticsToGenres($io);
 
         $io->section('Importing Albums');
         $this->importAlbums($io);
@@ -90,8 +99,10 @@ class ImportLegacyCommand extends Command
             'review',
             'album',
             'artist',
+            'critic_genre',
             'critic',
-            'magazine'
+            'magazine',
+            'genre'
         ];
 
         foreach ($tables as $table) {
@@ -104,6 +115,65 @@ class ImportLegacyCommand extends Command
             }
         }
     }
+
+    private function importGenres(SymfonyStyle $io): void
+    {
+        // Import 'soort' table
+        $soortRows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM soort');
+        $io->text('Importing from table `soort`...');
+        
+        $existingGenres = []; // lower(name) => ID
+
+        foreach ($soortRows as $row) {
+            $name = trim($row['soort']);
+            if ($name === '') continue;
+            
+            $key = strtolower($name);
+
+            if (isset($existingGenres[$key])) {
+                $this->soortMap[$row['soort_id']] = $existingGenres[$key];
+                continue;
+            }
+
+            $genre = new Genre();
+            $genre->setName($name);
+            $this->entityManager->persist($genre);
+            $this->entityManager->flush();
+
+            $id = $genre->getId();
+            $this->soortMap[$row['soort_id']] = $id;
+            $existingGenres[$key] = $id;
+        }
+
+        // Import 'genre' table
+        $genreRows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM genre');
+        $io->text('Importing from table `genre`...');
+
+        foreach ($genreRows as $row) {
+            $name = trim($row['genre']);
+            if ($name === '') continue;
+            
+            $key = strtolower($name);
+
+            if (isset($existingGenres[$key])) {
+                $this->genreMap[$row['id']] = $existingGenres[$key];
+                continue;
+            }
+
+            $genre = new Genre();
+            $genre->setName($name);
+            $this->entityManager->persist($genre);
+            $this->entityManager->flush();
+
+            $id = $genre->getId();
+            $this->genreMap[$row['id']] = $id;
+            $existingGenres[$key] = $id;
+        }
+
+        $this->entityManager->clear();
+    }
+
+    // ... other imports ...
 
     private function importArtists(SymfonyStyle $io): void
     {
@@ -230,6 +300,57 @@ class ImportLegacyCommand extends Command
         $io->progressFinish();
     }
 
+    private function linkCriticsToGenres(SymfonyStyle $io): void
+    {
+        $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM genre2recensent');
+        $io->progressStart(count($rows));
+        
+        $i = 0;
+        $linkedCount = 0;
+
+        foreach ($rows as $row) {
+            $criticId = $row['recensent_id'];
+            $genreId = $row['genre_id'];
+            
+            // Try finding genre ID in genreMap first, then soortMap
+            $targetGenreId = null;
+            if (isset($this->genreMap[$genreId])) {
+                $targetGenreId = $this->genreMap[$genreId];
+            } elseif (isset($this->soortMap[$genreId])) {
+                $targetGenreId = $this->soortMap[$genreId];
+            }
+
+            if (isset($this->criticMap[$criticId]) && $targetGenreId !== null) {
+                $critic = $this->entityManager->find(Critic::class, $this->criticMap[$criticId]);
+                $genre = $this->entityManager->getReference(Genre::class, $targetGenreId);
+                
+                if ($critic) {
+                    $critic->addGenre($genre);
+                    $this->entityManager->persist($critic); // Usually not needed for managed entity modifications but ensures change tracking
+                    $linkedCount++;
+                }
+            }
+            
+            if ((++$i % 1000) === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+            $io->progressAdvance();
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+        $io->progressFinish();
+        
+        if ($linkedCount === 0) {
+            $io->warning('No genre links were created for critics. Check if genre2recensent IDs match genre/soort tables.');
+        } else {
+            $io->text(sprintf('Linked %d genres to critics.', $linkedCount));
+        }
+    }
+
+    // ... other methods ...
+    
     private function importAlbums(SymfonyStyle $io): void
     {
         $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM album');
@@ -362,6 +483,12 @@ class ImportLegacyCommand extends Command
                 $list->setCritic($criticRef);
             }
 
+            // Map Genre (soort_id)
+            if (isset($this->soortMap[$row['soort_id']])) {
+                $genreRef = $this->entityManager->getReference(Genre::class, $this->soortMap[$row['soort_id']]);
+                $list->setGenre($genreRef);
+            }
+
             $this->entityManager->persist($list);
             $batch[$row['id']] = $list;
 
@@ -463,6 +590,8 @@ class ImportLegacyCommand extends Command
                 $childList->setTitle($parentList->getTitle() . ' - ' . $critic->getName());
                 $childList->setType(AlbumList::TYPE_ORDERED);
                 $childList->setCritic($critic);
+                // Inherit genre from parent list
+                $childList->setGenre($parentList->getGenre());
                 
                 // Add as source to parent
                 $parentList->addSource($childList);

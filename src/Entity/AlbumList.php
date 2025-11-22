@@ -44,6 +44,9 @@ class AlbumList
     #[ORM\ManyToOne(inversedBy: 'albumLists')]
     private ?Critic $critic = null;
 
+    #[ORM\ManyToOne(inversedBy: 'albumLists')]
+    private ?Genre $genre = null;
+
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'aggregatedIn')]
     private Collection $sources;
 
@@ -156,6 +159,18 @@ class AlbumList
     public function setCritic(?Critic $critic): static
     {
         $this->critic = $critic;
+
+        return $this;
+    }
+
+    public function getGenre(): ?Genre
+    {
+        return $this->genre;
+    }
+
+    public function setGenre(?Genre $genre): static
+    {
+        $this->genre = $genre;
 
         return $this;
     }
