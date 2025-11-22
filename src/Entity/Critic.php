@@ -36,11 +36,15 @@ class Critic
     #[ORM\ManyToMany(targetEntity: Genre::class, inversedBy: 'critics')]
     private Collection $genres;
 
+    #[ORM\ManyToMany(targetEntity: Feature::class, inversedBy: 'critics')]
+    private Collection $features;
+
     public function __construct()
     {
         $this->albumLists = new ArrayCollection();
         $this->reviews = new ArrayCollection();
         $this->genres = new ArrayCollection();
+        $this->features = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -181,6 +185,30 @@ class Critic
     public function removeGenre(Genre $genre): static
     {
         $this->genres->removeElement($genre);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Feature>
+     */
+    public function getFeatures(): Collection
+    {
+        return $this->features;
+    }
+
+    public function addFeature(Feature $feature): static
+    {
+        if (!$this->features->contains($feature)) {
+            $this->features->add($feature);
+        }
+
+        return $this;
+    }
+
+    public function removeFeature(Feature $feature): static
+    {
+        $this->features->removeElement($feature);
 
         return $this;
     }

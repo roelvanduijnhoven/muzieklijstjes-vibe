@@ -123,4 +123,4 @@ This command:
 # TO DO
 
 - The rubric of the original dataset does not contain a newsletter
-- Have the original dataset contain all rows from the excel
+- Have the original dataset contain all rows from the stretch it

@@ -32,6 +32,7 @@ class CriticCrudController extends AbstractCrudController
             TextField::new('abbreviation', 'Abbreviation (Code)')->hideOnIndex(),
             TextEditorField::new('bio')->hideOnIndex(),
             AssociationField::new('genres')->autocomplete(),
+            AssociationField::new('features')->autocomplete(),
         ];
     }
 }

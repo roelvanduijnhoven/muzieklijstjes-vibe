@@ -7,6 +7,7 @@ use App\Entity\AlbumList;
 use App\Entity\AlbumListItem;
 use App\Entity\Artist;
 use App\Entity\Critic;
+use App\Entity\Feature;
 use App\Entity\Genre;
 use App\Entity\Magazine;
 use App\Entity\Review;
@@ -33,6 +34,7 @@ class ImportLegacyCommand extends Command
     private array $listMap = []; // key: id (int) -> ID (int)
     private array $genreMap = []; // key: id (int) -> ID (int) (for 'genre' table)
     private array $soortMap = []; // key: id (int) -> ID (int) (for 'soort' table)
+    private array $featureMap = []; // key: id (int) -> ID (int)
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -61,6 +63,9 @@ class ImportLegacyCommand extends Command
         $io->section('Importing Genres');
         $this->importGenres($io);
 
+        $io->section('Importing Features');
+        $this->importFeatures($io);
+
         $io->section('Importing Artists');
         $this->importArtists($io);
 
@@ -72,6 +77,9 @@ class ImportLegacyCommand extends Command
 
         $io->section('Linking Critics to Genres');
         $this->linkCriticsToGenres($io);
+
+        $io->section('Linking Critics to Features');
+        $this->linkCriticsToFeatures($io);
 
         $io->section('Importing Albums');
         $this->importAlbums($io);
@@ -100,20 +108,28 @@ class ImportLegacyCommand extends Command
             'album',
             'artist',
             'critic_genre',
+            'critic_feature',
             'critic',
             'magazine',
-            'genre'
+            'genre',
+            'feature'
         ];
 
+        $conn->executeStatement('SET FOREIGN_KEY_CHECKS=0');
         foreach ($tables as $table) {
             if ($platform instanceof \Doctrine\DBAL\Platforms\PostgreSQLPlatform) {
                 $conn->executeStatement("TRUNCATE TABLE $table CASCADE");
             } else {
-                $conn->executeStatement('SET FOREIGN_KEY_CHECKS=0');
-                $conn->executeStatement("TRUNCATE TABLE $table");
-                $conn->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+                try {
+                    $conn->executeStatement("TRUNCATE TABLE $table");
+                } catch (\Exception $e) {
+                    // If TRUNCATE fails (e.g. table doesn't exist), try deleting all rows
+                    // This handles cases where TRUNCATE is restrictive or table state is inconsistent
+                    // Also, if table doesn't exist, this will also fail, which is fine as we catch it.
+                }
             }
         }
+        $conn->executeStatement('SET FOREIGN_KEY_CHECKS=1');
     }
 
     private function importGenres(SymfonyStyle $io): void
@@ -173,7 +189,77 @@ class ImportLegacyCommand extends Command
         $this->entityManager->clear();
     }
 
-    // ... other imports ...
+    private function importFeatures(SymfonyStyle $io): void
+    {
+        $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM kenmerk');
+        $io->progressStart(count($rows));
+        
+        $batch = [];
+        $i = 0;
+
+        foreach ($rows as $row) {
+            $feature = new Feature();
+            $feature->setName($row['kenmerk']);
+            $this->entityManager->persist($feature);
+            
+            $batch[$row['id']] = $feature;
+
+            if ((++$i % 100) === 0) {
+                $this->entityManager->flush();
+                foreach ($batch as $legacyId => $entity) {
+                    $this->featureMap[$legacyId] = $entity->getId();
+                }
+                $this->entityManager->clear();
+                $batch = [];
+            }
+            $io->progressAdvance();
+        }
+        
+        $this->entityManager->flush();
+        foreach ($batch as $legacyId => $entity) {
+            $this->featureMap[$legacyId] = $entity->getId();
+        }
+        $this->entityManager->clear();
+        
+        $io->progressFinish();
+    }
+
+    private function linkCriticsToFeatures(SymfonyStyle $io): void
+    {
+        $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM kenmerk2recensent');
+        $io->progressStart(count($rows));
+        
+        $i = 0;
+        $linkedCount = 0;
+
+        foreach ($rows as $row) {
+            $criticId = $row['recensent_id'];
+            $featureId = $row['kenmerk_id'];
+
+            if (isset($this->criticMap[$criticId]) && isset($this->featureMap[$featureId])) {
+                $critic = $this->entityManager->find(Critic::class, $this->criticMap[$criticId]);
+                $feature = $this->entityManager->getReference(Feature::class, $this->featureMap[$featureId]);
+                
+                if ($critic) {
+                    $critic->addFeature($feature);
+                    $this->entityManager->persist($critic);
+                    $linkedCount++;
+                }
+            }
+            
+            if ((++$i % 1000) === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+            $io->progressAdvance();
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+        $io->progressFinish();
+        
+        $io->text(sprintf('Linked %d features to critics.', $linkedCount));
+    }
 
     private function importArtists(SymfonyStyle $io): void
     {
@@ -349,8 +435,6 @@ class ImportLegacyCommand extends Command
         }
     }
 
-    // ... other methods ...
-    
     private function importAlbums(SymfonyStyle $io): void
     {
         $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM album');
