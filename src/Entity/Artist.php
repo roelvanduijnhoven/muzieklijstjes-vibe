@@ -21,6 +21,9 @@ class Artist
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $sortName = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $wikipediaUrl = null;
+
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'artist')]
     private Collection $albums;
 
@@ -59,6 +62,18 @@ class Artist
     public function setSortName(?string $sortName): static
     {
         $this->sortName = $sortName;
+
+        return $this;
+    }
+
+    public function getWikipediaUrl(): ?string
+    {
+        return $this->wikipediaUrl;
+    }
+
+    public function setWikipediaUrl(?string $wikipediaUrl): static
+    {
+        $this->wikipediaUrl = $wikipediaUrl;
 
         return $this;
     }

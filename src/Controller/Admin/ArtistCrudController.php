@@ -28,6 +28,7 @@ class ArtistCrudController extends AbstractCrudController
             IdField::new('id')->hideOnForm(),
             TextField::new('name')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             TextField::new('sortName')->hideOnIndex(),
+            \EasyCorp\Bundle\EasyAdminBundle\Field\UrlField::new('wikipediaUrl')->hideOnIndex(),
             IntegerField::new('albums.count', 'Album Count')->hideOnForm(),
         ];
     }

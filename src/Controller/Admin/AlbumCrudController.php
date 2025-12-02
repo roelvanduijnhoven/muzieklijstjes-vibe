@@ -45,6 +45,7 @@ class AlbumCrudController extends AbstractCrudController
                 'Unknown' => AlbumFormat::UNKNOWN,
             ])->hideOnIndex(),
             UrlField::new('externalUrl')->hideOnIndex(),
+            UrlField::new('wikipediaUrl')->hideOnIndex(),
             BooleanField::new('ownedByHans'),
             ImageField::new('imageUrl', 'Cover')
                 ->setBasePath($this->getParameter('app.album_cover_base_url'))

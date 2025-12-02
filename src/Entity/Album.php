@@ -40,6 +40,9 @@ class Album
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $externalUrl = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $wikipediaUrl = null;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $ownedByHans = false;
 
@@ -154,6 +157,18 @@ class Album
     public function setExternalUrl(?string $externalUrl): static
     {
         $this->externalUrl = $externalUrl;
+
+        return $this;
+    }
+
+    public function getWikipediaUrl(): ?string
+    {
+        return $this->wikipediaUrl;
+    }
+
+    public function setWikipediaUrl(?string $wikipediaUrl): static
+    {
+        $this->wikipediaUrl = $wikipediaUrl;
 
         return $this;
     }
