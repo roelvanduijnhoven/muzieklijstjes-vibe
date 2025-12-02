@@ -52,7 +52,9 @@ class AggregateAlbumListCrudController extends AbstractCrudController
         yield IntegerField::new('releaseYear');
         yield IntegerField::new('periodStart')->hideOnIndex();
         yield IntegerField::new('periodEnd')->hideOnIndex();
-        yield IntegerField::new('numberOfEntries', 'Number of entries')->hideOnIndex();
+        yield IntegerField::new('numberOfEntries', 'Number of entries')
+            ->hideOnIndex()
+            ->setHelp('How many album entries should each sublist contain?');
         yield TextareaField::new('description')->hideOnIndex();
         yield BooleanField::new('important');
         yield BooleanField::new('visible');
