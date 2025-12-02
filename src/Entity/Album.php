@@ -31,17 +31,11 @@ class Album
     #[ORM\Column(options: ['default' => false])]
     private bool $imageFetchFailed = false;
 
-    #[ORM\Column(length: 20, nullable: true)]
-    private ?string $catalogueNumber = null;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $label = null;
 
     #[ORM\Column(type: 'string', enumType: \App\Enum\AlbumFormat::class, nullable: true)]
     private ?\App\Enum\AlbumFormat $format = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $externalUrl = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $wikipediaUrl = null;
@@ -128,18 +122,6 @@ class Album
         return $this;
     }
 
-    public function getCatalogueNumber(): ?string
-    {
-        return $this->catalogueNumber;
-    }
-
-    public function setCatalogueNumber(?string $catalogueNumber): static
-    {
-        $this->catalogueNumber = $catalogueNumber;
-
-        return $this;
-    }
-
     public function getLabel(): ?string
     {
         return $this->label;
@@ -160,18 +142,6 @@ class Album
     public function setFormat(?\App\Enum\AlbumFormat $format): static
     {
         $this->format = $format;
-
-        return $this;
-    }
-
-    public function getExternalUrl(): ?string
-    {
-        return $this->externalUrl;
-    }
-
-    public function setExternalUrl(?string $externalUrl): static
-    {
-        $this->externalUrl = $externalUrl;
 
         return $this;
     }

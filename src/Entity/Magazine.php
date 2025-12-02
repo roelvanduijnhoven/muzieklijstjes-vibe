@@ -18,9 +18,6 @@ class Magazine
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $website = null;
-
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $abbreviation = null;
 
@@ -57,18 +54,6 @@ class Magazine
     public function setName(string $name): static
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getWebsite(): ?string
-    {
-        return $this->website;
-    }
-
-    public function setWebsite(?string $website): static
-    {
-        $this->website = $website;
 
         return $this;
     }

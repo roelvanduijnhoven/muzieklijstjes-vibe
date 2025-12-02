@@ -69,7 +69,14 @@ A meta-list constructed computationally from other lists.
 
 ### Importing Legacy Data
 
-To import data from the legacy MySQL database, use the `app:import-legacy` command.
+To import the legacy SQL dump into the database:
+
+```bash
+docker compose exec -T mysql mysql -u jouwweb -pjouwweb dev < resources/import/final.sql
+```
+
+To import data from the legacy MySQL database into the application entities, use the `app:import-legacy` command.
+
 
 **Important:** Due to the large dataset size, you should run the import with the `--no-debug` flag to avoid memory exhaustion issues caused by Doctrine's debug data collection.
 

@@ -475,9 +475,12 @@ class ImportLegacyCommand extends Command
             $album = new Album();
             $album->setTitle($row['album']);
             $album->setReleaseYear((int)$row['jaar']);
-            $album->setCatalogueNumber($row['titelnummer'] ?: null);
-            $album->setExternalUrl($row['url'] ?: null);
-            $album->setOwnedByHans((bool)$row['hd']);
+            // Removed catalogueNumber
+            // Removed externalUrl
+            // Check if 'HD' exists if 'hd' is empty/false, just in case of case sensitivity or user hint
+            $hd = $row['hd'] ?? $row['HD'] ?? 0;
+            $album->setOwnedByHans((bool)$hd);
+            $album->setLabel($row['label'] ?: null);
             
             if ($row['materiaal']) {
                 $album->setFormat(AlbumFormat::fromLegacyCode($row['materiaal']));

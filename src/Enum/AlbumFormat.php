@@ -25,11 +25,10 @@ enum AlbumFormat: string
     {
         $code = strtoupper(trim($code));
         return match($code) {
-            'CD' => self::CD,
-            'DVD' => self::DVD,
-            'VID' => self::VIDEO, // Assuming 'VID' or similar for video if char(3)
+            'D' => self::DVD,
+            'V' => self::VIDEO,
             'LP' => self::LP,
-            default => null, 
+            default => self::CD, 
         };
     }
 }

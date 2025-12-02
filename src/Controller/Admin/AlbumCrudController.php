@@ -37,7 +37,6 @@ class AlbumCrudController extends AbstractCrudController
             TextField::new('title')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             IntegerField::new('releaseYear'),
             TextField::new('label')->hideOnIndex(),
-            TextField::new('catalogueNumber')->hideOnIndex(),
             ChoiceField::new('format')->setChoices([
                 'CD' => AlbumFormat::CD,
                 'DVD' => AlbumFormat::DVD,
@@ -45,7 +44,6 @@ class AlbumCrudController extends AbstractCrudController
                 'LP' => AlbumFormat::LP,
                 'Unknown' => AlbumFormat::UNKNOWN,
             ])->hideOnIndex(),
-            UrlField::new('externalUrl')->hideOnIndex(),
             UrlField::new('wikipediaUrl')->hideOnIndex(),
             BooleanField::new('ownedByHans'),
             ImageField::new('imageUrl', 'Cover')

@@ -28,9 +28,6 @@ class Review
     #[ORM\Column(nullable: true)]
     private ?int $year = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $month = null;
-
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $issueNumber = null;
 
@@ -89,18 +86,6 @@ class Review
     public function setYear(?int $year): static
     {
         $this->year = $year;
-
-        return $this;
-    }
-
-    public function getMonth(): ?int
-    {
-        return $this->month;
-    }
-
-    public function setMonth(?int $month): static
-    {
-        $this->month = $month;
 
         return $this;
     }

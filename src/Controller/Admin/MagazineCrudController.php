@@ -22,7 +22,6 @@ class MagazineCrudController extends AbstractCrudController
             IdField::new('id')->hideOnForm(),
             TextField::new('name')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             TextField::new('abbreviation'),
-            UrlField::new('website')->hideOnIndex(),
             IntegerField::new('highestPossibleRating'),
         ];
     }
