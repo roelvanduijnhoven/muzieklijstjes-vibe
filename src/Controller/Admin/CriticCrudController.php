@@ -35,6 +35,7 @@ class CriticCrudController extends AbstractCrudController
             IntegerField::new('birthYear')->hideOnIndex(),
             IntegerField::new('deathYear')->hideOnIndex(),
             UrlField::new('url')->hideOnIndex(),
+            UrlField::new('wikipediaUrl')->hideOnIndex(),
             TextEditorField::new('bio')->hideOnIndex(),
             AssociationField::new('genres')->autocomplete(),
             AssociationField::new('features')->autocomplete(),

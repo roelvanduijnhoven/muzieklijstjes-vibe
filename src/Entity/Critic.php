@@ -36,6 +36,9 @@ class Critic
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $url = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $wikipediaUrl = null;
+
     #[ORM\OneToMany(targetEntity: AlbumList::class, mappedBy: 'critic')]
     private Collection $albumLists;
 
@@ -146,6 +149,18 @@ class Critic
     public function setUrl(?string $url): static
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    public function getWikipediaUrl(): ?string
+    {
+        return $this->wikipediaUrl;
+    }
+
+    public function setWikipediaUrl(?string $wikipediaUrl): static
+    {
+        $this->wikipediaUrl = $wikipediaUrl;
 
         return $this;
     }
