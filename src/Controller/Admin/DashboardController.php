@@ -44,6 +44,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Genres', 'fas fa-tags', \App\Entity\Genre::class);
         yield MenuItem::linkToCrud('Features', 'fas fa-tag', \App\Entity\Feature::class);
         yield MenuItem::linkToCrud('Magazines', 'fas fa-newspaper', \App\Entity\Magazine::class);
+        yield MenuItem::linkToCrud('Rubrics', 'fas fa-columns', \App\Entity\Rubric::class);
         yield MenuItem::linkToCrud('Reviews', 'fas fa-star', \App\Entity\Review::class);
     }
 }

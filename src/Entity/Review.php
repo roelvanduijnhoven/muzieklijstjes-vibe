@@ -35,7 +35,10 @@ class Review
     private ?float $rating = null;
 
     #[ORM\Column(length: 3, nullable: true)]
-    private ?string $rubric = null;
+    private ?string $legacyRubric = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reviews')]
+    private ?Rubric $rubric = null;
 
     public function getId(): ?int
     {
@@ -114,12 +117,24 @@ class Review
         return $this;
     }
 
-    public function getRubric(): ?string
+    public function getLegacyRubric(): ?string
+    {
+        return $this->legacyRubric;
+    }
+
+    public function setLegacyRubric(?string $legacyRubric): static
+    {
+        $this->legacyRubric = $legacyRubric;
+
+        return $this;
+    }
+
+    public function getRubric(): ?Rubric
     {
         return $this->rubric;
     }
 
-    public function setRubric(?string $rubric): static
+    public function setRubric(?Rubric $rubric): static
     {
         $this->rubric = $rubric;
 

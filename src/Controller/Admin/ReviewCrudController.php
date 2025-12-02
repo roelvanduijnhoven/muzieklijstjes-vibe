@@ -25,9 +25,8 @@ class ReviewCrudController extends AbstractCrudController
         yield AssociationField::new('magazine')->autocomplete();
         yield NumberField::new('rating');
         yield IntegerField::new('year');
-        yield IntegerField::new('month');
         yield TextField::new('issueNumber');
-        yield TextField::new('rubric');
+        yield AssociationField::new('rubric')->autocomplete();
     }
 }
 

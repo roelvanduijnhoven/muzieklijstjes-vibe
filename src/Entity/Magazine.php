@@ -30,10 +30,14 @@ class Magazine
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'magazine')]
     private Collection $reviews;
 
+    #[ORM\OneToMany(targetEntity: Rubric::class, mappedBy: 'magazine', orphanRemoval: true)]
+    private Collection $rubrics;
+
     public function __construct()
     {
         $this->albumLists = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->rubrics = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -136,6 +140,36 @@ class Magazine
             // set the owning side to null (unless already changed)
             if ($review->getMagazine() === $this) {
                 $review->setMagazine(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rubric>
+     */
+    public function getRubrics(): Collection
+    {
+        return $this->rubrics;
+    }
+
+    public function addRubric(Rubric $rubric): static
+    {
+        if (!$this->rubrics->contains($rubric)) {
+            $this->rubrics->add($rubric);
+            $rubric->setMagazine($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRubric(Rubric $rubric): static
+    {
+        if ($this->rubrics->removeElement($rubric)) {
+            // set the owning side to null (unless already changed)
+            if ($rubric->getMagazine() === $this) {
+                $rubric->setMagazine(null);
             }
         }
 

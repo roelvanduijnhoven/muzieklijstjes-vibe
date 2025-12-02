@@ -11,6 +11,7 @@ use App\Entity\Feature;
 use App\Entity\Genre;
 use App\Entity\Magazine;
 use App\Entity\Review;
+use App\Entity\Rubric;
 use App\Enum\AlbumFormat;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,6 +37,7 @@ class ImportLegacyCommand extends Command
     private array $genreMap = []; // key: id (int) -> ID (int) (for 'genre' table)
     private array $soortMap = []; // key: id (int) -> ID (int) (for 'soort' table)
     private array $featureMap = []; // key: id (int) -> ID (int)
+    private array $rubricMap = []; // key: legacy_id (int|string) -> ID (int)
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -72,6 +74,9 @@ class ImportLegacyCommand extends Command
 
         $io->section('Importing Magazines');
         $this->importMagazines($io);
+
+        $io->section('Importing Rubrics');
+        $this->importRubrics($io);
 
         $io->section('Importing Critics');
         $this->importCritics($io);
@@ -111,6 +116,7 @@ class ImportLegacyCommand extends Command
             'critic_genre',
             'critic_feature',
             'critic',
+            'rubric',
             'magazine',
             'genre',
             'feature'
@@ -360,6 +366,59 @@ class ImportLegacyCommand extends Command
         $io->progressFinish();
     }
 
+    private function importRubrics(SymfonyStyle $io): void
+    {
+        // Import from 'rubriek' table
+        $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM rubriek');
+        $io->text('Importing from table `rubriek`...');
+        
+        $io->progressStart(count($rows));
+        
+        $batch = [];
+        $i = 0;
+
+        foreach ($rows as $row) {
+            $magazineId = $row['tijdschrift_id'];
+            $abbr = $row['aRubriek']; // Abbreviation
+            $name = $row['rubriek'];  // Full Name
+            $legacyId = $row['id'];
+
+            if (!isset($this->magazineMap[$magazineId])) {
+                continue;
+            }
+
+            $rubric = new Rubric();
+            $rubric->setAbbreviation($abbr);
+            $rubric->setName($name);
+            
+            $magRef = $this->entityManager->getReference(Magazine::class, $this->magazineMap[$magazineId]);
+            $rubric->setMagazine($magRef);
+
+            $this->entityManager->persist($rubric);
+            
+            // Mapping key: Legacy ID
+            $batch[$legacyId] = $rubric;
+
+            if ((++$i % 100) === 0) {
+                $this->entityManager->flush();
+                foreach ($batch as $lid => $entity) {
+                    $this->rubricMap[$lid] = $entity->getId();
+                }
+                $this->entityManager->clear();
+                $batch = [];
+            }
+            $io->progressAdvance();
+        }
+        
+        $this->entityManager->flush();
+        foreach ($batch as $lid => $entity) {
+            $this->rubricMap[$lid] = $entity->getId();
+        }
+        $this->entityManager->clear();
+        
+        $io->progressFinish();
+    }
+
     private function importCritics(SymfonyStyle $io): void
     {
         $rows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM recensent');
@@ -545,10 +604,19 @@ class ImportLegacyCommand extends Command
 
             // Fields
             $review->setYear($row['jaar'] ? (int)$row['jaar'] : null);
-            $review->setMonth($row['maand'] ? (int)$row['maand'] : null);
+            // Removed month
             $review->setIssueNumber($row['nummer'] !== '0' ? $row['nummer'] : null);
             $review->setRating($row['waardering'] !== null ? (float)$row['waardering'] : null);
-            $review->setRubric($row['rubriek'] ?: null);
+            
+            if ($row['rubriek']) {
+                $legacyRubricId = $row['rubriek'];
+                $review->setLegacyRubric($legacyRubricId);
+                
+                if (isset($this->rubricMap[$legacyRubricId])) {
+                    $rubricRef = $this->entityManager->getReference(Rubric::class, $this->rubricMap[$legacyRubricId]);
+                    $review->setRubric($rubricRef);
+                }
+            }
 
             $this->entityManager->persist($review);
 
