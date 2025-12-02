@@ -34,6 +34,9 @@ class Album
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $catalogueNumber = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $label = null;
+
     #[ORM\Column(type: 'string', enumType: \App\Enum\AlbumFormat::class, nullable: true)]
     private ?\App\Enum\AlbumFormat $format = null;
 
@@ -133,6 +136,18 @@ class Album
     public function setCatalogueNumber(?string $catalogueNumber): static
     {
         $this->catalogueNumber = $catalogueNumber;
+
+        return $this;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(?string $label): static
+    {
+        $this->label = $label;
 
         return $this;
     }

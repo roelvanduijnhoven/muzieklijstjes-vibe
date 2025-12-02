@@ -36,6 +36,7 @@ class AlbumCrudController extends AbstractCrudController
             AssociationField::new('artist'),
             TextField::new('title')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             IntegerField::new('releaseYear'),
+            TextField::new('label')->hideOnIndex(),
             TextField::new('catalogueNumber')->hideOnIndex(),
             ChoiceField::new('format')->setChoices([
                 'CD' => AlbumFormat::CD,
