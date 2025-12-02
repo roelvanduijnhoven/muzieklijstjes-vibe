@@ -44,6 +44,15 @@ class AlbumList
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $visible = true;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $periodStart = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $periodEnd = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $numberOfEntries = null;
+
     #[ORM\ManyToOne(inversedBy: 'albumLists')]
     private ?Magazine $magazine = null;
 
@@ -294,6 +303,42 @@ class AlbumList
     public function setVisible(bool $visible): static
     {
         $this->visible = $visible;
+
+        return $this;
+    }
+
+    public function getPeriodStart(): ?int
+    {
+        return $this->periodStart;
+    }
+
+    public function setPeriodStart(?int $periodStart): static
+    {
+        $this->periodStart = $periodStart;
+
+        return $this;
+    }
+
+    public function getPeriodEnd(): ?int
+    {
+        return $this->periodEnd;
+    }
+
+    public function setPeriodEnd(?int $periodEnd): static
+    {
+        $this->periodEnd = $periodEnd;
+
+        return $this;
+    }
+
+    public function getNumberOfEntries(): ?int
+    {
+        return $this->numberOfEntries;
+    }
+
+    public function setNumberOfEntries(?int $numberOfEntries): static
+    {
+        $this->numberOfEntries = $numberOfEntries;
 
         return $this;
     }

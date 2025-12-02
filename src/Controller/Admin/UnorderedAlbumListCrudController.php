@@ -50,6 +50,8 @@ class UnorderedAlbumListCrudController extends AbstractCrudController
         yield TextField::new('title')->setTemplatePath('admin/field/link_to_edit.html.twig');
         
         yield IntegerField::new('releaseYear');
+        yield IntegerField::new('periodStart')->hideOnIndex();
+        yield IntegerField::new('periodEnd')->hideOnIndex();
         yield TextareaField::new('description')->hideOnIndex();
         yield BooleanField::new('important');
         yield BooleanField::new('visible');
