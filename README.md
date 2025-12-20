@@ -69,13 +69,31 @@ A meta-list constructed computationally from other lists.
 
 ### Importing Legacy Data
 
-To import the legacy SQL dump into the database:
+To import the legacy SQL dump into the database, you first need to create a separate `legacy` database and import the data there.
 
-```bash
-docker compose exec -T mysql mysql -u jouwweb -pjouwweb dev < resources/import/final.sql
-```
+1.  **Create the legacy database:**
 
-To import data from the legacy MySQL database into the application entities, use the `app:import-legacy` command.
+    ```bash
+    docker compose exec -T mysql mysql -u root -pjouwweb -e "CREATE DATABASE IF NOT EXISTS legacy; GRANT ALL PRIVILEGES ON legacy.* TO 'jouwweb'@'%'; FLUSH PRIVILEGES;"
+    ```
+
+2.  **Import the SQL dump:**
+
+    ```bash
+    docker compose exec -T mysql mysql -u jouwweb -pjouwweb legacy < resources/import/final.sql
+    ```
+
+3.  **Ensure Application Schema Exists:**
+
+    Before importing data into the application, make sure the application database schema is created:
+
+    ```bash
+    ./runapp doctrine:schema:update --force
+    ```
+
+4.  **Run the Import Command:**
+
+    To import data from the legacy MySQL database into the application entities, use the `app:import-legacy` command.
 
 
 **Important:** Due to the large dataset size, you should run the import with the `--no-debug` flag to avoid memory exhaustion issues caused by Doctrine's debug data collection.
