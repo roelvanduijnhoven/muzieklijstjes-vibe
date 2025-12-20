@@ -13,8 +13,6 @@ class HealthController extends AbstractController
     #[Route('/up', name: 'app_health')]
     public function index(): Response
     {
-        // TODO#Roel Query an actual image from Qdrant.
-
         return new Response('OK');
     }
 }

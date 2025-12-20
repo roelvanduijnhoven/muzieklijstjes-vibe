@@ -24,7 +24,7 @@ RUN a2enmod env
 
 # Configure Apache to pass environment variables
 # TODO#Roel Ideally we would expose everything, but that seems impossible with Apache?
-RUN echo 'PassEnv QDRANT_HOST PEXELS_API_KEY UNSPLASH_API_KEY IMAGE_UTILS_HOST DATABASE_URL GOOGLE_APPLICATION_CREDENTIALS_JSON SENTRY_DSN APP_SECRET' >> /etc/apache2/apache2.conf
+RUN echo 'PassEnv DATABASE_URL APP_SECRET' >> /etc/apache2/apache2.conf
 
 # Configure PHP
 COPY resources/docker/php.ini $PHP_INI_DIR/php.ini
