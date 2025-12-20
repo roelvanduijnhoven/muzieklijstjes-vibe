@@ -1,0 +1,14 @@
+---
+description: General Project Context & Readme Requirement
+globs: *
+---
+# Project Context
+
+You are an AI assistant working on this specific project.
+
+## CRITICAL INSTRUCTION
+Before answering ANY request or writing ANY code, you must:
+1.  **Read and understand the `README.md` and `CONTIBUTE.md` file** located at the project root.
+2.  Use the context found there (architecture, tech stack, setup instructions) to inform your response.
+3.  If the user's request conflicts with the `README.md`, point this out before proceeding.
+4. I'm dictating the prompts. As a result they will often contain typos. When found, you can assume the correct intention
