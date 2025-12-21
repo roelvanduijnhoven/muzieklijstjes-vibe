@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: register-vibe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: register-vibe
+  template:
+    metadata:
+      labels:
+        app: register-vibe
+    spec:
+      containers:
+        - name: register-vibe
+          image: registry.digitalocean.com/roelvd-registry/register-vibe:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: APP_ENV
+              value: "prod"
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: APP_SECRET
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DATABASE_URL
+            - name: DO_SPACES_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DO_SPACES_REGION
+            - name: DO_SPACES_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DO_SPACES_ENDPOINT
+            - name: DO_SPACES_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DO_SPACES_KEY
+            - name: DO_SPACES_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DO_SPACES_SECRET
+            - name: DO_SPACES_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DO_SPACES_BUCKET
+            - name: ALBUM_COVER_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: ALBUM_COVER_BASE_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: register-vibe-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: register-vibe

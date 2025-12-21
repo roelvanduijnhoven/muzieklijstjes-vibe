@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-schema
+spec:
+  template:
+    spec:
+      containers:
+        - name: schema-init
+          image: registry.digitalocean.com/roelvd-registry/register-vibe:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              echo "Creating database schema..."
+              php bin/console doctrine:schema:update --force --complete
+              
+              echo "Marking migrations as executed..."
+              php bin/console doctrine:migrations:version --add --all --no-interaction
+          env:
+            - name: APP_ENV
+              value: "prod"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DATABASE_URL
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: APP_SECRET
+      restartPolicy: Never
+  backoffLimit: 1

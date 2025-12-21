@@ -24,7 +24,7 @@ RUN a2enmod env
 
 # Configure Apache to pass environment variables
 # TODO#Roel Ideally we would expose everything, but that seems impossible with Apache?
-RUN echo 'PassEnv DATABASE_URL APP_SECRET' >> /etc/apache2/apache2.conf
+RUN echo 'PassEnv DATABASE_URL APP_SECRET DO_SPACES_REGION DO_SPACES_ENDPOINT DO_SPACES_KEY DO_SPACES_SECRET DO_SPACES_BUCKET ALBUM_COVER_BASE_URL' >> /etc/apache2/apache2.conf
 
 # Configure PHP
 COPY resources/docker/php.ini $PHP_INI_DIR/php.ini
@@ -40,7 +40,6 @@ COPY composer.json composer.json
 COPY composer.lock composer.lock
 COPY run run
 COPY symfony symfony
-COPY symfony symfony
 COPY symfony.lock symfony.lock
 
 COPY bin bin
@@ -49,6 +48,7 @@ COPY public public
 COPY resources resources
 COPY src src
 COPY templates templates
+COPY migrations migrations
 
 # Make sure your cache directory is created if it doesn’t exist
 RUN mkdir -p var/cache
