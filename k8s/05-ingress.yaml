@@ -21,3 +21,4 @@ spec:
             name: register-vibe-service
             port:
               number: 80
+
