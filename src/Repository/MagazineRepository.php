@@ -20,5 +20,23 @@ class MagazineRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Magazine::class);
     }
+
+    /**
+     * @return array<array{critic: \App\Entity\Critic, reviewCount: int}>
+     */
+    public function findTopCritics(Magazine $magazine, int $limit = 10): array
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('c as critic, COUNT(r.id) as reviewCount')
+            ->from('App\Entity\Critic', 'c')
+            ->join('c.reviews', 'r')
+            ->where('r.magazine = :magazine')
+            ->setParameter('magazine', $magazine)
+            ->groupBy('c.id')
+            ->orderBy('reviewCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }
 

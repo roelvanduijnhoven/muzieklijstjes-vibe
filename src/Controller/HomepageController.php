@@ -24,9 +24,18 @@ class HomepageController extends AbstractController
         $aggregated2025Albums = $entityManager->getRepository(\App\Entity\Album::class)
             ->findMostListedAlbumsByYear(2025, $limit);
 
+        // Fetch sources (Magazines only)
+        $magazines = $entityManager->getRepository(\App\Entity\Magazine::class)->findBy([], ['name' => 'ASC']);
+        
+        $sources = [];
+        foreach ($magazines as $magazine) {
+            $sources[] = $magazine->getName();
+        }
+
         return $this->render('homepage/index.html.twig', [
             'aggregatedImportantAlbums' => $aggregatedImportantAlbums,
             'aggregated2025Albums' => $aggregated2025Albums,
+            'sources' => $sources,
         ]);
     }
 }
