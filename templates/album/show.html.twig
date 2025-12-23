@@ -13,23 +13,23 @@
         <div class="col-md-4">
             {% if album.imageUrl %}
                 <div class="mb-3">
-                    <img src="{{ coverBaseUrl }}{{ album.imageUrl }}" alt="Cover for {{ album.title }}" class="img-fluid rounded shadow" style="max-width: 100%;">
+                    <img src="{{ coverBaseUrl }}{{ album.imageUrl }}" alt="Hoes van {{ album.title }}" class="img-fluid rounded shadow" style="max-width: 100%;">
                 </div>
             {% endif %}
         </div>
         <div class="col-md-8">
             <h1>{{ album.title }}</h1>
             <p class="lead">
-                by <a href="{{ path('app_artist_show', {id: album.artist.id}) }}">{{ album.artist.name }}</a>
+                door <a href="{{ path('app_artist_show', {id: album.artist.id}) }}">{{ album.artist.name }}</a>
                 <br>
-                <small class="text-muted">Released in {{ album.releaseYear }}</small>
+                <small class="text-muted">Uitgebracht in {{ album.releaseYear }}</small>
             </p>
 
             <hr>
 
             <div class="row mt-4">
                 <div class="col-md-6">
-                    <h3>Reviews</h3>
+                    <h3>Recensies</h3>
                     {% if album.reviews is not empty %}
                         <div class="list-group mb-4">
                             {% for review in album.reviews %}
@@ -44,7 +44,7 @@
                                             {% elseif review.magazine %}
                                                 {{ review.magazine.name }}
                                             {% else %}
-                                                Unknown Source
+                                                Onbekende Bron
                                             {% endif %}
                                         </h5>
                                         <small>
@@ -58,22 +58,22 @@
                                             {{ review.year }}{% if review.month %}-{{ review.month }}{% endif %}
                                         {% endif %}
                                         {% if review.issueNumber %}
-                                            (Issue: {{ review.issueNumber }})
+                                            (Editie: {{ review.issueNumber }})
                                         {% endif %}
                                     </p>
                                     {% if review.rubric %}
-                                        <small class="text-muted">Rubric: {{ review.rubric }}</small>
+                                        <small class="text-muted">Rubriek: {{ review.rubric }}</small>
                                     {% endif %}
                                 </div>
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted">No reviews found for this album.</p>
+                        <p class="text-muted">Geen recensies gevonden voor dit album.</p>
                     {% endif %}
                 </div>
                 
                 <div class="col-md-6">
-                    <h3>Appears in Lists</h3>
+                    <h3>Verschijnt in lijsten</h3>
                     {% if listItems is not empty %}
                         <div class="list-group mb-4">
                             {% for item in listItems %}
@@ -84,26 +84,26 @@
                                     </div>
                                     <p class="mb-1">
                                         {% if item.position %}
-                                            Ranked <strong>#{{ item.position }}</strong>
+                                            Positie <strong>#{{ item.position }}</strong>
                                         {% elseif item.mentions %}
-                                            {{ item.mentions }} mentions
+                                            {{ item.mentions }} vermeldingen
                                         {% else %}
-                                            Unranked
+                                            Ongenummerd
                                         {% endif %}
                                     </p>
                                     <small class="text-muted">
                                         {{ item.albumList.type|capitalize }}
                                         {% if item.albumList.magazine %}
-                                            by {{ item.albumList.magazine.name }}
+                                            door {{ item.albumList.magazine.name }}
                                         {% elseif item.albumList.critic %}
-                                            by {{ item.albumList.critic.name }}
+                                            door {{ item.albumList.critic.name }}
                                         {% endif %}
                                     </small>
                                 </a>
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted">This album does not appear in any lists yet.</p>
+                        <p class="text-muted">Dit album komt nog in geen enkele lijst voor.</p>
                     {% endif %}
                 </div>
             </div>

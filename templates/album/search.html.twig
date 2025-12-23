@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Search Albums{% endblock %}
+{% block title %}Zoek Albums{% endblock %}
 
 {% block body %}
 <div class="container mt-4">
-    <h1>Search Results for "{{ query }}"</h1>
+    <h1>Zoekresultaten voor "{{ query }}"</h1>
 
     {% if albums|length > 0 %}
         <div class="list-group">
@@ -15,7 +15,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <p>No albums found.</p>
+        <p>Geen albums gevonden.</p>
     {% endif %}
 </div>
 {% endblock %}

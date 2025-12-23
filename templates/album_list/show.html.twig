@@ -24,7 +24,7 @@
             <span class="badge bg-secondary">{{ list.magazine.name }}</span>
         {% endif %}
         {% if list.type == 'aggregate' %}
-            <span class="badge bg-primary">Aggregate</span>
+            <span class="badge bg-primary">Verzamelijst</span>
         {% endif %}
     </div>
 
@@ -38,7 +38,7 @@
     <div class="mb-4">
         <h3>
             <button class="btn btn-link text-decoration-none p-0 text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#sourcesCollapse" aria-expanded="false" aria-controls="sourcesCollapse">
-                Sources / Contributors ▾
+                Bronnen / Bijdragers ▾
             </button>
         </h3>
         <div class="collapse" id="sourcesCollapse">
@@ -54,7 +54,7 @@
     {% endif %}
 
     {% if computedItems|length > 0 %}
-    <h3>Albums in List</h3>
+    <h3>Albums in lijst</h3>
     <table class="table table-striped mb-5">
         <thead>
             <tr>
@@ -76,7 +76,7 @@
                 </th>
                 <th>
                     <a href="{{ path('app_list_show', {id: list.id, sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
-                        Artist
+                        Artiest
                         {% if currentSort == 'artist' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
                         {% endif %}
@@ -97,7 +97,7 @@
     {% endif %}
 
     {% if list.type != 'aggregate' %}
-    <h3>Albums in List</h3>
+    <h3>Albums in lijst</h3>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -105,7 +105,7 @@
                 {% if hasMentions %}
                     <th>
                         <a href="{{ path('app_list_show', {id: list.id, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'desc' ? 'asc' : 'desc')}) }}">
-                            Mentions
+                            Vermeldingen
                             {% if currentSort == 'position' %}
                                 {{ currentDirection == 'asc' ? '▲' : '▼' }}
                             {% endif %}
@@ -132,7 +132,7 @@
                 </th>
                 <th>
                     <a href="{{ path('app_list_show', {id: list.id, sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
-                        Artist
+                        Artiest
                         {% if currentSort == 'artist' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
                         {% endif %}

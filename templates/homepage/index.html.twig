@@ -4,15 +4,15 @@
 <div class="container mt-4">
     <div class="row align-items-center mb-5">
         <div class="col-md-3">
-            <img src="{{ asset('assets/header.jpg') }}" class="img-fluid rounded-3 shadow-sm" alt="Music Archive Header">
+            <img src="{{ asset('assets/header.jpg') }}" class="img-fluid rounded-3 shadow-sm" alt="Muzieklijstjes Header">
         </div>
         <div class="col-md-9">
-            <h1 class="display-5 fw-bold">Welcome to Music List Archive</h1>
-            <p class="fs-4">Discover and explore the greatest music albums as ranked by critics and magazines. Dive into curated lists, find your favorite artists, and explore music history.</p>
+            <h1 class="display-5 fw-bold">Welkom bij Muzieklijstjes</h1>
+            <p class="fs-4">Ontdek en verken de beste muziekalbums zoals gerangschikt door critici en tijdschriften. Duik in samengestelde lijsten, vind je favoriete artiesten en verken de muziekgeschiedenis.</p>
         </div>
     </div>
 
-    <h1>Album Lists</h1>
+    <h1>Albumlijsten</h1>
     <div class="list-group">
         {% for list in lists %}
             <a href="{{ path('app_list_show', {id: list.id}) }}" class="list-group-item list-group-item-action">
@@ -24,7 +24,7 @@
                 </div>
                 
                 {% if list.type == 'aggregate' %}
-                    <span class="badge bg-primary rounded-pill">Aggregate</span>
+                    <span class="badge bg-primary rounded-pill">Verzamelijst</span>
                 {% endif %}
                 {% if list.magazine %}
                     <span class="badge bg-secondary">{{ list.magazine.name }}</span>
@@ -38,9 +38,9 @@
     
     <div class="mt-3">
         {% if page > 1 %}
-            <a href="{{ path('app_home', {page: page - 1}) }}" class="btn btn-secondary">Previous</a>
+            <a href="{{ path('app_home', {page: page - 1}) }}" class="btn btn-secondary">Vorige</a>
         {% endif %}
-        <a href="{{ path('app_home', {page: page + 1}) }}" class="btn btn-secondary">Next</a>
+        <a href="{{ path('app_home', {page: page + 1}) }}" class="btn btn-secondary">Volgende</a>
     </div>
 </div>
 {% endblock %}
