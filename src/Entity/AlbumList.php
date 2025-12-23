@@ -65,7 +65,7 @@ class AlbumList
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'aggregatedIn')]
     private Collection $sources;
 
-    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'aggregatedIn')]
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'sources')]
     private Collection $aggregatedIn;
 
     #[ORM\OneToMany(targetEntity: AlbumListItem::class, mappedBy: 'albumList', cascade: ['persist'], orphanRemoval: true)]

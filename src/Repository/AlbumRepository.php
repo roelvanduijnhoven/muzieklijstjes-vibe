@@ -40,7 +40,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findMostListedAlbums(int $limit = 50): array
     {
         return $this->createQueryBuilder('a')
-            ->select('a as album, COUNT(ali.id) as score')
+            ->select('a as album, COUNT(DISTINCT CASE WHEN al.important = true THEN al.id ELSE agg.id END) as score')
             ->join(
                 'App\Entity\AlbumListItem', 
                 'ali', 
@@ -48,10 +48,13 @@ class AlbumRepository extends ServiceEntityRepository
                 'ali.album = a'
             )
             ->join('ali.albumList', 'al')
+            ->leftJoin('al.aggregatedIn', 'agg')
             ->join('a.artist', 'ar')
             ->addSelect('ar')
             ->where('al.important = :important')
+            ->orWhere('agg.important = :important AND agg.type = :aggregateType')
             ->setParameter('important', true)
+            ->setParameter('aggregateType', \App\Entity\AlbumList::TYPE_AGGREGATE)
             ->groupBy('a')
             ->orderBy('score', 'DESC')
             ->setMaxResults($limit)
