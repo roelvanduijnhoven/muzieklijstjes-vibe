@@ -61,5 +61,33 @@ class AlbumRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array<array{album: Album, score: int}>
+     */
+    public function findMostListedAlbumsByYear(int $year, int $limit = 50): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a as album, COUNT(DISTINCT CASE WHEN al.releaseYear = :year THEN al.id ELSE agg.id END) as score')
+            ->join(
+                'App\Entity\AlbumListItem', 
+                'ali', 
+                \Doctrine\ORM\Query\Expr\Join::WITH, 
+                'ali.album = a'
+            )
+            ->join('ali.albumList', 'al')
+            ->leftJoin('al.aggregatedIn', 'agg')
+            ->join('a.artist', 'ar')
+            ->addSelect('ar')
+            ->where('al.releaseYear = :year')
+            ->orWhere('agg.releaseYear = :year AND agg.type = :aggregateType')
+            ->setParameter('year', $year)
+            ->setParameter('aggregateType', \App\Entity\AlbumList::TYPE_AGGREGATE)
+            ->groupBy('a')
+            ->orderBy('score', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }
 

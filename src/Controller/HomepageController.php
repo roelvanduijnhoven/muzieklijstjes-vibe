@@ -17,11 +17,16 @@ class HomepageController extends AbstractController
         $limit = 50;
 
         // Aggregate overview of albums from important lists
-        $aggregatedAlbums = $entityManager->getRepository(\App\Entity\Album::class)
+        $aggregatedImportantAlbums = $entityManager->getRepository(\App\Entity\Album::class)
             ->findMostListedAlbums($limit);
+        
+        // Aggregate overview of albums from 2025 lists
+        $aggregated2025Albums = $entityManager->getRepository(\App\Entity\Album::class)
+            ->findMostListedAlbumsByYear(2025, $limit);
 
         return $this->render('homepage/index.html.twig', [
-            'aggregatedAlbums' => $aggregatedAlbums,
+            'aggregatedImportantAlbums' => $aggregatedImportantAlbums,
+            'aggregated2025Albums' => $aggregated2025Albums,
         ]);
     }
 }
