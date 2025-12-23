@@ -14,21 +14,14 @@ class HomepageController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(EntityManagerInterface $entityManager, Request $request): Response
     {
-        $page = max(1, $request->query->getInt('page', 1));
         $limit = 50;
-        $offset = ($page - 1) * $limit;
 
-        // Only show important (canon) lists on the homepage
-        $lists = $entityManager->getRepository(AlbumList::class)->findBy(
-            ['important' => true],
-            ['title' => 'ASC'],
-            $limit,
-            $offset
-        );
+        // Aggregate overview of albums from important lists
+        $aggregatedAlbums = $entityManager->getRepository(\App\Entity\Album::class)
+            ->findMostListedAlbums($limit);
 
         return $this->render('homepage/index.html.twig', [
-            'lists' => $lists,
-            'page' => $page,
+            'aggregatedAlbums' => $aggregatedAlbums,
         ]);
     }
 }

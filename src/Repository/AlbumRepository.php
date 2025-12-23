@@ -33,5 +33,30 @@ class AlbumRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array<array{album: Album, score: int}>
+     */
+    public function findMostListedAlbums(int $limit = 50): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a as album, COUNT(ali.id) as score')
+            ->join(
+                'App\Entity\AlbumListItem', 
+                'ali', 
+                \Doctrine\ORM\Query\Expr\Join::WITH, 
+                'ali.album = a'
+            )
+            ->join('ali.albumList', 'al')
+            ->join('a.artist', 'ar')
+            ->addSelect('ar')
+            ->where('al.important = :important')
+            ->setParameter('important', true)
+            ->groupBy('a')
+            ->orderBy('score', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }
 
