@@ -26,3 +26,5 @@ kubectl exec "$POD_NAME" -- /bin/bash -c 'mysql -u root -p"$MYSQL_ROOT_PASSWORD"
 
 echo "✅ Import completed!"
 
+
+
