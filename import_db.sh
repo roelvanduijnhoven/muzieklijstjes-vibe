@@ -25,3 +25,4 @@ echo "🔄 Importing database (truncating existing data)..."
 kubectl exec "$POD_NAME" -- /bin/bash -c 'mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "DROP DATABASE IF EXISTS dev; CREATE DATABASE dev; USE dev; SOURCE /tmp/dev.sql;"'
 
 echo "✅ Import completed!"
+

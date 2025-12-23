@@ -2,6 +2,16 @@
 
 {% block body %}
 <div class="container mt-4">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-3">
+            <img src="{{ asset('assets/header.jpg') }}" class="img-fluid rounded-3 shadow-sm" alt="Music Archive Header">
+        </div>
+        <div class="col-md-9">
+            <h1 class="display-5 fw-bold">Welcome to Music List Archive</h1>
+            <p class="fs-4">Discover and explore the greatest music albums as ranked by critics and magazines. Dive into curated lists, find your favorite artists, and explore music history.</p>
+        </div>
+    </div>
+
     <h1>Album Lists</h1>
     <div class="list-group">
         {% for list in lists %}

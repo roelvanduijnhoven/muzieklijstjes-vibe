@@ -14,3 +14,4 @@ spec:
         ingress:
           class: nginx
 
+

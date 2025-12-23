@@ -30,3 +30,4 @@ docker push "$FULL_IMAGE_PATH"
 
 echo "✅ Success! Image published: $FULL_IMAGE_PATH"
 echo "   To deploy changes, run: kubectl rollout restart deployment/register-vibe"
+

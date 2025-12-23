@@ -31,3 +31,4 @@ spec:
                   key: APP_SECRET
       restartPolicy: Never
   backoffLimit: 1
+

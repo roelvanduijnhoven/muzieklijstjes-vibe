@@ -12,11 +12,13 @@
         <script src="/assets/bootstrap-5.3.1-dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
     {% endblock %}
 </head>
-<body>
-<div class="container">
+<body class="d-flex flex-column min-vh-100">
+<div class="container flex-grow-1">
     <header class="text-center my-4">
-        <h1>register</h1>
+        <h1><a href="{{ path('app_home') }}" style="text-decoration: none; color: inherit;">Muzieklijstjes</a></h1>
     </header>
+
+    {% include 'common/search_bars.html.twig' %}
 
     <div class="flash-messages">
         {% for group, messages in app.flashes() %}
@@ -30,5 +32,7 @@
 
     {% block body %}{% endblock %}
 </div>
+
+{% include 'common/footer.html.twig' %}
 </body>
 </html>

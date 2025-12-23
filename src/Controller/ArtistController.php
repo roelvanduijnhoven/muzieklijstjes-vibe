@@ -3,12 +3,30 @@
 namespace App\Controller;
 
 use App\Entity\Artist;
+use App\Repository\ArtistRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ArtistController extends AbstractController
 {
+    #[Route('/artist/search', name: 'app_artist_search')]
+    public function search(Request $request, ArtistRepository $artistRepository): Response
+    {
+        $query = $request->query->get('q');
+        $artists = $artistRepository->searchByName($query);
+
+        if (count($artists) === 1) {
+            return $this->redirectToRoute('app_artist_show', ['id' => $artists[0]->getId()]);
+        }
+
+        return $this->render('artist/search.html.twig', [
+            'artists' => $artists,
+            'query' => $query,
+        ]);
+    }
+
     #[Route('/artist/{id}', name: 'app_artist_show')]
     public function show(Artist $artist): Response
     {

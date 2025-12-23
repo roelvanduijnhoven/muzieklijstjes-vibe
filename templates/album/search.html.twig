@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search Albums{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Search Results for "{{ query }}"</h1>
+
+    {% if albums|length > 0 %}
+        <div class="list-group">
+            {% for album in albums %}
+                <a href="{{ path('app_album_show', {id: album.id}) }}" class="list-group-item list-group-item-action">
+                    {{ album.title }} ({{ album.artist.name }})
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No albums found.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

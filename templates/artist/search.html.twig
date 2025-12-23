@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search Artists{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Search Results for "{{ query }}"</h1>
+
+    {% if artists|length > 0 %}
+        <div class="list-group">
+            {% for artist in artists %}
+                <a href="{{ path('app_artist_show', {id: artist.id}) }}" class="list-group-item list-group-item-action">
+                    {{ artist.name }}
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No artists found.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

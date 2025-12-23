@@ -20,5 +20,18 @@ class CriticRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Critic::class);
     }
+
+    /**
+     * @return Critic[]
+     */
+    public function searchByName(string $query): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.name LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
 
