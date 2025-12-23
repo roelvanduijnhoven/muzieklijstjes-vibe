@@ -25,6 +25,7 @@ class Artist
     private ?string $wikipediaUrl = null;
 
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'artist')]
+    #[ORM\OrderBy(['releaseYear' => 'ASC', 'title' => 'ASC'])]
     private Collection $albums;
 
     public function __construct()

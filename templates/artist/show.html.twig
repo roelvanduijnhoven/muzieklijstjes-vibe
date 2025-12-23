@@ -12,13 +12,35 @@
     <h1>{{ artist.name }}</h1>
     
     {% if artist.albums|length > 0 %}
-    <h3>Albums</h3>
-    <ul>
-    {% for album in artist.albums %}
-        <li><a href="{{ path('app_album_show', {id: album.id}) }}">{{ album.title }}</a> ({{ album.releaseYear }})</li>
-    {% endfor %}
-    </ul>
+    <h3 class="mt-4">Albums</h3>
+    <div class="list-group">
+        {# Sort albums by release year descending, though Twig sorting of collections can be tricky.
+           It's often better to sort in the Controller or Entity getter. 
+           Let's assume for now default order (which might be ID or title). 
+           Ideally, we'd update the controller to sort or use a custom getter. #}
+        {% for album in artist.albums %}
+            <a href="{{ path('app_album_show', {id: album.id}) }}" class="list-group-item list-group-item-action">
+                <div class="d-flex align-items-center">
+                    {% if album.imageUrl %}
+                        <div class="flex-shrink-0 me-3">
+                            <img src="{{ album_cover_base_url ~ album.imageUrl }}" alt="{{ album.title }}" class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;" loading="lazy">
+                        </div>
+                    {% else %}
+                        <div class="flex-shrink-0 me-3 d-flex align-items-center justify-content-center bg-light rounded" style="width: 60px; height: 60px;">
+                            <span class="text-muted small">No Img</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">{{ album.title }}</h5>
+                        {% if album.releaseYear %}
+                            <small class="text-muted">({{ album.releaseYear }})</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
     {% endif %}
 </div>
 {% endblock %}
-

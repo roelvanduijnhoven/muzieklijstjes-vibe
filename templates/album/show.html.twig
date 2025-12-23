@@ -10,14 +10,14 @@
     </nav>
 
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
             {% if album.imageUrl %}
-                <div class="mb-3">
+                <div class="mb-10">
                     <img src="{{ coverBaseUrl }}{{ album.imageUrl }}" alt="Hoes van {{ album.title }}" class="img-fluid rounded shadow" style="max-width: 100%;">
                 </div>
             {% endif %}
         </div>
-        <div class="col-md-8">
+        <div class="col-md-9">
             <h1>{{ album.title }}</h1>
             <p class="lead">
                 door <a href="{{ path('app_artist_show', {id: album.artist.id}) }}">{{ album.artist.name }}</a>
