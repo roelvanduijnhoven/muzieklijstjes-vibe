@@ -36,7 +36,6 @@ class AlbumController extends AbstractController
         return $this->render('album/show.html.twig', [
             'album' => $album,
             'listItems' => $listItems,
-            'coverBaseUrl' => $this->getParameter('app.album_cover_base_url'),
         ]);
     }
 }
