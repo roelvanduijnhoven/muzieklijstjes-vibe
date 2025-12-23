@@ -14,3 +14,4 @@ data/
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+local_dump.sql
