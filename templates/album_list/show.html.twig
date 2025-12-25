@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/list_macros.html.twig' as macros %}
 
 {% block body %}
 <div class="container mt-4">
@@ -57,11 +58,9 @@
             </button>
         </h3>
         <div class="collapse" id="sourcesCollapse">
-            <div class="list-group list-group-horizontal flex-wrap mt-2">
+            <div class="list-group mt-2">
             {% for source in list.sources %}
-                <a href="{{ path('app_list_show', {id: source.id}) }}" class="list-group-item list-group-item-action flex-fill" style="max-width: 300px;">
-                    {{ source.title }}
-                </a>
+                {{ macros.list_card(source, album_cover_base_url) }}
             {% endfor %}
             </div>
         </div>

@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/list_macros.html.twig' as macros %}
 
 {% block body %}
 <div class="container mt-4">
@@ -24,23 +25,7 @@
             {% if critic.albumLists is not empty %}
                 <div class="list-group mb-4">
                     {% for list in critic.albumLists %}
-                        <a href="{{ path('app_list_show', {id: list.id}) }}" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">{{ list.title }}</h5>
-                                <small>{{ list.releaseYear }}</small>
-                            </div>
-                            <p class="mb-1">
-                                {% if list.type == 'ordered' %}
-                                    Genummerde Lijst
-                                {% elseif list.type == 'unordered' %}
-                                    Ongenummerde Lijst
-                                {% elseif list.type == 'aggregate' %}
-                                    Verzamelijst
-                                {% else %}
-                                    {{ list.type|capitalize }}
-                                {% endif %}
-                            </p>
-                        </a>
+                        {{ macros.list_card(list, album_cover_base_url) }}
                     {% endfor %}
                 </div>
             {% else %}

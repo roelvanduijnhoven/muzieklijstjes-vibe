@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/list_macros.html.twig' as macros %}
 
 {% block body %}
 <div class="container mt-4">
@@ -77,29 +78,23 @@
                     {% if listItems is not empty %}
                         <div class="list-group mb-4">
                             {% for item in listItems %}
-                                <a href="{{ path('app_list_show', {id: item.albumList.id}) }}" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">{{ item.albumList.title }}</h5>
-                                        <small>{{ item.albumList.releaseYear }}</small>
-                                    </div>
-                                    <p class="mb-1">
-                                        {% if item.position %}
-                                            Positie <strong>#{{ item.position }}</strong>
-                                        {% elseif item.mentions %}
-                                            {{ item.mentions }} vermeldingen
-                                        {% else %}
-                                            Ongenummerd
-                                        {% endif %}
-                                    </p>
-                                    <small class="text-muted">
-                                        {{ item.albumList.type|capitalize }}
-                                        {% if item.albumList.magazine %}
-                                            door {{ item.albumList.magazine.name }}
-                                        {% elseif item.albumList.critic %}
-                                            door {{ item.albumList.critic.name }}
-                                        {% endif %}
-                                    </small>
-                                </a>
+                                {% set extra_info %}
+                                    {% if item.position %}
+                                        Positie <strong>#{{ item.position }}</strong>
+                                    {% elseif item.mentions %}
+                                        {{ item.mentions }} vermeldingen
+                                    {% else %}
+                                        Ongenummerd
+                                    {% endif %}
+                                    -
+                                    {{ item.albumList.type|capitalize }}
+                                    {% if item.albumList.magazine %}
+                                        door {{ item.albumList.magazine.name }}
+                                    {% elseif item.albumList.critic %}
+                                        door {{ item.albumList.critic.name }}
+                                    {% endif %}
+                                {% endset %}
+                                {{ macros.list_card(item.albumList, album_cover_base_url, extra_info) }}
                             {% endfor %}
                         </div>
                     {% else %}

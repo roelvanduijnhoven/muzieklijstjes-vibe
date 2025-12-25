@@ -342,4 +342,25 @@ class AlbumList
 
         return $this;
     }
+
+    /**
+     * @return array<int, AlbumListItem>
+     */
+    public function getPreviewItems(int $count = 3): array
+    {
+        if ($this->type === self::TYPE_AGGREGATE) {
+            $items = [];
+            foreach ($this->sources as $source) {
+                foreach ($source->getListItems() as $item) {
+                    $items[] = $item;
+                    if (count($items) >= $count) {
+                        return $items;
+                    }
+                }
+            }
+            return $items;
+        }
+
+        return $this->listItems->slice(0, $count);
+    }
 }
