@@ -21,12 +21,27 @@
             <span class="badge bg-light text-dark border">{{ list.code }}</span>
         {% endif %}
         {% if list.magazine %}
-            <span class="badge bg-secondary">{{ list.magazine.name }}</span>
+            <a href="{{ path('app_magazine_show', {id: list.magazine.id}) }}" class="badge bg-secondary text-decoration-none">{{ list.magazine.name }}</a>
+        {% endif %}
+        {% if list.critic %}
+            <a href="{{ path('app_critic_show', {id: list.critic.id}) }}" class="badge bg-info text-decoration-none">{{ list.critic.name }}</a>
+        {% endif %}
+        {% if list.genre %}
+            <span class="badge bg-success">{{ list.genre.name }}</span>
         {% endif %}
         {% if list.type == 'aggregate' %}
             <span class="badge bg-primary">Verzamelijst</span>
         {% endif %}
     </div>
+
+    {% if list.aggregatedIn|length > 0 %}
+    <div class="alert alert-info" role="alert">
+        Deze lijst is onderdeel van:
+        {% for parentList in list.aggregatedIn %}
+            <a href="{{ path('app_list_show', {id: parentList.id}) }}" class="alert-link">{{ parentList.title }}</a>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
     {% if list.description %}
         <p class="lead">{{ list.description }}</p>
