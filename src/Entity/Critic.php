@@ -28,6 +28,7 @@ class Critic
     private ?string $bio = null;
 
     #[ORM\Column(nullable: true)]
+    
     private ?int $birthYear = null;
 
     #[ORM\Column(nullable: true)]
