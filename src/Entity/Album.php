@@ -6,6 +6,7 @@ use App\Repository\AlbumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 class Album
@@ -168,6 +169,14 @@ class Album
         $this->ownedByHans = $ownedByHans;
 
         return $this;
+    }
+
+    public function getSlug(): string
+    {
+        $slugger = new AsciiSlugger();
+        $artistName = $this->artist ? $this->artist->getName() : '';
+        $title = $this->getTitle() ?? '';
+        return $slugger->slug(sprintf('%s-%s', $artistName, $title))->lower()->toString();
     }
 
     /**

@@ -19,7 +19,7 @@
            Let's assume for now default order (which might be ID or title). 
            Ideally, we'd update the controller to sort or use a custom getter. #}
         {% for album in artist.albums %}
-            <a href="{{ path('app_album_show', {id: album.id}) }}" class="list-group-item list-group-item-action">
+            <a href="{{ path('app_album_show', {id: album.id, slug: album.slug}) }}" class="list-group-item list-group-item-action">
                 <div class="d-flex align-items-center">
                     {% if album.imageUrl %}
                         <div class="flex-shrink-0 me-3">

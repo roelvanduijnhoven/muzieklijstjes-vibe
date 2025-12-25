@@ -6,6 +6,7 @@ use App\Repository\AlbumListRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[ORM\Entity(repositoryClass: AlbumListRepository::class)]
 class AlbumList
@@ -341,6 +342,12 @@ class AlbumList
         $this->numberOfEntries = $numberOfEntries;
 
         return $this;
+    }
+
+    public function getSlug(): string
+    {
+        $slugger = new AsciiSlugger();
+        return $slugger->slug($this->getTitle() ?? '')->lower()->toString();
     }
 
     /**

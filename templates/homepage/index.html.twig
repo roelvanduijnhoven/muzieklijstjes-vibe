@@ -24,7 +24,7 @@
             <div class="list-group">
                 {% for item in aggregated2025Albums %}
                     {% set album = item.album %}
-                    <a href="{{ path('app_album_show', {id: album.id}) }}" class="list-group-item list-group-item-action">
+                    <a href="{{ path('app_album_show', {id: album.id, slug: album.slug}) }}" class="list-group-item list-group-item-action">
                         <div class="d-flex align-items-center">
                             {% if album.imageUrl %}
                                 <div class="flex-shrink-0 me-3">
@@ -60,7 +60,7 @@
             <div class="list-group">
                 {% for item in aggregatedImportantAlbums %}
                     {% set album = item.album %}
-                    <a href="{{ path('app_album_show', {id: album.id}) }}" class="list-group-item list-group-item-action">
+                    <a href="{{ path('app_album_show', {id: album.id, slug: album.slug}) }}" class="list-group-item list-group-item-action">
                         <div class="d-flex align-items-center">
                             {% if album.imageUrl %}
                                 <div class="flex-shrink-0 me-3">

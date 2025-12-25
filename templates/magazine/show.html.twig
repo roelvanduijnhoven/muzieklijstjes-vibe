@@ -35,7 +35,7 @@
                     {% for stat in criticsStats %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             {% if stat.critic %}
-                                <a href="{{ path('app_critic_show', {id: stat.critic.id}) }}">{{ stat.critic.name }}</a>
+                                <a href="{{ path('app_critic_show', {id: stat.critic.id, slug: stat.critic.slug}) }}">{{ stat.critic.name }}</a>
                             {% else %}
                                 Onbekende recensent
                             {% endif %}

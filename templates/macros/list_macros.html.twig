@@ -1,5 +1,5 @@
 {% macro list_card(list, album_cover_base_url, extra_info = null) %}
-    <a href="{{ path('app_list_show', {id: list.id}) }}" class="list-group-item list-group-item-action d-flex align-items-center">
+    <a href="{{ path('app_list_show', {id: list.id, slug: list.slug}) }}" class="list-group-item list-group-item-action d-flex align-items-center">
         <div class="position-relative me-3" style="width: 85px; height: 60px; flex-shrink: 0; transform: rotate(-2deg);">
             {% for item in list.previewItems(3) %}
                 {% set offsetLeft = (loop.index0 * 15) %}

@@ -22,7 +22,7 @@
         <div class="col-md-9">
             <h1>{{ album.title }}</h1>
             <p class="lead">
-                door <a href="{{ path('app_artist_show', {id: album.artist.id}) }}">{{ album.artist.name }}</a>
+                door <a href="{{ path('app_artist_show', {id: album.artist.id, slug: album.artist.slug}) }}">{{ album.artist.name }}</a>
                 <br>
                 <small class="text-muted">Uitgebracht in {{ album.releaseYear }}</small>
             </p>
@@ -39,7 +39,7 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1">
                                             {% if review.critic %}
-                                                <a href="{{ path('app_critic_show', {id: review.critic.id}) }}">{{ review.critic.name }}</a>
+                                                <a href="{{ path('app_critic_show', {id: review.critic.id, slug: review.critic.slug}) }}">{{ review.critic.name }}</a>
                                                 {% if review.magazine %}
                                                     <small class="text-muted">({{ review.magazine.name }})</small>
                                                 {% endif %}

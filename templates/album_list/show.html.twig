@@ -22,10 +22,10 @@
             <span class="badge bg-light text-dark border">{{ list.code }}</span>
         {% endif %}
         {% if list.magazine %}
-            <a href="{{ path('app_magazine_show', {id: list.magazine.id}) }}" class="badge bg-secondary text-decoration-none">{{ list.magazine.name }}</a>
+            <a href="{{ path('app_magazine_show', {id: list.magazine.id, slug: list.magazine.slug}) }}" class="badge bg-secondary text-decoration-none">{{ list.magazine.name }}</a>
         {% endif %}
         {% if list.critic %}
-            <a href="{{ path('app_critic_show', {id: list.critic.id}) }}" class="badge bg-info text-decoration-none">{{ list.critic.name }}</a>
+            <a href="{{ path('app_critic_show', {id: list.critic.id, slug: list.critic.slug}) }}" class="badge bg-info text-decoration-none">{{ list.critic.name }}</a>
         {% endif %}
         {% if list.genre %}
             <span class="badge bg-success">{{ list.genre.name }}</span>
@@ -39,7 +39,7 @@
     <div class="alert alert-info" role="alert">
         Deze lijst is onderdeel van:
         {% for parentList in list.aggregatedIn %}
-            <a href="{{ path('app_list_show', {id: parentList.id}) }}" class="alert-link">{{ parentList.title }}</a>{% if not loop.last %}, {% endif %}
+            <a href="{{ path('app_list_show', {id: parentList.id, slug: parentList.slug}) }}" class="alert-link">{{ parentList.title }}</a>{% if not loop.last %}, {% endif %}
         {% endfor %}
     </div>
     {% endif %}
@@ -74,7 +74,7 @@
             <tr>
                 <th></th>
                 <th>
-                    <a href="{{ path('app_list_show', {id: list.id, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'desc' ? 'asc' : 'desc')}) }}">
+                    <a href="{{ path('app_list_show', {id: list.id, slug: list.slug, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'desc' ? 'asc' : 'desc')}) }}">
                         Score
                         {% if currentSort == 'position' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
@@ -82,7 +82,7 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ path('app_list_show', {id: list.id, sort: 'album', direction: (currentSort == 'album' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                    <a href="{{ path('app_list_show', {id: list.id, slug: list.slug, sort: 'album', direction: (currentSort == 'album' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
                         Album
                         {% if currentSort == 'album' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
@@ -90,7 +90,7 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ path('app_list_show', {id: list.id, sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                    <a href="{{ path('app_list_show', {id: list.id, slug: list.slug, sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
                         Artiest
                         {% if currentSort == 'artist' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
@@ -112,8 +112,8 @@
                     {% endif %}
                 </td>
                 <td>{{ item.score }}</td>
-                <td><a href="{{ path('app_album_show', {id: item.album.id}) }}">{{ item.album.title }}</a></td>
-                <td><a href="{{ path('app_artist_show', {id: item.album.artist.id}) }}">{{ item.album.artist.name }}</a></td>
+                <td><a href="{{ path('app_album_show', {id: item.album.id, slug: item.album.slug}) }}">{{ item.album.title }}</a></td>
+                <td><a href="{{ path('app_artist_show', {id: item.album.artist.id, slug: item.album.artist.slug}) }}">{{ item.album.artist.name }}</a></td>
             </tr>
         {% endfor %}
         </tbody>
@@ -129,7 +129,7 @@
                 {# Show mentions column first if list has mentions #}
                 {% if hasMentions %}
                     <th>
-                        <a href="{{ path('app_list_show', {id: list.id, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'desc' ? 'asc' : 'desc')}) }}">
+                        <a href="{{ path('app_list_show', {id: list.id, slug: list.slug, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'desc' ? 'asc' : 'desc')}) }}">
                             Vermeldingen
                             {% if currentSort == 'position' %}
                                 {{ currentDirection == 'asc' ? '▲' : '▼' }}
@@ -139,7 +139,7 @@
                 {% elseif list.type == 'ordered' %}
                     {# Show position column first for ordered lists without mentions #}
                     <th>
-                        <a href="{{ path('app_list_show', {id: list.id, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                        <a href="{{ path('app_list_show', {id: list.id, slug: list.slug, sort: 'position', direction: (currentSort == 'position' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
                             Pos
                             {% if currentSort == 'position' %}
                                 {{ currentDirection == 'asc' ? '▲' : '▼' }}
@@ -148,7 +148,7 @@
                     </th>
                 {% endif %}
                 <th>
-                    <a href="{{ path('app_list_show', {id: list.id, sort: 'album', direction: (currentSort == 'album' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                    <a href="{{ path('app_list_show', {id: list.id, slug: list.slug, sort: 'album', direction: (currentSort == 'album' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
                         Album
                         {% if currentSort == 'album' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
@@ -156,7 +156,7 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ path('app_list_show', {id: list.id, sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
+                    <a href="{{ path('app_list_show', {id: list.id, slug: list.slug, sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')}) }}">
                         Artiest
                         {% if currentSort == 'artist' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
@@ -182,8 +182,8 @@
                 {% elseif list.type == 'ordered' %}
                     <td>{{ item.position }}</td>
                 {% endif %}
-                <td><a href="{{ path('app_album_show', {id: item.album.id}) }}">{{ item.album.title }}</a></td>
-                <td><a href="{{ path('app_artist_show', {id: item.album.artist.id}) }}">{{ item.album.artist.name }}</a></td>
+                <td><a href="{{ path('app_album_show', {id: item.album.id, slug: item.album.slug}) }}">{{ item.album.title }}</a></td>
+                <td><a href="{{ path('app_artist_show', {id: item.album.artist.id, slug: item.album.artist.slug}) }}">{{ item.album.artist.name }}</a></td>
             </tr>
         {% endfor %}
         </tbody>

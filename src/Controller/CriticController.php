@@ -27,9 +27,14 @@ class CriticController extends AbstractController
         ]);
     }
 
-    #[Route('/critic/{id}', name: 'app_critic_show')]
-    public function show(Critic $critic): Response
+    #[Route('/critic/{id}/{slug}', name: 'app_critic_show', defaults: ['slug' => null])]
+    public function show(Critic $critic, ?string $slug = null): Response
     {
+        $expectedSlug = $critic->getSlug();
+        if ($slug !== $expectedSlug) {
+            return $this->redirectToRoute('app_critic_show', ['id' => $critic->getId(), 'slug' => $expectedSlug], 301);
+        }
+
         return $this->render('critic/show.html.twig', [
             'critic' => $critic,
         ]);

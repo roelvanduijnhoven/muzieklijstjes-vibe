@@ -6,6 +6,7 @@ use App\Repository\CriticRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[ORM\Entity(repositoryClass: CriticRepository::class)]
 class Critic
@@ -164,6 +165,12 @@ class Critic
         $this->wikipediaUrl = $wikipediaUrl;
 
         return $this;
+    }
+
+    public function getSlug(): string
+    {
+        $slugger = new AsciiSlugger();
+        return $slugger->slug($this->getName() ?? '')->lower()->toString();
     }
 
     /**

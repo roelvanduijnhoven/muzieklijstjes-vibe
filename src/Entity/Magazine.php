@@ -6,6 +6,7 @@ use App\Repository\MagazineRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[ORM\Entity(repositoryClass: MagazineRepository::class)]
 class Magazine
@@ -84,6 +85,12 @@ class Magazine
         $this->highestPossibleRating = $highestPossibleRating;
 
         return $this;
+    }
+
+    public function getSlug(): string
+    {
+        $slugger = new AsciiSlugger();
+        return $slugger->slug($this->getName() ?? '')->lower()->toString();
     }
 
     /**

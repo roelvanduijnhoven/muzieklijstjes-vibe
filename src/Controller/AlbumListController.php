@@ -10,9 +10,19 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AlbumListController extends AbstractController
 {
-    #[Route('/list/{id}', name: 'app_list_show')]
-    public function show(AlbumList $albumList, Request $request): Response
+    #[Route('/list/{id}/{slug}', name: 'app_list_show', defaults: ['slug' => null])]
+    public function show(AlbumList $albumList, Request $request, ?string $slug = null): Response
     {
+        $expectedSlug = $albumList->getSlug();
+        if ($slug !== $expectedSlug) {
+            // Preserve query parameters
+            $params = array_merge(
+                ['id' => $albumList->getId(), 'slug' => $expectedSlug],
+                $request->query->all()
+            );
+            return $this->redirectToRoute('app_list_show', $params, 301);
+        }
+
         // Get items and sort based on list type
         $items = $albumList->getListItems()->toArray();
         
