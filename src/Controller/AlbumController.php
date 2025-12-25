@@ -28,19 +28,15 @@ class AlbumController extends AbstractController
         ]);
     }
 
-    #[Route('/album/{id}/{slug}', name: 'app_album_show', defaults: ['slug' => null])]
-    public function show(Album $album, AlbumListItemRepository $albumListItemRepository, ?string $slug = null): Response
+    #[Route('/album/{id}', name: 'app_album_show')]
+    public function show(Album $album, AlbumListItemRepository $albumListItemRepository): Response
     {
-        $expectedSlug = $album->getSlug();
-        if ($slug !== $expectedSlug) {
-            return $this->redirectToRoute('app_album_show', ['id' => $album->getId(), 'slug' => $expectedSlug], 301);
-        }
-
         $listItems = $albumListItemRepository->findByAlbumId($album->getId());
 
         return $this->render('album/show.html.twig', [
             'album' => $album,
             'listItems' => $listItems,
+            'coverBaseUrl' => $this->getParameter('app.album_cover_base_url'),
         ]);
     }
 }

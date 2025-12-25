@@ -18,7 +18,7 @@ class CriticController extends AbstractController
         $critics = $criticRepository->searchByName($query);
 
         if (count($critics) === 1) {
-            return $this->redirectToRoute('app_critic_show', ['id' => $critics[0]->getId()]);
+            return $this->redirectToRoute('app_critic_show', ['id' => $critics[0]->getId(), 'slug' => $critics[0]->getSlug()]);
         }
 
         return $this->render('critic/search.html.twig', [

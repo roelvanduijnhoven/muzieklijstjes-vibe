@@ -18,7 +18,7 @@ class ArtistController extends AbstractController
         $artists = $artistRepository->searchByName($query);
 
         if (count($artists) === 1) {
-            return $this->redirectToRoute('app_artist_show', ['id' => $artists[0]->getId()]);
+            return $this->redirectToRoute('app_artist_show', ['id' => $artists[0]->getId(), 'slug' => $artists[0]->getSlug()]);
         }
 
         return $this->render('artist/search.html.twig', [
