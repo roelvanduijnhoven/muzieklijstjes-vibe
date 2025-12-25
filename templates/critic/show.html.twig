@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 {% import 'macros/list_macros.html.twig' as macros %}
+{% import 'macros/rating.html.twig' as rating_macros %}
 
 {% block body %}
 <div class="container mt-4">
@@ -88,9 +89,7 @@
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">{{ review.album.title }}</h5>
                                     <small>
-                                        {% if review.rating %}
-                                            <span class="badge bg-primary">{{ review.rating }}</span>
-                                        {% endif %}
+                                        {{ rating_macros.render(review) }}
                                     </small>
                                 </div>
                                 <p class="mb-1">

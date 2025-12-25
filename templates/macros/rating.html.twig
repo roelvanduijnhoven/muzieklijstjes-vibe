@@ -1,0 +1,21 @@
+{% macro render(review) %}
+    {% if review.rating is not null %}
+        {% set max_score = review.magazine ? review.magazine.highestPossibleRating : null %}
+        {% if max_score and max_score > 0 %}
+            {% set normalized_score = (review.rating / max_score) * 5 %}
+            {% set dot_count = normalized_score|round %}
+            <span class="text-primary text-nowrap" title="{{ review.rating }} / {{ max_score }}" style="font-size: 0.8em; letter-spacing: 1px; line-height: 1;">
+                {% for i in 1..5 %}
+                    {% if i <= dot_count %}
+                        &#9679;
+                    {% else %}
+                        &#9675;
+                    {% endif %}
+                {% endfor %}
+            </span>
+        {% else %}
+            <span class="badge bg-primary">{{ review.rating }}</span>
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
