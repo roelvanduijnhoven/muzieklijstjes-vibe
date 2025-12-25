@@ -9,7 +9,7 @@
     {% if critics|length > 0 %}
         <div class="list-group">
             {% for critic in critics %}
-                <a href="{{ path('app_critic_show', {id: critic.id, slug: critic.slug}) }}" class="list-group-item list-group-item-action">
+                <a href="{{ path('app_critic_show', critic.routeParams) }}" class="list-group-item list-group-item-action">
                     {{ critic.name }}
                 </a>
             {% endfor %}

@@ -9,7 +9,7 @@
     {% if albums|length > 0 %}
         <div class="list-group">
             {% for album in albums %}
-                <a href="{{ path('app_album_show', {id: album.id, slug: album.slug}) }}" class="list-group-item list-group-item-action">
+                <a href="{{ path('app_album_show', album.routeParams) }}" class="list-group-item list-group-item-action">
                     {{ album.title }} ({{ album.artist.name }})
                 </a>
             {% endfor %}

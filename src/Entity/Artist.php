@@ -86,6 +86,14 @@ class Artist
         return $slugger->slug($this->getName() ?? '')->lower()->toString();
     }
 
+    public function getRouteParams(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'slug' => $this->getSlug(),
+        ];
+    }
+
     /**
      * @return Collection<int, Album>
      */

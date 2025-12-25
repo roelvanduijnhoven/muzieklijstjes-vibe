@@ -179,6 +179,14 @@ class Album
         return $slugger->slug(sprintf('%s-%s', $artistName, $title))->lower()->toString();
     }
 
+    public function getRouteParams(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'slug' => $this->getSlug(),
+        ];
+    }
+
     /**
      * @return Collection<int, Review>
      */

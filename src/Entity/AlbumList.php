@@ -350,6 +350,14 @@ class AlbumList
         return $slugger->slug($this->getTitle() ?? '')->lower()->toString();
     }
 
+    public function getRouteParams(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'slug' => $this->getSlug(),
+        ];
+    }
+
     /**
      * @return array<int, AlbumListItem>
      */
