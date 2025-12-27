@@ -31,8 +31,9 @@ class AlbumListItem
     {
         $albumTitle = $this->album ? $this->album->getTitle() : 'Unknown Album';
         $artistName = $this->album && $this->album->getArtist() ? $this->album->getArtist()->getName() : 'Unknown Artist';
+        $releaseYear = $this->album && $this->album->getReleaseYear() ? sprintf(' (%s)', $this->album->getReleaseYear()) : '';
         
-        $display = sprintf('%s - %s', $albumTitle, $artistName);
+        $display = sprintf('%s - %s%s', $artistName, $albumTitle, $releaseYear);
 
         if ($this->position) {
             $display = sprintf('#%d %s', $this->position, $display);

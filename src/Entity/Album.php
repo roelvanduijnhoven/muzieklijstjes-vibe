@@ -55,7 +55,8 @@ class Album
     public function __toString(): string
     {
         $artistName = $this->artist ? $this->artist->getName() : 'Unknown Artist';
-        return sprintf('%s - %s', $artistName, $this->title ?? '');
+        $releaseYear = $this->releaseYear ? sprintf(' (%s)', $this->releaseYear) : '';
+        return sprintf('%s - %s%s', $artistName, $this->title ?? '', $releaseYear);
     }
 
     public function getId(): ?int
