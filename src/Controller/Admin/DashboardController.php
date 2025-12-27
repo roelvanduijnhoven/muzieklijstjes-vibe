@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -21,6 +22,15 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('Register Vibe Admin');
+    }
+
+    public function configureAssets(): Assets
+    {
+        return Assets::new()
+            ->addHtmlContentToHead('<style>
+                .content-wrapper { padding-bottom: 100px !important; }
+                section.content-body { padding-bottom: 100px !important; }
+            </style>');
     }
 
     public function configureMenuItems(): iterable
