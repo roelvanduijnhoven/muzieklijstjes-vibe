@@ -4,7 +4,49 @@
         <div class="mt-2">
             <a href="#" class="text-decoration-none text-secondary mx-2">Contact</a>
             <span class="text-muted mx-1">|</span>
-            <a href="{{ path('admin') }}" class="text-decoration-none text-secondary mx-2">Admin (Alleen voor beheerders)</a>
+            {% set admin_url = path('admin') %}
+            {% set admin_label = 'Admin (Alleen voor beheerders)' %}
+            {% set target_controller = null %}
+            {% set target_id = null %}
+            
+            {% if album is defined and album.id is defined %}
+                {% set target_controller = 'App\\Controller\\Admin\\AlbumCrudController' %}
+                {% set target_id = album.id %}
+                {% set admin_label = 'Bewerk Album' %}
+            {% elseif artist is defined and artist.id is defined %}
+                {% set target_controller = 'App\\Controller\\Admin\\ArtistCrudController' %}
+                {% set target_id = artist.id %}
+                {% set admin_label = 'Bewerk Artiest' %}
+            {% elseif critic is defined and critic.id is defined %}
+                {% set target_controller = 'App\\Controller\\Admin\\CriticCrudController' %}
+                {% set target_id = critic.id %}
+                {% set admin_label = 'Bewerk Recensent' %}
+            {% elseif magazine is defined and magazine.id is defined %}
+                {% set target_controller = 'App\\Controller\\Admin\\MagazineCrudController' %}
+                {% set target_id = magazine.id %}
+                {% set admin_label = 'Bewerk Tijdschrift' %}
+            {% elseif list is defined and list.id is defined and list.type is defined %}
+                {% set target_controller = 'App\\Controller\\Admin\\OrderedAlbumListCrudController' %}
+                {% if list.type == 'unordered' %}
+                    {% set target_controller = 'App\\Controller\\Admin\\UnorderedAlbumListCrudController' %}
+                {% elseif list.type == 'mentioned' %}
+                    {% set target_controller = 'App\\Controller\\Admin\\MentionedAlbumListCrudController' %}
+                {% elseif list.type == 'aggregate' %}
+                    {% set target_controller = 'App\\Controller\\Admin\\AggregateAlbumListCrudController' %}
+                {% endif %}
+                {% set target_id = list.id %}
+                {% set admin_label = 'Bewerk Lijst' %}
+            {% endif %}
+            
+            {% if target_controller %}
+                {% set admin_url = ea_url()
+                    .setController(target_controller)
+                    .setAction('edit')
+                    .setEntityId(target_id)
+                    .generateUrl() %}
+            {% endif %}
+            
+            <a href="{{ admin_url }}" class="text-decoration-none text-secondary mx-2">{{ admin_label }}</a>
         </div>
     </div>
 </footer>
