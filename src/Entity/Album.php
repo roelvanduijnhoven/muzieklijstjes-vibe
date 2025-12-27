@@ -41,6 +41,9 @@ class Album
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $wikipediaUrl = null;
 
+    #[ORM\Column(length: 36, nullable: true)]
+    private ?string $musicBrainzId = null;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $ownedByHans = false;
 
@@ -156,6 +159,18 @@ class Album
     public function setWikipediaUrl(?string $wikipediaUrl): static
     {
         $this->wikipediaUrl = $wikipediaUrl;
+
+        return $this;
+    }
+
+    public function getMusicBrainzId(): ?string
+    {
+        return $this->musicBrainzId;
+    }
+
+    public function setMusicBrainzId(?string $musicBrainzId): static
+    {
+        $this->musicBrainzId = $musicBrainzId;
 
         return $this;
     }

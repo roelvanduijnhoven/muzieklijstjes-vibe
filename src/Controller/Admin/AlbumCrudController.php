@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use App\Enum\AlbumFormat;
 
 class AlbumCrudController extends AbstractCrudController
@@ -22,6 +23,12 @@ class AlbumCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Album::class;
+    }
+
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addJsFile('assets/js/admin/album_musicbrainz.js');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -52,6 +59,7 @@ class AlbumCrudController extends AbstractCrudController
             TextField::new('title')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             IntegerField::new('releaseYear'),
             TextField::new('label')->hideOnIndex(),
+            TextField::new('musicBrainzId')->hideOnIndex(),
             ChoiceField::new('format')->setChoices([
                 'CD' => AlbumFormat::CD,
                 'DVD' => AlbumFormat::DVD,

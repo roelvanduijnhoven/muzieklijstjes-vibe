@@ -81,6 +81,66 @@ class MusicBrainzService
         }
     }
 
+    public function searchAlbumByArtist(string $artistMbid, string $albumTitle): ?string
+    {
+        sleep(1); // Rate limit
+
+        // Lucene query syntax for MusicBrainz
+        // arid:<uuid> AND releasegroup:<title> AND primarytype:Album
+        // We use releasegroup (rg) search because we want the abstract album, not a specific CD release.
+        $query = sprintf('arid:%s AND releasegroup:"%s" AND primarytype:Album', $artistMbid, $albumTitle);
+
+        try {
+            $response = $this->client->request('GET', 'https://musicbrainz.org/ws/2/release-group', [
+                'headers' => [
+                    'User-Agent' => self::USER_AGENT,
+                    'Accept' => 'application/json',
+                ],
+                'query' => [
+                    'query' => $query,
+                    'fmt' => 'json',
+                    'limit' => 5,
+                ],
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                return null;
+            }
+
+            $data = $response->toArray();
+
+            if (empty($data['release-groups'])) {
+                return null;
+            }
+
+            foreach ($data['release-groups'] as $group) {
+                // 1. Exact title match
+                if (strcasecmp($group['title'], $albumTitle) === 0) {
+                    return $group['id'];
+                }
+
+                // 2. High score match
+                if (isset($group['score']) && (int)$group['score'] >= 90) {
+                    return $group['id'];
+                }
+                
+                // 3. Similar name match using levenshtein if available, or just trust the score.
+                // MusicBrainz search is usually good.
+            }
+
+            // Fallback: Return first result if it looks reasonably close (e.g. part of the title matches)
+            // Or just return the first one as "best guess" like we did for Artist.
+            if (!empty($data['release-groups'][0])) {
+                return $data['release-groups'][0]['id'];
+            }
+
+            return null;
+
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     private function searchReleaseGroup(string $artistName, string $albumTitle): ?string
     {
         // Rate limit: MusicBrainz allows ~1 req/sec.
