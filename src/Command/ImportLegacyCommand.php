@@ -17,6 +17,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -95,6 +96,15 @@ class ImportLegacyCommand extends Command
 
         $io->section('Importing Lists');
         $this->importLists($io);
+        
+        // Run aggregation command automatically
+        $io->section('Running aggregation...');
+        $command = $this->getApplication()->find('app:aggregate-lists');
+        $arguments = [
+            'command' => 'app:aggregate-lists',
+        ];
+        $aggregateInput = new ArrayInput($arguments);
+        $command->run($aggregateInput, $output);
 
         $io->success('Import complete.');
 
