@@ -27,6 +27,60 @@ class MusicBrainzService
         return $this->fetchCoverArtUrl($mbid);
     }
 
+    public function searchArtist(string $artistName): ?string
+    {
+        sleep(1); // Rate limit
+
+        try {
+            $response = $this->client->request('GET', 'https://musicbrainz.org/ws/2/artist', [
+                'headers' => [
+                    'User-Agent' => self::USER_AGENT,
+                    'Accept' => 'application/json',
+                ],
+                'query' => [
+                    'query' => sprintf('artist:"%s"', $artistName),
+                    'fmt' => 'json',
+                    'limit' => 5,
+                ],
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                return null;
+            }
+
+            $data = $response->toArray();
+
+            if (empty($data['artists'])) {
+                return null;
+            }
+
+            // Look for an exact match (case-insensitive) OR a very high score
+            foreach ($data['artists'] as $artist) {
+                // 1. Exact name match
+                if (strcasecmp($artist['name'], $artistName) === 0) {
+                    return $artist['id'];
+                }
+
+                // 2. High score match (MusicBrainz usually returns score: "100" for exact matches)
+                if (isset($artist['score']) && (int)$artist['score'] >= 95) {
+                    return $artist['id'];
+                }
+            }
+            
+            // If no exact match or high score, just return the first one if it's somewhat relevant?
+            // For now, let's stick to safer matching. But maybe we can be a bit more lenient.
+            // If the query was specific (artist:"Name"), the first result is usually the best one.
+            if (!empty($data['artists'][0])) {
+                 return $data['artists'][0]['id'];
+            }
+            
+            return null;
+
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     private function searchReleaseGroup(string $artistName, string $albumTitle): ?string
     {
         // Rate limit: MusicBrainz allows ~1 req/sec.

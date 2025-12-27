@@ -11,12 +11,19 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 
 class ArtistCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
         return Artist::class;
+    }
+
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addJsFile('assets/js/admin/artist_musicbrainz.js');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -44,6 +51,7 @@ class ArtistCrudController extends AbstractCrudController
             IdField::new('id')->hideOnForm(),
             TextField::new('name')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             TextField::new('sortName')->hideOnIndex(),
+            TextField::new('musicBrainzId')->hideOnIndex(),
             \EasyCorp\Bundle\EasyAdminBundle\Field\UrlField::new('wikipediaUrl')->hideOnIndex(),
             IntegerField::new('albums.count', 'Album Count')->hideOnForm(),
         ];

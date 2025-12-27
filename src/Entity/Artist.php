@@ -25,6 +25,9 @@ class Artist
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $wikipediaUrl = null;
 
+    #[ORM\Column(length: 36, nullable: true)]
+    private ?string $musicBrainzId = null;
+
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'artist')]
     #[ORM\OrderBy(['releaseYear' => 'ASC', 'title' => 'ASC'])]
     private Collection $albums;
@@ -76,6 +79,18 @@ class Artist
     public function setWikipediaUrl(?string $wikipediaUrl): static
     {
         $this->wikipediaUrl = $wikipediaUrl;
+
+        return $this;
+    }
+
+    public function getMusicBrainzId(): ?string
+    {
+        return $this->musicBrainzId;
+    }
+
+    public function setMusicBrainzId(?string $musicBrainzId): static
+    {
+        $this->musicBrainzId = $musicBrainzId;
 
         return $this;
     }

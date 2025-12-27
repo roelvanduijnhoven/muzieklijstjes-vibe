@@ -70,6 +70,7 @@ class AlbumRepository extends ServiceEntityRepository
             ->join(
                 'App\Entity\AlbumListItem', 
                 'ali', 
+                
                 \Doctrine\ORM\Query\Expr\Join::WITH, 
                 'ali.album = a'
             )
