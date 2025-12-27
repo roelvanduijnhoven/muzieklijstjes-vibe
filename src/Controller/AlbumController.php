@@ -107,7 +107,7 @@ class AlbumController extends AbstractController
             $yearA = $a->getAlbumList()->getReleaseYear() ?? 0;
             $yearB = $b->getAlbumList()->getReleaseYear() ?? 0;
             if ($yearA === $yearB) {
-                 return strcmp($a->getAlbumList()->getTitle(), $b->getAlbumList()->getTitle());
+                 return strcmp($a->getAlbumList()->getTitle() ?? '', $b->getAlbumList()->getTitle() ?? '');
             }
             return $yearB <=> $yearA;
         });

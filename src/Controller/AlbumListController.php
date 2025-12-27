@@ -94,79 +94,12 @@ class AlbumListController extends AbstractController
         }
         // TYPE_UNORDERED and TYPE_AGGREGATE lists: no sorting needed by default
         
-        $computedItems = [];
-        if ($albumList->getType() === AlbumList::TYPE_AGGREGATE) {
-            $scores = [];
-            $albums = [];
-
-            foreach ($albumList->getSources() as $sourceList) {
-                foreach ($sourceList->getListItems() as $item) {
-                    $album = $item->getAlbum();
-                    if (!$album) {
-                        continue;
-                    }
-                    
-                    $albumId = $album->getId();
-                    if (!isset($scores[$albumId])) {
-                        $scores[$albumId] = 0;
-                        $albums[$albumId] = $album;
-                    }
-                    $scores[$albumId]++;
-                }
-            }
-
-            foreach ($scores as $albumId => $score) {
-                $computedItems[] = [
-                    'album' => $albums[$albumId],
-                    'score' => $score,
-                ];
-            }
-
-            // Sort computed items
-            if ($sort === 'album') {
-                usort($computedItems, function($a, $b) use ($direction) {
-                    $valA = $a['album']->getTitle();
-                    $valB = $b['album']->getTitle();
-                    return $direction === 'asc' ? strcasecmp($valA, $valB) : strcasecmp($valB, $valA);
-                });
-            } elseif ($sort === 'artist') {
-                usort($computedItems, function($a, $b) use ($direction) {
-                    $artistA = $a['album']->getArtist();
-                    $artistB = $b['album']->getArtist();
-                    
-                    $valA = $artistA->getSortName() ?? $artistA->getName();
-                    $valB = $artistB->getSortName() ?? $artistB->getName();
-                    
-                $cmp = strcasecmp($valA, $valB);
-                
-                return $direction === 'asc' ? $cmp : -$cmp;
-            });
-        } elseif ($sort === 'year') {
-            usort($computedItems, function($a, $b) use ($direction) {
-                $yearA = $a['album']->getReleaseYear() ?? 0;
-                $yearB = $b['album']->getReleaseYear() ?? 0;
-                return $direction === 'asc' ? $yearA <=> $yearB : $yearB <=> $yearA;
-            });
-        } elseif ($sort === 'position') {
-                usort($computedItems, function($a, $b) use ($direction) {
-                    return $direction === 'asc' ? $a['score'] <=> $b['score'] : $b['score'] <=> $a['score'];
-                });
-            } else {
-                // Default sort by score descending
-                usort($computedItems, function($a, $b) {
-                    return $b['score'] <=> $a['score'];
-                });
-            }
-        }
-
         return $this->render('album_list/show.html.twig', [
             'list' => $albumList,
             'items' => $items,
             'hasMentions' => $hasMentions,
-            'computedItems' => $computedItems,
             'currentSort' => $sort,
             'currentDirection' => $direction,
         ]);
     }
 }
-

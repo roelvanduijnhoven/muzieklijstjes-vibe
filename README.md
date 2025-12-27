@@ -58,8 +58,8 @@ A collection of "Best" albums without a hierarchy.
 A meta-list constructed computationally from other lists.
 
 *   **Source:** Composed of multiple Source Lists (Type A or Type B).
+*   **Materialization:** Aggregate lists are **materialized** in the database. When source lists are updated, the derived aggregate items (and their mention scores) are automatically recalculated and stored as `AlbumListItem` entries with a computed `mentions` count.
 *   **Example:** A newsletter publishes the "Critics Poll," which aggregates the unranked Top 10s of 10 different critics into a final ordered list.
-*   **Function:** The application must be able to construct these dynamically.
     
 
 ### 3. Sources
@@ -108,6 +108,16 @@ This command will:
 2. Import Artists, Magazines, Critics, Albums, Reviews, and Lists.
 3. Create individual critic lists derived from aggregate lists.
 
+### Materializing Aggregate Lists
+
+Because aggregate lists are derived from other lists, you may need to run an aggregation pass to calculate their contents initially (e.g. after import):
+
+```bash
+./runapp app:aggregate-lists
+```
+
+This command iterates over all lists of type "aggregate" and populates their items based on the source lists.
+
 🎵 Album Covers
 ---------------
 
@@ -149,4 +159,4 @@ This command:
 
 - The rubric of the original dataset does not contain a newsletter
 - Have the original dataset contain all rows from the stretch it
-- The list ofdescriptions Should map correctly to magazines Using their short name
+- The list ofdescriptions Should map correctly to magazines Using their short titles
