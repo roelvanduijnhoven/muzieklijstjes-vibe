@@ -118,46 +118,57 @@
                 <h3>Recensies</h3>
                 {% if album.reviews is not empty %}
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table table-striped align-middle">
                             <thead>
                                 <tr>
-                                    <th>Bron</th>
+                                    <th>Tijdschrift</th>
+                                    <th>Recensent</th>
                                     <th>Rating</th>
-                                    <th>Details</th>
+                                    <th>Jaar</th>
+                                    <th>Editie</th>
+                                    <th>Rubriek</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for review in album.reviews %}
                                     <tr>
                                         <td>
-                                            {% if review.critic %}
-                                                <a href="{{ path('app_critic_show', {id: review.critic.id, slug: review.critic.slug}) }}">{{ review.critic.name }}</a>
-                                                {% if review.magazine %}
-                                                    <small class="text-muted">({{ review.magazine.name }})</small>
-                                                {% endif %}
-                                            {% elseif review.magazine %}
+                                            {% if review.magazine %}
                                                 {{ review.magazine.name }}
                                             {% else %}
-                                                Onbekende Bron
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if review.critic %}
+                                                <a href="{{ path('app_critic_show', {id: review.critic.id, slug: review.critic.slug}) }}">{{ review.critic.name }}</a>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
                                             {% endif %}
                                         </td>
                                         <td>
                                             {{ rating_macros.render(review) }}
                                         </td>
                                         <td>
-                                            <small class="text-muted">
-                                                {% set details = [] %}
-                                                {% if review.year %}
-                                                    {% set details = details|merge([review.year]) %}
-                                                {% endif %}
-                                                {% if review.issueNumber %}
-                                                    {% set details = details|merge(['Editie: ' ~ review.issueNumber]) %}
-                                                {% endif %}
-                                                {% if review.rubric %}
-                                                    {% set details = details|merge(['Rubriek: ' ~ review.rubric]) %}
-                                                {% endif %}
-                                                {{ details|join(' - ') }}
-                                            </small>
+                                            {% if review.year %}
+                                                {{ review.year }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if review.issueNumber %}
+                                                {{ review.issueNumber }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if review.rubric %}
+                                                {{ review.rubric.name }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -171,4 +182,43 @@
         </div>
     </div>
 </div>
+
+<div id="sticky-header" class="fixed-top bg-white border-bottom shadow-sm py-2" style="transform: translateY(-100%); transition: transform 0.3s ease-in-out; z-index: 1050;">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center text-truncate">
+                {% if album.imageUrl %}
+                    <img src="{{ album_cover_base_url ~ album.imageUrl }}" alt="{{ album.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                {% endif %}
+                <div class="text-truncate">
+                    <div class="fw-bold text-truncate">{{ album.title }}</div>
+                    <small class="text-muted">{{ album.artist.name }}</small>
+                </div>
+            </div>
+            <div class="flex-shrink-0 ms-3">
+                 <a href="#lists" class="btn btn-sm btn-outline-primary me-2">
+                    Lijsten <span class="badge bg-primary text-white ms-1">{{ listItems|length }}</span>
+                 </a>
+                 <a href="#reviews" class="btn btn-sm btn-outline-secondary">
+                    Recensies <span class="badge bg-secondary text-white ms-1">{{ album.reviews|length }}</span>
+                 </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var stickyHeader = document.getElementById('sticky-header');
+        var threshold = 300;
+
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > threshold) {
+                stickyHeader.style.transform = 'translateY(0)';
+            } else {
+                stickyHeader.style.transform = 'translateY(-100%)';
+            }
+        });
+    });
+</script>
 {% endblock %}
