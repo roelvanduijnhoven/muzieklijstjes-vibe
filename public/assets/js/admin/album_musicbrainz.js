@@ -94,14 +94,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('/admin/ajax/album/search-musicbrainz?artistId=' + encodeURIComponent(artistId) + '&albumTitle=' + encodeURIComponent(albumTitle));
             
             if (!response.ok) {
-                const errorText = await response.text();
-                // Try to parse JSON error if possible
-                try {
-                    const jsonError = JSON.parse(errorText);
-                    throw new Error(jsonError.error || `Server returned ${response.status}`);
-                } catch (e) {
-                    throw new Error(`Server returned ${response.status}: ${errorText}`);
+                const data = await response.json();
+                let msg = data.error || `Server returned ${response.status}`;
+                if (data.api_url) {
+                    msg += `\n\nAPI URL used: ${data.api_url}`;
+                    const errorLink = document.createElement('div');
+                    errorLink.innerHTML = `<a href="${data.api_url}" target="_blank" class="text-danger">Debug API Query</a>`;
+                    fetchButton.parentNode.appendChild(errorLink);
+                    setTimeout(() => errorLink.remove(), 10000);
                 }
+                throw new Error(msg);
             }
 
             const data = await response.json();
@@ -114,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Full Error Object:', error);
-            alert('An error occurred: ' + error.message);
+            alert(error.message);
         } finally {
             fetchButton.disabled = false;
             fetchButton.innerHTML = '<i class="fa fa-search"></i> Fetch ID using title';

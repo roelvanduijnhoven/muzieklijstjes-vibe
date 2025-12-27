@@ -57,14 +57,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('/admin/ajax/artist/search-musicbrainz?query=' + encodeURIComponent(artistName));
             
             if (!response.ok) {
-                const errorText = await response.text();
-                // Try to parse JSON error if possible
-                try {
-                    const jsonError = JSON.parse(errorText);
-                    throw new Error(jsonError.error || `Server returned ${response.status}`);
-                } catch (e) {
-                    throw new Error(`Server returned ${response.status}: ${errorText}`);
+                const data = await response.json();
+                let msg = data.error || `Server returned ${response.status}`;
+                if (data.api_url) {
+                    msg += `\n\nAPI URL used: ${data.api_url}`;
+                    const errorLink = document.createElement('div');
+                    errorLink.innerHTML = `<a href="${data.api_url}" target="_blank" class="text-danger">Debug API Query</a>`;
+                    fetchButton.parentNode.appendChild(errorLink);
+                    setTimeout(() => errorLink.remove(), 10000);
                 }
+                throw new Error(msg);
             }
 
             const data = await response.json();
@@ -77,7 +79,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Full Error Object:', error);
-            alert('An error occurred: ' + error.message);
+            // Check if error is a json parsed error which might contain API URL
+            let errorMsg = error.message;
+            let apiUrl = null;
+            
+            // Try to extract URL if it was in the JSON error
+            // The previous logic threw "Server returned X: {json}"
+            // It's a bit hard to parse back.
+            // Let's rely on modifying the 'if (!response.ok)' block above to pass data properly.
+            // But since we are here, let's just use what we have or modify the JS structure slightly.
+            // Actually, I can't easily access the parsed JSON from the catch block unless I throw it.
+            // Let's restructure the try/catch.
+            alert(error.message);
         } finally {
             fetchButton.disabled = false;
             fetchButton.innerHTML = '<i class="fa fa-search"></i> Fetch ID';

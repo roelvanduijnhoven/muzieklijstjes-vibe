@@ -28,7 +28,10 @@ class ArtistAjaxController extends AbstractController
 
             if ($mbid === null) {
                 // Return 404 explicitly if not found, but in JSON
-                 return new JsonResponse(['error' => 'No artist found on MusicBrainz'], 404);
+                 return new JsonResponse([
+                     'error' => 'No artist found on MusicBrainz',
+                     'api_url' => $this->musicBrainzService->getArtistSearchUrl($query)
+                 ], 404);
             }
 
             return new JsonResponse([
@@ -37,7 +40,8 @@ class ArtistAjaxController extends AbstractController
         } catch (\Throwable $e) {
             return new JsonResponse([
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'api_url' => isset($query) ? $this->musicBrainzService->getArtistSearchUrl($query) : null
             ], 500);
         }
     }

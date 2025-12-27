@@ -32,15 +32,16 @@ class MusicBrainzService
         sleep(1); // Rate limit
 
         try {
+            $query = sprintf('artist:"%s"', $artistName);
             $response = $this->client->request('GET', 'https://musicbrainz.org/ws/2/artist', [
                 'headers' => [
                     'User-Agent' => self::USER_AGENT,
                     'Accept' => 'application/json',
                 ],
                 'query' => [
-                    'query' => sprintf('artist:"%s"', $artistName),
+                    'query' => $query,
                     'fmt' => 'json',
-                    'limit' => 5,
+                    'limit' => 100,
                 ],
             ]);
 
@@ -54,24 +55,21 @@ class MusicBrainzService
                 return null;
             }
 
-            // Look for an exact match (case-insensitive) OR a very high score
+            // Look for an exact match (case-insensitive)
             foreach ($data['artists'] as $artist) {
                 // 1. Exact name match
                 if (strcasecmp($artist['name'], $artistName) === 0) {
                     return $artist['id'];
                 }
-
-                // 2. High score match (MusicBrainz usually returns score: "100" for exact matches)
-                if (isset($artist['score']) && (int)$artist['score'] >= 95) {
-                    return $artist['id'];
+                
+                // 2. Exact alias match
+                if (isset($artist['aliases']) && is_array($artist['aliases'])) {
+                    foreach ($artist['aliases'] as $alias) {
+                        if (isset($alias['name']) && strcasecmp($alias['name'], $artistName) === 0) {
+                            return $artist['id'];
+                        }
+                    }
                 }
-            }
-            
-            // If no exact match or high score, just return the first one if it's somewhat relevant?
-            // For now, let's stick to safer matching. But maybe we can be a bit more lenient.
-            // If the query was specific (artist:"Name"), the first result is usually the best one.
-            if (!empty($data['artists'][0])) {
-                 return $data['artists'][0]['id'];
             }
             
             return null;
@@ -79,6 +77,18 @@ class MusicBrainzService
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    public function getArtistSearchUrl(string $artistName): string
+    {
+        $query = sprintf('artist:"%s"', $artistName);
+        return 'https://musicbrainz.org/ws/2/artist?query=' . urlencode($query) . '&fmt=json&limit=100';
+    }
+
+    public function getAlbumSearchUrl(string $artistMbid, string $albumTitle): string
+    {
+        $query = sprintf('arid:%s AND releasegroup:"%s" AND primarytype:Album', $artistMbid, $albumTitle);
+        return 'https://musicbrainz.org/ws/2/release-group?query=' . urlencode($query) . '&fmt=json&limit=5';
     }
 
     public function searchAlbumByArtist(string $artistMbid, string $albumTitle): ?string
@@ -118,20 +128,6 @@ class MusicBrainzService
                 if (strcasecmp($group['title'], $albumTitle) === 0) {
                     return $group['id'];
                 }
-
-                // 2. High score match
-                if (isset($group['score']) && (int)$group['score'] >= 90) {
-                    return $group['id'];
-                }
-                
-                // 3. Similar name match using levenshtein if available, or just trust the score.
-                // MusicBrainz search is usually good.
-            }
-
-            // Fallback: Return first result if it looks reasonably close (e.g. part of the title matches)
-            // Or just return the first one as "best guess" like we did for Artist.
-            if (!empty($data['release-groups'][0])) {
-                return $data['release-groups'][0]['id'];
             }
 
             return null;
