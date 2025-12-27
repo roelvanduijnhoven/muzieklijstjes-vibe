@@ -28,9 +28,42 @@ class DashboardController extends AbstractDashboardController
     {
         return Assets::new()
             ->addHtmlContentToHead('<style>
-                .content-wrapper { padding-bottom: 100px !important; }
-                section.content-body { padding-bottom: 100px !important; }
-            </style>');
+                .ts-wrapper.dropup .ts-dropdown {
+                    top: auto !important;
+                    bottom: 100% !important;
+                    margin-top: 0 !important;
+                    margin-bottom: 0 !important;
+                }
+            </style>')
+            ->addHtmlContentToBody('<script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const observer = new MutationObserver(function(mutations) {
+                        document.querySelectorAll("select").forEach(function(select) {
+                            if (select.tomselect && !select.tomselect._hasDropupListener) {
+                                select.tomselect._hasDropupListener = true;
+                                select.tomselect.on("dropdown_open", function() {
+                                    const wrapper = select.tomselect.wrapper;
+                                    const dropdown = select.tomselect.dropdown;
+                                    const rect = wrapper.getBoundingClientRect();
+                                    const dropdownHeight = dropdown.scrollHeight;
+                                    const spaceBelow = window.innerHeight - rect.bottom;
+                                    
+                                    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+                                        wrapper.classList.add("dropup");
+                                    } else {
+                                        wrapper.classList.remove("dropup");
+                                    }
+                                });
+                                select.tomselect.on("dropdown_close", function() {
+                                    select.tomselect.wrapper.classList.remove("dropup");
+                                });
+                            }
+                        });
+                    });
+                    
+                    observer.observe(document.body, { childList: true, subtree: true });
+                });
+            </script>');
     }
 
     public function configureMenuItems(): iterable
