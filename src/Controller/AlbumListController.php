@@ -57,6 +57,12 @@ class AlbumListController extends AbstractController
                 
                 return $direction === 'asc' ? $cmp : -$cmp;
             });
+        } elseif ($sort === 'year') {
+            usort($items, function($a, $b) use ($direction) {
+                $yearA = $a->getAlbum()->getReleaseYear() ?? 0;
+                $yearB = $b->getAlbum()->getReleaseYear() ?? 0;
+                return $direction === 'asc' ? $yearA <=> $yearB : $yearB <=> $yearA;
+            });
         } elseif ($sort === 'position') {
             if ($hasMentions) {
                 usort($items, function($a, $b) use ($direction) {
@@ -131,11 +137,17 @@ class AlbumListController extends AbstractController
                     $valA = $artistA->getSortName() ?? $artistA->getName();
                     $valB = $artistB->getSortName() ?? $artistB->getName();
                     
-                    $cmp = strcasecmp($valA, $valB);
-                    
-                    return $direction === 'asc' ? $cmp : -$cmp;
-                });
-            } elseif ($sort === 'position') {
+                $cmp = strcasecmp($valA, $valB);
+                
+                return $direction === 'asc' ? $cmp : -$cmp;
+            });
+        } elseif ($sort === 'year') {
+            usort($computedItems, function($a, $b) use ($direction) {
+                $yearA = $a['album']->getReleaseYear() ?? 0;
+                $yearB = $b['album']->getReleaseYear() ?? 0;
+                return $direction === 'asc' ? $yearA <=> $yearB : $yearB <=> $yearA;
+            });
+        } elseif ($sort === 'position') {
                 usort($computedItems, function($a, $b) use ($direction) {
                     return $direction === 'asc' ? $a['score'] <=> $b['score'] : $b['score'] <=> $a['score'];
                 });

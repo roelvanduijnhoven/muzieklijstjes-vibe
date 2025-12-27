@@ -82,6 +82,14 @@
                     </a>
                 </th>
                 <th>
+                    <a href="{{ path('app_list_show', list.routeParams|merge({sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')})) }}">
+                        Artiest
+                        {% if currentSort == 'artist' %}
+                            {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
                     <a href="{{ path('app_list_show', list.routeParams|merge({sort: 'album', direction: (currentSort == 'album' and currentDirection == 'asc' ? 'desc' : 'asc')})) }}">
                         Album
                         {% if currentSort == 'album' %}
@@ -90,9 +98,9 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ path('app_list_show', list.routeParams|merge({sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')})) }}">
-                        Artiest
-                        {% if currentSort == 'artist' %}
+                    <a href="{{ path('app_list_show', list.routeParams|merge({sort: 'year', direction: (currentSort == 'year' and currentDirection == 'asc' ? 'desc' : 'asc')})) }}">
+                        Jaar
+                        {% if currentSort == 'year' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
                         {% endif %}
                     </a>
@@ -112,8 +120,9 @@
                     {% endif %}
                 </td>
                 <td>{{ item.score }}</td>
-                <td><a href="{{ path('app_album_show', item.album.routeParams) }}">{{ item.album.title }}</a></td>
                 <td><a href="{{ path('app_artist_show', item.album.artist.routeParams) }}">{{ item.album.artist.name }}</a></td>
+                <td><a href="{{ path('app_album_show', item.album.routeParams) }}">{{ item.album.title }}</a></td>
+                <td>{{ item.album.releaseYear }}</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -148,6 +157,14 @@
                     </th>
                 {% endif %}
                 <th>
+                    <a href="{{ path('app_list_show', list.routeParams|merge({sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')})) }}">
+                        Artiest
+                        {% if currentSort == 'artist' %}
+                            {{ currentDirection == 'asc' ? '▲' : '▼' }}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
                     <a href="{{ path('app_list_show', list.routeParams|merge({sort: 'album', direction: (currentSort == 'album' and currentDirection == 'asc' ? 'desc' : 'asc')})) }}">
                         Album
                         {% if currentSort == 'album' %}
@@ -156,9 +173,9 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ path('app_list_show', list.routeParams|merge({sort: 'artist', direction: (currentSort == 'artist' and currentDirection == 'asc' ? 'desc' : 'asc')})) }}">
-                        Artiest
-                        {% if currentSort == 'artist' %}
+                    <a href="{{ path('app_list_show', list.routeParams|merge({sort: 'year', direction: (currentSort == 'year' and currentDirection == 'asc' ? 'desc' : 'asc')})) }}">
+                        Jaar
+                        {% if currentSort == 'year' %}
                             {{ currentDirection == 'asc' ? '▲' : '▼' }}
                         {% endif %}
                     </a>
@@ -182,8 +199,9 @@
                 {% elseif list.type == 'ordered' %}
                     <td>{{ item.position }}</td>
                 {% endif %}
-                <td><a href="{{ path('app_album_show', item.album.routeParams) }}">{{ item.album.title }}</a></td>
                 <td><a href="{{ path('app_artist_show', item.album.artist.routeParams) }}">{{ item.album.artist.name }}</a></td>
+                <td><a href="{{ path('app_album_show', item.album.routeParams) }}">{{ item.album.title }}</a></td>
+                <td>{{ item.album.releaseYear }}</td>
             </tr>
         {% endfor %}
         </tbody>
