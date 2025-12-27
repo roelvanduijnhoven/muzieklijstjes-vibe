@@ -1,5 +1,4 @@
 {% extends 'base.html.twig' %}
-{% import 'macros/list_macros.html.twig' as macros %}
 {% import 'macros/rating.html.twig' as rating_macros %}
 
 {% block body %}
@@ -11,7 +10,7 @@
       </ol>
     </nav>
 
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-md-3">
             {% if album.imageUrl %}
                 <div class="mb-10">
@@ -27,17 +26,110 @@
                 <small class="text-muted">Uitgebracht in {{ album.releaseYear }}</small>
             </p>
 
-            <hr>
+            <p>
+                Dit album verschijnt in <a href="#lists">{{ listItems|length }} lijsten</a> en heeft <a href="#reviews">{{ album.reviews|length }} recensies</a>.
+            </p>
+        </div>
+    </div>
 
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <h3>Recensies</h3>
-                    {% if album.reviews is not empty %}
-                        <div class="list-group mb-4">
-                            {% for review in album.reviews %}
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">
+    <hr>
+
+    <div class="row">
+        <div class="col-12">
+            <div id="lists" class="mt-4">
+                <h3>Verschijnt in lijsten</h3>
+                {% if listItems is not empty %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Preview</th>
+                                    <th>Lijst</th>
+                                    <th>Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in listItems %}
+                                    {% set list = item.albumList %}
+                                    <tr style="cursor: pointer;" onclick="window.location='{{ path('app_list_show', {id: list.id, slug: list.slug}) }}'">
+                                        <td>
+                                            <div class="position-relative" style="width: 85px; height: 60px; transform: rotate(-2deg);">
+                                                {% for previewItem in list.previewItems(3) %}
+                                                    {% set offsetLeft = (loop.index0 * 15) %}
+                                                    {% set offsetTop = (loop.index0 * 4) %}
+                                                    {% set zIndex = 10 - loop.index0 %}
+                                                    {% if previewItem.album.imageUrl %}
+                                                        <img src="{{ album_cover_base_url ~ previewItem.album.imageUrl }}" 
+                                                                alt="{{ previewItem.album.title }}" 
+                                                                class="img-thumbnail position-absolute" 
+                                                                style="width: 50px; height: 50px; object-fit: cover; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
+                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
+                                                    {% else %}
+                                                        <div class="bg-light border d-flex align-items-center justify-content-center text-muted small text-center p-1 position-absolute" 
+                                                                style="width: 50px; height: 50px; font-size: 0.6rem; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
+                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
+                                                            No Img
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('app_list_show', {id: list.id, slug: list.slug}) }}" class="text-decoration-none fw-bold">{{ list.title }}</a>
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ list.releaseYear }} - 
+                                                {% if list.type == 'ordered' %}
+                                                    Genummerde Lijst
+                                                {% elseif list.type == 'unordered' %}
+                                                    Ongenummerde Lijst
+                                                {% elseif list.type == 'aggregate' %}
+                                                    Verzamelijst
+                                                {% else %}
+                                                    {{ list.type|capitalize }}
+                                                {% endif %}
+                                                {% if list.magazine %}
+                                                    door {{ list.magazine.name }}
+                                                {% elseif list.critic %}
+                                                    door {{ list.critic.name }}
+                                                {% endif %}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if item.position %}
+                                                Positie <strong>#{{ item.position }}</strong>
+                                            {% elseif item.mentions %}
+                                                {{ item.mentions }} vermeldingen
+                                            {% else %}
+                                                Ongenummerd
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Dit album komt nog in geen enkele lijst voor.</p>
+                {% endif %}
+            </div>
+
+            <div id="reviews" class="mt-5">
+                <h3>Recensies</h3>
+                {% if album.reviews is not empty %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Bron</th>
+                                    <th>Rating</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for review in album.reviews %}
+                                    <tr>
+                                        <td>
                                             {% if review.critic %}
                                                 <a href="{{ path('app_critic_show', {id: review.critic.id, slug: review.critic.slug}) }}">{{ review.critic.name }}</a>
                                                 {% if review.magazine %}
@@ -48,58 +140,33 @@
                                             {% else %}
                                                 Onbekende Bron
                                             {% endif %}
-                                        </h5>
-                                        <small>
+                                        </td>
+                                        <td>
                                             {{ rating_macros.render(review) }}
-                                        </small>
-                                    </div>
-                                    <p class="mb-1">
-                                        {% if review.year %}
-                                            {{ review.year }}
-                                        {% endif %}
-                                        {% if review.issueNumber %}
-                                            (Editie: {{ review.issueNumber }})
-                                        {% endif %}
-                                    </p>
-                                    {% if review.rubric %}
-                                        <small class="text-muted">Rubriek: {{ review.rubric }}</small>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-muted">Geen recensies gevonden voor dit album.</p>
-                    {% endif %}
-                </div>
-                
-                <div class="col-md-6">
-                    <h3>Verschijnt in lijsten</h3>
-                    {% if listItems is not empty %}
-                        <div class="list-group mb-4">
-                            {% for item in listItems %}
-                                {% set extra_info %}
-                                    {% if item.position %}
-                                        Positie <strong>#{{ item.position }}</strong>
-                                    {% elseif item.mentions %}
-                                        {{ item.mentions }} vermeldingen
-                                    {% else %}
-                                        Ongenummerd
-                                    {% endif %}
-                                    -
-                                    {{ item.albumList.type|capitalize }}
-                                    {% if item.albumList.magazine %}
-                                        door {{ item.albumList.magazine.name }}
-                                    {% elseif item.albumList.critic %}
-                                        door {{ item.albumList.critic.name }}
-                                    {% endif %}
-                                {% endset %}
-                                {{ macros.list_card(item.albumList, album_cover_base_url, extra_info) }}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-muted">Dit album komt nog in geen enkele lijst voor.</p>
-                    {% endif %}
-                </div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {% set details = [] %}
+                                                {% if review.year %}
+                                                    {% set details = details|merge([review.year]) %}
+                                                {% endif %}
+                                                {% if review.issueNumber %}
+                                                    {% set details = details|merge(['Editie: ' ~ review.issueNumber]) %}
+                                                {% endif %}
+                                                {% if review.rubric %}
+                                                    {% set details = details|merge(['Rubriek: ' ~ review.rubric]) %}
+                                                {% endif %}
+                                                {{ details|join(' - ') }}
+                                            </small>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Geen recensies gevonden voor dit album.</p>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -26,7 +26,7 @@ class DashboardController extends AbstractDashboardController
 
     public function configureAssets(): Assets
     {
-        return Assets::new()
+        return parent::configureAssets()
             ->addHtmlContentToHead('<style>
                 .ts-wrapper.dropup .ts-dropdown {
                     top: auto !important;
