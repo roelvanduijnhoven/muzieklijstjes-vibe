@@ -25,7 +25,7 @@ class Artist
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $wikipediaUrl = null;
 
-    #[ORM\Column(length: 36, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $musicBrainzId = null;
 
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'artist')]

@@ -182,7 +182,7 @@ class MusicBrainzService
         }
     }
 
-    private function fetchCoverArtUrl(string $mbid): ?string
+    public function fetchCoverArtUrl(string $mbid): ?string
     {
         // Cover Art Archive does not have the same strict rate limits as MusicBrainz API,
         // but we should still be polite.

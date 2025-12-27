@@ -41,7 +41,7 @@ class Album
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $wikipediaUrl = null;
 
-    #[ORM\Column(length: 36, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $musicBrainzId = null;
 
     #[ORM\Column(options: ['default' => false])]

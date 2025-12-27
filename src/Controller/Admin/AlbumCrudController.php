@@ -3,8 +3,11 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Album;
+use App\Service\AlbumCoverService;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -17,9 +20,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use App\Enum\AlbumFormat;
+use Symfony\Component\HttpFoundation\Response;
 
 class AlbumCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private AlbumCoverService $albumCoverService,
+        private EntityManagerInterface $entityManager
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return Album::class;
@@ -38,10 +48,39 @@ class AlbumCrudController extends AbstractCrudController
                 return $album->getRouteParams();
             });
 
+        $refreshCover = Action::new('refreshCover', 'Refresh cover', 'fa fa-image')
+            ->linkToCrudAction('refreshCover')
+            ->displayIf(fn (Album $album) => $album->getMusicBrainzId() !== null);
+
         return $actions
             ->add(Crud::PAGE_INDEX, $viewOnSite)
             ->add(Crud::PAGE_DETAIL, $viewOnSite)
-            ->add(Crud::PAGE_EDIT, $viewOnSite);
+            ->add(Crud::PAGE_EDIT, $viewOnSite)
+            ->add(Crud::PAGE_DETAIL, $refreshCover)
+            ->add(Crud::PAGE_EDIT, $refreshCover);
+    }
+
+    public function refreshCover(AdminContext $context): Response
+    {
+        // Manually fetch the entity to be safe against Context issues
+        $id = $context->getRequest()->query->get('entityId');
+        $entity = $this->entityManager->getRepository(Album::class)->find($id);
+
+        if (!$entity instanceof Album) {
+            $this->addFlash('danger', 'Album not found.');
+            return $this->redirect($context->getRequest()->headers->get('referer') ?? '/admin');
+        }
+
+        $newPath = $this->albumCoverService->refreshCover($entity);
+        $this->entityManager->flush();
+
+        if ($newPath) {
+            $this->addFlash('success', 'Cover refreshed.');
+        } else {
+            $this->addFlash('warning', 'No cover found; cover cleared.');
+        }
+
+        return $this->redirect($context->getRequest()->headers->get('referer') ?? '/admin');
     }
 
     public function configureCrud(Crud $crud): Crud
