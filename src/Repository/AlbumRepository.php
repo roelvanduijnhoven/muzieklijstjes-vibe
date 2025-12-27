@@ -40,7 +40,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findMostListedAlbums(int $limit = 50): array
     {
         return $this->createQueryBuilder('a')
-            ->select('a as album, COUNT(DISTINCT CASE WHEN al.important = true THEN al.id ELSE agg.id END) as score')
+            ->select('a as album, COUNT(DISTINCT al.id) as score')
             ->join(
                 'App\Entity\AlbumListItem', 
                 'ali', 
@@ -48,13 +48,11 @@ class AlbumRepository extends ServiceEntityRepository
                 'ali.album = a'
             )
             ->join('ali.albumList', 'al')
-            ->leftJoin('al.aggregatedIn', 'agg')
             ->join('a.artist', 'ar')
             ->addSelect('ar')
-            ->where('(al.important = :important AND al.type != :aggregateType)')
-            ->orWhere('(agg.important = :important AND agg.type = :aggregateType)')
+            // Count lists that are important
+            ->where('al.important = :important')
             ->setParameter('important', true)
-            ->setParameter('aggregateType', \App\Entity\AlbumList::TYPE_AGGREGATE)
             ->groupBy('a')
             ->orderBy('score', 'DESC')
             ->setMaxResults($limit)
@@ -68,7 +66,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findMostListedAlbumsByYear(int $year, int $limit = 50): array
     {
         return $this->createQueryBuilder('a')
-            ->select('a as album, COUNT(DISTINCT CASE WHEN al.releaseYear = :year THEN al.id ELSE agg.id END) as score')
+            ->select('a as album, COUNT(DISTINCT al.id) as score')
             ->join(
                 'App\Entity\AlbumListItem', 
                 'ali', 
@@ -76,13 +74,13 @@ class AlbumRepository extends ServiceEntityRepository
                 'ali.album = a'
             )
             ->join('ali.albumList', 'al')
-            ->leftJoin('al.aggregatedIn', 'agg')
             ->join('a.artist', 'ar')
             ->addSelect('ar')
-            ->where('al.releaseYear = :year AND al.type != :aggregateType')
-            ->orWhere('agg.releaseYear = :year AND agg.type = :aggregateType')
+            // Only count Top Level lists (lists that are not aggregated in others) for the year chart
+            ->leftJoin('al.aggregatedIn', 'agg')
+            ->where('al.releaseYear = :year')
+            ->andWhere('agg.id IS NULL')
             ->setParameter('year', $year)
-            ->setParameter('aggregateType', \App\Entity\AlbumList::TYPE_AGGREGATE)
             ->groupBy('a')
             ->orderBy('score', 'DESC')
             ->setMaxResults($limit)
@@ -90,4 +88,3 @@ class AlbumRepository extends ServiceEntityRepository
             ->getResult();
     }
 }
-
