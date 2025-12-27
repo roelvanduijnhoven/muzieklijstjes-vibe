@@ -27,7 +27,7 @@
             </p>
 
             <p>
-                Dit album verschijnt in <a href="#lists">{{ listItems|length }} lijsten</a> en heeft <a href="#reviews">{{ album.reviews|length }} recensies</a>.
+                Dit album verschijnt in <a href="#lists">{{ listCount }} lijsten</a> en heeft <a href="#reviews">{{ album.reviews|length }} recensies</a>.
             </p>
         </div>
     </div>
@@ -196,8 +196,9 @@
                 </div>
             </div>
             <div class="flex-shrink-0 ms-3">
+                 <a href="#" class="btn btn-sm btn-outline-info me-2">Metadata</a>
                  <a href="#lists" class="btn btn-sm btn-outline-primary me-2">
-                    Lijsten <span class="badge bg-primary text-white ms-1">{{ listItems|length }}</span>
+                    Lijsten <span class="badge bg-primary text-white ms-1">{{ listCount }}</span>
                  </a>
                  <a href="#reviews" class="btn btn-sm btn-outline-secondary">
                     Recensies <span class="badge bg-secondary text-white ms-1">{{ album.reviews|length }}</span>
