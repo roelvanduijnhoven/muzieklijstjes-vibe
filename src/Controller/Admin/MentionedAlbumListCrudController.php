@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\AlbumList;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -25,6 +27,19 @@ class MentionedAlbumListCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return AlbumList::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $viewOnSite = Action::new('viewOnSite', 'View on Site', 'fa fa-eye')
+            ->linkToRoute('app_list_show', function (AlbumList $list): array {
+                return $list->getRouteParams();
+            });
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $viewOnSite)
+            ->add(Crud::PAGE_DETAIL, $viewOnSite)
+            ->add(Crud::PAGE_EDIT, $viewOnSite);
     }
 
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder

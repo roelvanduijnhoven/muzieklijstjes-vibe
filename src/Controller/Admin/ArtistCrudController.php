@@ -3,7 +3,10 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Artist;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Config;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -14,6 +17,19 @@ class ArtistCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Artist::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $viewOnSite = Action::new('viewOnSite', 'View on Site', 'fa fa-eye')
+            ->linkToRoute('app_artist_show', function (Artist $artist): array {
+                return $artist->getRouteParams();
+            });
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $viewOnSite)
+            ->add(Crud::PAGE_DETAIL, $viewOnSite)
+            ->add(Crud::PAGE_EDIT, $viewOnSite);
     }
 
     public function configureConfig(Config $config): Config

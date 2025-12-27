@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Album;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -20,6 +22,19 @@ class AlbumCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Album::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $viewOnSite = Action::new('viewOnSite', 'View on Site', 'fa fa-eye')
+            ->linkToRoute('app_album_show', function (Album $album): array {
+                return $album->getRouteParams();
+            });
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $viewOnSite)
+            ->add(Crud::PAGE_DETAIL, $viewOnSite)
+            ->add(Crud::PAGE_EDIT, $viewOnSite);
     }
 
     public function configureCrud(Crud $crud): Crud
