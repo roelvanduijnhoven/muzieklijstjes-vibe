@@ -97,6 +97,16 @@ class ImportLegacyCommand extends Command
         $io->section('Importing Lists');
         $this->importLists($io);
         
+        // Import MBID map
+        $io->section('Importing MusicBrainz IDs');
+        $command = $this->getApplication()->find('app:artist:import-mbid-map');
+        $command->run(new ArrayInput([]), $output);
+
+        // Sync covers from bucket
+        $io->section('Syncing Covers from Bucket');
+        $command = $this->getApplication()->find('app:sync-covers-from-bucket');
+        $command->run(new ArrayInput([]), $output);
+
         // Run aggregation command automatically
         $io->section('Running aggregation...');
         $command = $this->getApplication()->find('app:aggregate-lists');
