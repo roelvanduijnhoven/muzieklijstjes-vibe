@@ -4,13 +4,15 @@ namespace App\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Psr\Log\LoggerInterface;
 
 class MusicBrainzService
 {
     private const USER_AGENT = 'RegisterVibe/1.0 ( roel@register-vibe.com )'; // TODO: Use configurable contact info
 
     public function __construct(
-        private HttpClientInterface $client
+        private HttpClientInterface $client,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -33,7 +35,15 @@ class MusicBrainzService
 
         try {
             $query = sprintf('artist:"%s"', $artistName);
-            $response = $this->client->request('GET', 'https://musicbrainz.org/ws/2/artist', [
+            $url = 'https://musicbrainz.org/ws/2/artist';
+            
+            $this->logger->info('MusicBrainz searchArtist request', [
+                'artist' => $artistName,
+                'query' => $query,
+                'url' => $url,
+            ]);
+
+            $response = $this->client->request('GET', $url, [
                 'headers' => [
                     'User-Agent' => self::USER_AGENT,
                     'Accept' => 'application/json',
@@ -45,11 +55,27 @@ class MusicBrainzService
                 ],
             ]);
 
-            if ($response->getStatusCode() !== 200) {
+            $statusCode = $response->getStatusCode();
+            $this->logger->info('MusicBrainz searchArtist response code', ['status' => $statusCode]);
+
+            if ($statusCode === 503) {
+                throw new \RuntimeException('MusicBrainz API is currently unavailable (503). We are sending too many requests. Please wait a bit.');
+            }
+
+            if ($statusCode !== 200) {
+                $this->logger->warning('MusicBrainz searchArtist failed', [
+                    'status' => $statusCode, 
+                    'content' => $response->getContent(false)
+                ]);
                 return null;
             }
 
             $data = $response->toArray();
+            
+            $this->logger->debug('MusicBrainz searchArtist response data', [
+                'count' => count($data['artists'] ?? []),
+                // 'data' => $data // Uncomment if verbose logging is needed
+            ]);
 
             if (empty($data['artists'])) {
                 return null;
@@ -75,6 +101,15 @@ class MusicBrainzService
             return null;
 
         } catch (\Exception $e) {
+            // Rethrow explicit RuntimeExceptions (like 503s)
+            if ($e instanceof \RuntimeException) {
+                throw $e;
+            }
+
+            $this->logger->error('MusicBrainz searchArtist exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return null;
         }
     }
@@ -105,9 +140,16 @@ class MusicBrainzService
         // arid:<uuid> AND releasegroup:<title> AND primarytype:Album
         // We use releasegroup (rg) search because we want the abstract album, not a specific CD release.
         $query = sprintf('arid:%s AND releasegroup:"%s" AND primarytype:Album', $artistMbid, $albumTitle);
+        $url = 'https://musicbrainz.org/ws/2/release-group';
 
         try {
-            $response = $this->client->request('GET', 'https://musicbrainz.org/ws/2/release-group', [
+            $this->logger->info('MusicBrainz searchAlbumByArtist request', [
+                'artistMbid' => $artistMbid,
+                'albumTitle' => $albumTitle,
+                'query' => $query,
+            ]);
+
+            $response = $this->client->request('GET', $url, [
                 'headers' => [
                     'User-Agent' => self::USER_AGENT,
                     'Accept' => 'application/json',
@@ -119,11 +161,26 @@ class MusicBrainzService
                 ],
             ]);
 
-            if ($response->getStatusCode() !== 200) {
+            $statusCode = $response->getStatusCode();
+            $this->logger->info('MusicBrainz searchAlbumByArtist response code', ['status' => $statusCode]);
+
+            if ($statusCode === 503) {
+                throw new \RuntimeException('MusicBrainz API is currently unavailable (503). We are sending too many requests. Please wait a bit.');
+            }
+
+            if ($statusCode !== 200) {
+                $this->logger->warning('MusicBrainz searchAlbumByArtist failed', [
+                    'status' => $statusCode,
+                    'content' => $response->getContent(false)
+                ]);
                 return null;
             }
 
             $data = $response->toArray();
+
+            $this->logger->debug('MusicBrainz searchAlbumByArtist response data', [
+                'count' => count($data['release-groups'] ?? []),
+            ]);
 
             if (empty($data['release-groups'])) {
                 return null;
@@ -139,6 +196,15 @@ class MusicBrainzService
             return null;
 
         } catch (\Exception $e) {
+            // Rethrow explicit RuntimeExceptions (like 503s)
+            if ($e instanceof \RuntimeException) {
+                throw $e;
+            }
+
+            $this->logger->error('MusicBrainz searchAlbumByArtist exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return null;
         }
     }
@@ -149,11 +215,18 @@ class MusicBrainzService
         // In a real background worker, we might want a more robust rate limiter,
         // but for this command, a simple sleep is effective enough.
         sleep(1); 
-
-        $query = sprintf('artist:"%s" AND release:"%s" AND primarytype:Album', $artistName, $albumTitle);
         
+        $query = sprintf('artist:"%s" AND release:"%s" AND primarytype:Album', $artistName, $albumTitle);
+        $url = 'https://musicbrainz.org/ws/2/release-group';
+
         try {
-            $response = $this->client->request('GET', 'https://musicbrainz.org/ws/2/release-group', [
+            $this->logger->info('MusicBrainz searchReleaseGroup request', [
+                'artist' => $artistName,
+                'album' => $albumTitle,
+                'query' => $query
+            ]);
+
+            $response = $this->client->request('GET', $url, [
                 'headers' => [
                     'User-Agent' => self::USER_AGENT,
                     'Accept' => 'application/json',
@@ -165,7 +238,14 @@ class MusicBrainzService
                 ],
             ]);
 
-            if ($response->getStatusCode() !== 200) {
+            $statusCode = $response->getStatusCode();
+            $this->logger->info('MusicBrainz searchReleaseGroup response code', ['status' => $statusCode]);
+
+            if ($statusCode === 503) {
+                throw new \RuntimeException('MusicBrainz API is currently unavailable (503). We are sending too many requests. Please wait a bit.');
+            }
+
+            if ($statusCode !== 200) {
                 return null;
             }
 
@@ -179,7 +259,14 @@ class MusicBrainzService
             return $data['release-groups'][0]['id'] ?? null;
 
         } catch (\Exception $e) {
-            // Log error?
+            // Rethrow explicit RuntimeExceptions (like 503s)
+            if ($e instanceof \RuntimeException) {
+                throw $e;
+            }
+
+            $this->logger->error('MusicBrainz searchReleaseGroup exception', [
+                'message' => $e->getMessage(),
+            ]);
             return null;
         }
     }
@@ -193,22 +280,42 @@ class MusicBrainzService
         $url = sprintf('https://coverartarchive.org/release-group/%s/front', $mbid);
 
         try {
+            $this->logger->info('CoverArtArchive fetch request', ['url' => $url]);
+
             // We just want to check if it exists and get the final URL (it redirects)
             $response = $this->client->request('GET', $url, [
                 'max_redirects' => 5,
             ]);
 
-            if ($response->getStatusCode() === 200) {
+            $statusCode = $response->getStatusCode();
+            $this->logger->info('CoverArtArchive fetch response code', ['status' => $statusCode]);
+
+            if ($statusCode === 503) {
+                throw new \RuntimeException('Cover Art Archive is currently unavailable (503). We are sending too many requests. Please wait a bit.');
+            }
+
+            if ($statusCode === 200) {
                 // The response content is the image itself. 
                 // But we want to return the URL so we can download/process it in the other service.
                 // Actually, since we already made the request, we might as well return the content or the info.
                 // But strictly, the user asked for a URL to download.
                 // Let's just return the URL we constructed, assuming it works if 200 OK.
                 // Or better, return the effective URL after redirects.
-                return $response->getInfo('url');
+                $finalUrl = $response->getInfo('url');
+                $this->logger->info('CoverArtArchive found cover', ['final_url' => $finalUrl]);
+                return $finalUrl;
             }
         } catch (\Exception $e) {
+            // Rethrow explicit RuntimeExceptions (like 503s)
+            if ($e instanceof \RuntimeException) {
+                throw $e;
+            }
+
             // 404 means no cover art
+            $this->logger->notice('CoverArtArchive fetch failed or no cover', [
+                'url' => $url,
+                'message' => $e->getMessage()
+            ]);
         }
 
         return null;
