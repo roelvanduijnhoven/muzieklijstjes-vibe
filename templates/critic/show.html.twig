@@ -1,5 +1,4 @@
 {% extends 'base.html.twig' %}
-{% import 'macros/list_macros.html.twig' as macros %}
 {% import 'macros/rating.html.twig' as rating_macros %}
 
 {% block body %}
@@ -11,107 +10,220 @@
       </ol>
     </nav>
 
-    <h1>{{ critic.name }}</h1>
-    
-    <div class="mb-3">
-        {% for genre in critic.genres %}
-            <span class="badge bg-secondary">{{ genre.name }}</span>
-        {% endfor %}
-        {% for feature in critic.features %}
-            <span class="badge bg-info text-dark">{{ feature.name }}</span>
-        {% endfor %}
-    </div>
-
-    <div class="mb-3 text-muted">
-        {% if critic.birthYear %}
-            <span class="me-3"><i class="fas fa-star me-1"></i> Geboren: {{ critic.birthYear }}</span>
-        {% endif %}
-        {% if critic.deathYear %}
-            <span class="me-3"><i class="fas fa-cross me-1"></i> Overleden: {{ critic.deathYear }}</span>
-        {% endif %}
-    </div>
-
-    <div class="mb-4">
-        {% if critic.url %}
-            <a href="{{ critic.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
-                <i class="fas fa-globe me-1"></i> Website
-            </a>
-        {% endif %}
-        {% if critic.wikipediaUrl %}
-            <a href="{{ critic.wikipediaUrl }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                <i class="fab fa-wikipedia-w me-1"></i> Wikipedia
-            </a>
-        {% endif %}
-    </div>
-
-    {% if critic.bio %}
-        <div class="card mb-4">
-            <div class="card-body">
-                <p class="card-text">{{ critic.bio|nl2br }}</p>
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>{{ critic.name }}</h1>
+            
+            <div class="mb-3">
+                {% for genre in critic.genres %}
+                    <span class="badge bg-secondary">{{ genre.name }}</span>
+                {% endfor %}
+                {% for feature in critic.features %}
+                    <span class="badge bg-info text-dark">{{ feature.name }}</span>
+                {% endfor %}
             </div>
-        </div>
-    {% endif %}
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <h3>Lijsten</h3>
-            {% if critic.albumLists is not empty %}
-                <div class="list-group mb-4">
-                    {% for list in critic.albumLists %}
-                        {{ macros.list_card(list, album_cover_base_url) }}
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted">Geen lijsten gevonden voor deze recensent.</p>
-            {% endif %}
-        </div>
+            <p class="lead text-muted">
+                {% if critic.birthYear %}
+                    <span class="me-3"><i class="fas fa-star me-1"></i> Geboren: {{ critic.birthYear }}</span>
+                {% endif %}
+                {% if critic.deathYear %}
+                    <span class="me-3"><i class="fas fa-cross me-1"></i> Overleden: {{ critic.deathYear }}</span>
+                {% endif %}
+            </p>
 
-        <div class="col-md-6">
-            <h3>Recensies</h3>
-            {% if critic.reviews is not empty %}
-                <div class="list-group mb-4">
-                    {% for review in critic.reviews %}
-                        <a href="{{ path('app_album_show', {id: review.album.id}) }}" class="list-group-item list-group-item-action d-flex align-items-center">
-                            <div class="flex-shrink-0 me-3" style="width: 50px;">
-                                {% if review.album.imageUrl %}
-                                    <img src="{{ album_cover_base_url ~ review.album.imageUrl }}" 
-                                         alt="{{ review.album.title }}" 
-                                         class="img-fluid rounded" 
-                                         style="width: 50px; height: 50px; object-fit: cover;">
-                                {% else %}
-                                    <div class="bg-light border rounded d-flex align-items-center justify-content-center text-muted small" 
-                                         style="width: 50px; height: 50px; font-size: 0.6rem;">
-                                        No Img
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ review.album.title }}</h5>
-                                    <small>
-                                        {{ rating_macros.render(review) }}
-                                    </small>
-                                </div>
-                                <p class="mb-1">
-                                    door {{ review.album.artist.name }}
-                                </p>
-                                <small class="text-muted">
-                                    {% if review.year %}
-                                        {{ review.year }}
-                                    {% endif %}
-                                    {% if review.magazine %}
-                                        in {{ review.magazine.name }}
-                                    {% endif %}
-                                </small>
-                            </div>
-                        </a>
-                    {% endfor %}
+            <div class="mb-3">
+                {% if critic.url %}
+                    <a href="{{ critic.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
+                        <i class="fas fa-globe me-1"></i> Website
+                    </a>
+                {% endif %}
+                {% if critic.wikipediaUrl %}
+                    <a href="{{ critic.wikipediaUrl }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                        <i class="fab fa-wikipedia-w me-1"></i> Wikipedia
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if critic.bio %}
+                <div class="card mb-4 bg-light">
+                    <div class="card-body">
+                        <p class="card-text">{{ critic.bio|nl2br }}</p>
+                    </div>
                 </div>
-            {% else %}
-                <p class="text-muted">Geen recensies gevonden voor deze recensent.</p>
             {% endif %}
+            
+            <p>
+                Deze recensent heeft <a href="#lists">{{ critic.albumLists|length }} lijsten</a> en <a href="#reviews">{{ critic.reviews|length }} recensies</a>.
+            </p>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-12">
+            <div id="lists" class="mt-4">
+                <h3>Lijsten</h3>
+                {% if critic.albumLists is not empty %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Preview</th>
+                                    <th>Lijst</th>
+                                    <th>Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for list in critic.albumLists %}
+                                    <tr style="cursor: pointer;" onclick="window.location='{{ path('app_list_show', {id: list.id, slug: list.slug}) }}'">
+                                        <td>
+                                            <div class="position-relative" style="width: 85px; height: 60px; transform: rotate(-2deg);">
+                                                {% for previewItem in list.previewItems(3) %}
+                                                    {% set offsetLeft = (loop.index0 * 15) %}
+                                                    {% set offsetTop = (loop.index0 * 4) %}
+                                                    {% set zIndex = 10 - loop.index0 %}
+                                                    {% if previewItem.album.imageUrl %}
+                                                        <img src="{{ album_cover_base_url ~ previewItem.album.imageUrl }}" 
+                                                                alt="{{ previewItem.album.title }}" 
+                                                                class="img-thumbnail position-absolute" 
+                                                                style="width: 50px; height: 50px; object-fit: cover; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
+                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
+                                                    {% else %}
+                                                        <div class="bg-light border d-flex align-items-center justify-content-center text-muted small text-center p-1 position-absolute" 
+                                                                style="width: 50px; height: 50px; font-size: 0.6rem; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
+                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
+                                                            No Img
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('app_list_show', {id: list.id, slug: list.slug}) }}" class="text-decoration-none fw-bold">{{ list.title }}</a>
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ list.releaseYear }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                             <span class="badge bg-light text-dark border">
+                                                {% if list.type == 'ordered' %}
+                                                    Genummerd
+                                                {% elseif list.type == 'unordered' %}
+                                                    Ongenummerd
+                                                {% elseif list.type == 'aggregate' %}
+                                                    Verzamelijst
+                                                {% else %}
+                                                    {{ list.type|capitalize }}
+                                                {% endif %}
+                                             </span>
+                                             <span class="badge bg-secondary">{{ list.listItemCount }} albums</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Geen lijsten gevonden voor deze recensent.</p>
+                {% endif %}
+            </div>
+
+            <div id="reviews" class="mt-5">
+                <h3>Recensies</h3>
+                {% if critic.reviews is not empty %}
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">Cover</th>
+                                    <th>Album</th>
+                                    <th>Rating</th>
+                                    <th>Magazine</th>
+                                    <th>Jaar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for review in critic.reviews %}
+                                    <tr>
+                                        <td>
+                                            {% if review.album.imageUrl %}
+                                                <img src="{{ album_cover_base_url ~ review.album.imageUrl }}" alt="{{ review.album.title }}" class="img-fluid rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-light border rounded d-flex align-items-center justify-content-center text-muted small" style="width: 50px; height: 50px; font-size: 0.6rem;">No Img</div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('app_album_show', {id: review.album.id}) }}" class="text-decoration-none fw-bold">{{ review.album.title }}</a>
+                                            <br>
+                                            <small class="text-muted">{{ review.album.artist.name }}</small>
+                                        </td>
+                                        <td>
+                                            {{ rating_macros.render(review) }}
+                                        </td>
+                                        <td>
+                                            {% if review.magazine %}
+                                                {{ review.magazine.name }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if review.year %}
+                                                {{ review.year }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Geen recensies gevonden voor deze recensent.</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
+<div id="sticky-header" class="fixed-top bg-white border-bottom shadow-sm py-2" style="transform: translateY(-100%); transition: transform 0.3s ease-in-out; z-index: 1050;">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center text-truncate">
+                <div class="text-truncate">
+                    <div class="fw-bold text-truncate">{{ critic.name }}</div>
+                    <small class="text-muted">Recensent</small>
+                </div>
+            </div>
+            <div class="flex-shrink-0 ms-3">
+                 <a href="#" class="btn btn-sm btn-outline-info me-2">Metadata</a>
+                 <a href="#lists" class="btn btn-sm btn-outline-primary me-2">
+                    Lijsten <span class="badge bg-primary text-white ms-1">{{ critic.albumLists|length }}</span>
+                 </a>
+                 <a href="#reviews" class="btn btn-sm btn-outline-secondary">
+                    Recensies <span class="badge bg-secondary text-white ms-1">{{ critic.reviews|length }}</span>
+                 </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var stickyHeader = document.getElementById('sticky-header');
+        var threshold = 300;
+
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > threshold) {
+                stickyHeader.style.transform = 'translateY(0)';
+            } else {
+                stickyHeader.style.transform = 'translateY(-100%)';
+            }
+        });
+    });
+</script>
+{% endblock %}
