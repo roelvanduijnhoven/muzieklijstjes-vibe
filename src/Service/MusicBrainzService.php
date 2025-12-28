@@ -91,6 +91,12 @@ class MusicBrainzService
         return 'https://musicbrainz.org/ws/2/release-group?query=' . urlencode($query) . '&fmt=json&limit=5';
     }
 
+    public function getAlbumWebSearchUrl(string $artistMbid, string $albumTitle): string
+    {
+        $query = sprintf('arid:%s AND releasegroup:"%s" AND primarytype:Album', $artistMbid, $albumTitle);
+        return 'https://musicbrainz.org/search?query=' . urlencode($query) . '&type=release_group&method=advanced';
+    }
+
     public function searchAlbumByArtist(string $artistMbid, string $albumTitle): ?string
     {
         sleep(1); // Rate limit

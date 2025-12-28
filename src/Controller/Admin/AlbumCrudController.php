@@ -20,13 +20,15 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use App\Enum\AlbumFormat;
-use Symfony\Component\HttpFoundation\Response;
+use App\Controller\Admin\ArtistCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 
 class AlbumCrudController extends AbstractCrudController
 {
     public function __construct(
         private AlbumCoverService $albumCoverService,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private AdminUrlGenerator $adminUrlGenerator
     ) {
     }
 
@@ -52,12 +54,24 @@ class AlbumCrudController extends AbstractCrudController
             ->linkToCrudAction('refreshCover')
             ->displayIf(fn (Album $album) => $album->getMusicBrainzId() !== null);
 
+        $jumpToArtist = Action::new('jumpToArtist', 'Jump to Artist', 'fa fa-user')
+            ->linkToUrl(function (Album $album) {
+                return $this->adminUrlGenerator
+                    ->setController(ArtistCrudController::class)
+                    ->setAction(Action::DETAIL)
+                    ->setEntityId($album->getArtist()->getId())
+                    ->generateUrl();
+            })
+            ->displayIf(fn (Album $album) => $album->getArtist() !== null);
+
         return $actions
             ->add(Crud::PAGE_INDEX, $viewOnSite)
             ->add(Crud::PAGE_DETAIL, $viewOnSite)
             ->add(Crud::PAGE_EDIT, $viewOnSite)
             ->add(Crud::PAGE_DETAIL, $refreshCover)
-            ->add(Crud::PAGE_EDIT, $refreshCover);
+            ->add(Crud::PAGE_EDIT, $refreshCover)
+            ->add(Crud::PAGE_DETAIL, $jumpToArtist)
+            ->add(Crud::PAGE_EDIT, $jumpToArtist);
     }
 
     public function refreshCover(AdminContext $context): Response

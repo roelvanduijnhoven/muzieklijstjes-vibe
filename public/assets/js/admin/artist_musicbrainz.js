@@ -56,8 +56,18 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/admin/ajax/artist/search-musicbrainz?query=' + encodeURIComponent(artistName));
             
+            let data;
+            try {
+                data = await response.json();
+            } catch (e) {
+                // If parsing fails (e.g. HTML error page), we'll handle it based on status
+                if (!response.ok) {
+                     throw new Error(`Server returned ${response.status}`);
+                }
+                throw e; // If it was 200 but bad JSON, rethrow
+            }
+
             if (!response.ok) {
-                const data = await response.json();
                 let msg = data.error || `Server returned ${response.status}`;
                 if (data.api_url) {
                     msg += `\n\nAPI URL used: ${data.api_url}`;
@@ -68,8 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 throw new Error(msg);
             }
-
-            const data = await response.json();
 
             if (data.mbid) {
                 mbidInput.value = data.mbid;
@@ -93,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(error.message);
         } finally {
             fetchButton.disabled = false;
-            fetchButton.innerHTML = '<i class="fa fa-search"></i> Fetch ID';
+            fetchButton.innerHTML = '<i class="fa fa-search"></i> Fetch ID using artist name';
         }
     });
 });

@@ -44,7 +44,8 @@ class AlbumAjaxController extends AbstractController
             if ($mbid === null) {
                  return new JsonResponse([
                      'error' => 'No album found on MusicBrainz for this artist',
-                     'api_url' => $this->musicBrainzService->getAlbumSearchUrl($artist->getMusicBrainzId(), $albumTitle)
+                     'api_url' => $this->musicBrainzService->getAlbumSearchUrl($artist->getMusicBrainzId(), $albumTitle),
+                     'web_url' => $this->musicBrainzService->getAlbumWebSearchUrl($artist->getMusicBrainzId(), $albumTitle)
                  ], 404);
             }
 
@@ -52,12 +53,18 @@ class AlbumAjaxController extends AbstractController
                 'mbid' => $mbid,
             ]);
         } catch (\Throwable $e) {
+            $webUrl = (isset($artist) && isset($albumTitle) && $artist->getMusicBrainzId()) 
+                ? $this->musicBrainzService->getAlbumWebSearchUrl($artist->getMusicBrainzId(), $albumTitle) 
+                : null;
+            $apiUrl = (isset($artist) && isset($albumTitle) && $artist->getMusicBrainzId()) 
+                ? $this->musicBrainzService->getAlbumSearchUrl($artist->getMusicBrainzId(), $albumTitle) 
+                : null;
+
             return new JsonResponse([
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'api_url' => (isset($artist) && isset($albumTitle) && $artist->getMusicBrainzId()) 
-                    ? $this->musicBrainzService->getAlbumSearchUrl($artist->getMusicBrainzId(), $albumTitle) 
-                    : null
+                'api_url' => $apiUrl,
+                'web_url' => $webUrl
             ], 500);
         }
     }

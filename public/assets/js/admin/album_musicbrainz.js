@@ -93,20 +93,39 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/admin/ajax/album/search-musicbrainz?artistId=' + encodeURIComponent(artistId) + '&albumTitle=' + encodeURIComponent(albumTitle));
             
+            let data;
+            try {
+                data = await response.json();
+            } catch (e) {
+                // If parsing fails (e.g. HTML error page), we'll handle it based on status
+                if (!response.ok) {
+                     throw new Error(`Server returned ${response.status}`);
+                }
+                throw e; // If it was 200 but bad JSON, rethrow
+            }
+
             if (!response.ok) {
-                const data = await response.json();
                 let msg = data.error || `Server returned ${response.status}`;
-                if (data.api_url) {
+                
+                // Remove existing helper links
+                const existingLinks = fetchButton.parentNode.querySelectorAll('.mb-helper-link');
+                existingLinks.forEach(el => el.remove());
+
+                if (data.web_url) {
+                    const searchLink = document.createElement('div');
+                    searchLink.className = 'mb-helper-link mt-1';
+                    searchLink.innerHTML = `<a href="${data.web_url}" target="_blank" class="text-primary"><i class="fa fa-external-link-alt"></i> Search on MusicBrainz manually</a>`;
+                    fetchButton.parentNode.appendChild(searchLink);
+                } else if (data.api_url) {
                     msg += `\n\nAPI URL used: ${data.api_url}`;
                     const errorLink = document.createElement('div');
+                    errorLink.className = 'mb-helper-link';
                     errorLink.innerHTML = `<a href="${data.api_url}" target="_blank" class="text-danger">Debug API Query</a>`;
                     fetchButton.parentNode.appendChild(errorLink);
                     setTimeout(() => errorLink.remove(), 10000);
                 }
                 throw new Error(msg);
             }
-
-            const data = await response.json();
 
             if (data.mbid) {
                 mbidInput.value = data.mbid;
@@ -119,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(error.message);
         } finally {
             fetchButton.disabled = false;
-            fetchButton.innerHTML = '<i class="fa fa-search"></i> Fetch ID using title';
+            fetchButton.innerHTML = '<i class="fa fa-search"></i> Fetch ID using artist and title';
         }
     });
 });
