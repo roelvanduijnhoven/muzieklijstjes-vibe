@@ -12,12 +12,20 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 
 class ArtistCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
         return Artist::class;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(NullFilter::new('musicBrainzId')->setChoiceLabels('No MBID', 'Has MBID'));
     }
 
     public function configureAssets(Assets $assets): Assets
