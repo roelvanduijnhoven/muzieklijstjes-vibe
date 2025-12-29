@@ -4,7 +4,7 @@
         .setController(field.dto.customOptions.get('actionController') ?? ea.crud.controllerFqcn)
         .setAction('edit')
         .setEntityId(entity.primaryKeyValue) }}">
-        {{ field.formattedValue }}
+        {{ field.formattedValue|raw }}
     </a>
 {% else %}
     <span class="badge badge-secondary">Is Empty</span>

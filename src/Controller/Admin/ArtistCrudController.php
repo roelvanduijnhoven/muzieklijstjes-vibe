@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use App\Entity\Artist;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Config;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -47,9 +46,9 @@ class ArtistCrudController extends AbstractCrudController
             ->add(Crud::PAGE_EDIT, $viewOnSite);
     }
 
-    public function configureConfig(Config $config): Config
+    public function configureCrud(Crud $crud): Crud
     {
-        return $config
+        return $crud
             ->setDefaultSort(['sortName' => 'ASC']);
     }
 

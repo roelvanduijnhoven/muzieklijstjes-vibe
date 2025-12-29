@@ -85,7 +85,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Artists', 'fas fa-microphone', \App\Entity\Artist::class);
         yield MenuItem::linkToCrud('Artists (No MBID)', 'fas fa-unlink', \App\Entity\Artist::class)
             ->setController(ArtistCrudController::class)
-            ->setQueryParameter('filters[musicBrainzId]', '1');
+            ->setQueryParameter('filters[musicBrainzId]', 'null');
         yield MenuItem::linkToCrud('Critics', 'fas fa-pen-fancy', \App\Entity\Critic::class);
         yield MenuItem::linkToCrud('Genres', 'fas fa-tags', \App\Entity\Genre::class);
         yield MenuItem::linkToCrud('Features', 'fas fa-tag', \App\Entity\Feature::class);
