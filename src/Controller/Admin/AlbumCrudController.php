@@ -20,6 +20,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use App\Enum\AlbumFormat;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use App\Controller\Admin\ArtistCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 
@@ -35,6 +37,12 @@ class AlbumCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Album::class;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(NullFilter::new('musicBrainzId')->setChoiceLabels('No MBID', 'Has MBID'));
     }
 
     public function configureAssets(Assets $assets): Assets
