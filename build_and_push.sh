@@ -35,3 +35,6 @@ echo "   To deploy changes, run: kubectl rollout restart deployment/register-vib
 
 
 
+
+
+
