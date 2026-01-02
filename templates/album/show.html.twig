@@ -24,6 +24,10 @@
                 door <a href="{{ path('app_artist_show', {id: album.artist.id, slug: album.artist.slug}) }}">{{ album.artist.name }}</a>
                 <br>
                 <small class="text-muted">Uitgebracht in {{ album.releaseYear }}</small>
+                {% if album.wikipediaUrl %}
+                    <br>
+                    <small><a href="{{ album.wikipediaUrl }}" target="_blank" rel="noopener noreferrer">Wikipedia</a></small>
+                {% endif %}
             </p>
 
             <p>

@@ -9,7 +9,16 @@
       </ol>
     </nav>
 
-    <h1>{{ artist.name }}</h1>
+    <h1>
+        {{ artist.name }}
+        {% if artist.wikipediaUrl %}
+            <small class="fs-6 ms-2">
+                <a href="{{ artist.wikipediaUrl }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted">
+                    Wikipedia
+                </a>
+            </small>
+        {% endif %}
+    </h1>
     
     {% if artist.albums|length > 0 %}
     <h3 class="mt-4">Albums</h3>
