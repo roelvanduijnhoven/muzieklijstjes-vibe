@@ -48,7 +48,7 @@ class AlbumCrudController extends AbstractCrudController
     public function configureAssets(Assets $assets): Assets
     {
         return $assets
-            ->addJsFile('assets/js/admin/album_musicbrainz.js');
+            ->addJsFile('assets/js/admin/album_musicbrainz.js?v=2');
     }
 
     public function configureActions(Actions $actions): Actions

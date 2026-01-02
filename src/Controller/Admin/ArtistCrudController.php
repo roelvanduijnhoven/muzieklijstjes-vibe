@@ -13,9 +13,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use App\Controller\Admin\AlbumCrudController;
 
 class ArtistCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private AdminUrlGenerator $adminUrlGenerator
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return Artist::class;
@@ -30,7 +37,7 @@ class ArtistCrudController extends AbstractCrudController
     public function configureAssets(Assets $assets): Assets
     {
         return $assets
-            ->addJsFile('assets/js/admin/artist_musicbrainz.js');
+            ->addJsFile('assets/js/admin/artist_musicbrainz.js?v=2');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -40,10 +47,21 @@ class ArtistCrudController extends AbstractCrudController
                 return $artist->getRouteParams();
             });
 
+        $viewAlbums = Action::new('viewAlbums', 'View Albums', 'fa fa-music')
+            ->linkToUrl(function (Artist $artist) {
+                return $this->adminUrlGenerator
+                    ->setController(AlbumCrudController::class)
+                    ->setAction(Action::INDEX)
+                    ->set('query', $artist->getName())
+                    ->generateUrl();
+            });
+
         return $actions
             ->add(Crud::PAGE_INDEX, $viewOnSite)
             ->add(Crud::PAGE_DETAIL, $viewOnSite)
-            ->add(Crud::PAGE_EDIT, $viewOnSite);
+            ->add(Crud::PAGE_EDIT, $viewOnSite)
+            ->add(Crud::PAGE_DETAIL, $viewAlbums)
+            ->add(Crud::PAGE_EDIT, $viewAlbums);
     }
 
     public function configureCrud(Crud $crud): Crud

@@ -120,6 +120,12 @@ class MusicBrainzService
         return 'https://musicbrainz.org/ws/2/artist?query=' . urlencode($query) . '&fmt=json&limit=100';
     }
 
+    public function getArtistWebSearchUrl(string $artistName): string
+    {
+        $query = sprintf('artist:"%s"', $artistName);
+        return 'https://musicbrainz.org/search?query=' . urlencode($query) . '&type=artist&method=advanced';
+    }
+
     public function getAlbumSearchUrl(string $artistMbid, string $albumTitle): string
     {
         $query = sprintf('arid:%s AND releasegroup:"%s" AND primarytype:Album', $artistMbid, $albumTitle);

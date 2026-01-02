@@ -69,9 +69,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!response.ok) {
                 let msg = data.error || `Server returned ${response.status}`;
-                if (data.api_url) {
+
+                // Remove existing helper links
+                const existingLinks = fetchButton.parentNode.querySelectorAll('.mb-helper-link');
+                existingLinks.forEach(el => el.remove());
+
+                if (data.web_url) {
+                    const searchLink = document.createElement('div');
+                    searchLink.className = 'mb-helper-link mt-1';
+                    searchLink.innerHTML = `<a href="${data.web_url}" target="_blank" class="text-primary"><i class="fa fa-external-link-alt"></i> Search on MusicBrainz manually</a>`;
+                    fetchButton.parentNode.appendChild(searchLink);
+                } else if (data.api_url) {
                     msg += `\n\nAPI URL used: ${data.api_url}`;
                     const errorLink = document.createElement('div');
+                    errorLink.className = 'mb-helper-link';
                     errorLink.innerHTML = `<a href="${data.api_url}" target="_blank" class="text-danger">Debug API Query</a>`;
                     fetchButton.parentNode.appendChild(errorLink);
                     setTimeout(() => errorLink.remove(), 10000);
