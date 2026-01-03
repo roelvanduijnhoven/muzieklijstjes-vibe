@@ -15,10 +15,19 @@ document.addEventListener('DOMContentLoaded', function() {
     verifyLink.innerHTML = '<i class="fa fa-external-link-alt"></i> Verify';
     verifyLink.target = '_blank';
     verifyLink.style.marginLeft = '5px';
+
+    // 3. Create Google Search Link
+    const googleLink = document.createElement('a');
+    googleLink.className = 'btn btn-secondary btn-sm';
+    googleLink.innerHTML = '<i class="fab fa-google"></i> Google MB';
+    googleLink.target = '_blank';
+    googleLink.style.marginLeft = '5px';
+    googleLink.title = 'Search artist on Google (site:musicbrainz.org)';
     
     // Insert buttons after the input
     mbidInput.parentNode.appendChild(fetchButton);
     mbidInput.parentNode.appendChild(verifyLink);
+    mbidInput.parentNode.appendChild(googleLink);
 
     // State management function
     function updateVerifyState() {
@@ -40,10 +49,30 @@ document.addEventListener('DOMContentLoaded', function() {
     // Listen for manual changes
     mbidInput.addEventListener('input', updateVerifyState);
 
+    // Handle Artist Name changes for Google Link
+    const nameInput = document.getElementById('Artist_name');
+    function updateGoogleLink() {
+        if (nameInput && nameInput.value) {
+            const query = 'site:musicbrainz.org/artist ' + nameInput.value;
+            googleLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+            googleLink.classList.remove('disabled');
+            googleLink.removeAttribute('aria-disabled');
+        } else {
+            googleLink.removeAttribute('href');
+            googleLink.classList.add('disabled');
+            googleLink.setAttribute('aria-disabled', 'true');
+        }
+    }
+
+    if (nameInput) {
+        nameInput.addEventListener('input', updateGoogleLink);
+        updateGoogleLink();
+    }
+
     // Fetch Button Click Handler
     fetchButton.addEventListener('click', async function() {
-        const nameInput = document.getElementById('Artist_name');
-        const artistName = nameInput.value;
+        // nameInput is already defined above
+        const artistName = nameInput ? nameInput.value : '';
 
         if (!artistName) {
             alert('Please enter an artist name first.');
