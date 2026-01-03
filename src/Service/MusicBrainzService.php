@@ -33,12 +33,16 @@ class MusicBrainzService
     {
         sleep(1); // Rate limit
 
+        // Remove "The " prefix from search query to improve matching
+        $searchName = preg_replace('/^The\s+/i', '', $artistName);
+
         try {
-            $query = sprintf('artist:"%s"', $artistName);
+            $query = sprintf('artist:"%s"', $searchName);
             $url = 'https://musicbrainz.org/ws/2/artist';
             
             $this->logger->info('MusicBrainz searchArtist request', [
                 'artist' => $artistName,
+                'search_term' => $searchName,
                 'query' => $query,
                 'url' => $url,
             ]);
@@ -81,18 +85,30 @@ class MusicBrainzService
                 return null;
             }
 
-            // Look for an exact match (case-insensitive)
+            // Look for an exact match (case-insensitive) or normalized match
+            $normalizedInputName = $this->normalizeName($artistName);
+
             foreach ($data['artists'] as $artist) {
                 // 1. Exact name match
                 if (strcasecmp($artist['name'], $artistName) === 0) {
                     return $artist['id'];
                 }
                 
-                // 2. Exact alias match
+                // 2. Normalized name match
+                if ($this->normalizeName($artist['name']) === $normalizedInputName) {
+                    return $artist['id'];
+                }
+
+                // 3. Exact alias match
                 if (isset($artist['aliases']) && is_array($artist['aliases'])) {
                     foreach ($artist['aliases'] as $alias) {
-                        if (isset($alias['name']) && strcasecmp($alias['name'], $artistName) === 0) {
-                            return $artist['id'];
+                        if (isset($alias['name'])) {
+                            if (strcasecmp($alias['name'], $artistName) === 0) {
+                                return $artist['id'];
+                            }
+                            if ($this->normalizeName($alias['name']) === $normalizedInputName) {
+                                return $artist['id'];
+                            }
                         }
                     }
                 }
@@ -124,6 +140,24 @@ class MusicBrainzService
     {
         $query = sprintf('artist:"%s"', $artistName);
         return 'https://musicbrainz.org/search?query=' . urlencode($query) . '&type=artist&method=advanced';
+    }
+
+    private function normalizeName(string $name): string
+    {
+        // Replace various quote characters with straight quotes
+        $name = str_replace(
+            ['’', '‘', '`', '´', '“', '”'],
+            ["'", "'", "'", "'", '"', '"'],
+            $name
+        );
+
+        // Collapse multiple spaces
+        $name = preg_replace('/\s+/', ' ', $name);
+
+        // Remove "The " prefix
+        $name = preg_replace('/^The\s+/i', '', $name);
+
+        return mb_strtolower(trim($name));
     }
 
     public function getAlbumSearchUrl(string $artistMbid, string $albumTitle): string

@@ -8,6 +8,7 @@ use App\Service\MusicBrainzService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -28,14 +29,33 @@ class MatchArtistMusicBrainzCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addArgument('start-id', InputArgument::OPTIONAL, 'The ID to start matching from (inclusive)');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Matching Artists with MusicBrainz');
 
+        $startId = $input->getArgument('start-id');
+
         // Fetch all artists
         // Using iterator to handle large datasets effectively
-        $query = $this->entityManager->createQuery('SELECT a FROM App\Entity\Artist a');
+        $dql = 'SELECT a FROM App\Entity\Artist a';
+        if ($startId) {
+            $dql .= ' WHERE a.id >= :startId';
+            $io->text(sprintf('Starting from ID: %d', $startId));
+        }
+        $dql .= ' ORDER BY a.id ASC';
+
+        $query = $this->entityManager->createQuery($dql);
+        
+        if ($startId) {
+            $query->setParameter('startId', $startId);
+        }
+
         $iterableResult = $query->toIterable();
 
         $mapping = [];
@@ -57,7 +77,12 @@ class MatchArtistMusicBrainzCommand extends Command
 
             if (!$mbid) {
                 $io->text("Searching for: $name");
-                $mbid = $this->musicBrainzService->searchArtist($name);
+                try {
+                    $mbid = $this->musicBrainzService->searchArtist($name);
+                } catch (\Exception $e) {
+                    $io->error(sprintf('An error occurred while searching for "%s": %s', $name, $e->getMessage()));
+                    continue;
+                }
                 
                 if ($mbid) {
                     $artist->setMusicBrainzId($mbid);
@@ -65,7 +90,11 @@ class MatchArtistMusicBrainzCommand extends Command
                     $updatedCount++;
                     $changed = true;
                 } else {
-                    $io->warning("  > Not found");
+                    $searchUrl = $this->musicBrainzService->getArtistWebSearchUrl($name);
+                    $io->warning([
+                        "  > Not found",
+                        "  > Try searching manually: $searchUrl"
+                    ]);
                 }
             }
 
