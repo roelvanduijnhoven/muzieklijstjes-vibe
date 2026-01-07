@@ -1,0 +1,37 @@
+/* Dark Mode Support for TomSelect in EasyAdmin */
+
+/* Apply dark mode styles when the dark mode attribute is present on the html tag (EasyAdmin default) or a parent wrapper */
+[data-ea-dark-scheme="true"] .ts-control,
+[data-ea-dark-scheme="true"] .ts-control input,
+[data-ea-dark-scheme="true"] .ts-dropdown {
+    background-color: var(--bs-body-bg, #212529) !important;
+    color: var(--bs-body-color, #dee2e6) !important;
+    border-color: var(--bs-border-color, #495057) !important;
+}
+
+[data-ea-dark-scheme="true"] .ts-control .item {
+    background-color: var(--bs-secondary-bg, #343a40) !important;
+    color: var(--bs-body-color, #dee2e6) !important;
+    border-color: var(--bs-border-color, #495057) !important;
+}
+
+[data-ea-dark-scheme="true"] .ts-dropdown .option {
+    color: var(--bs-body-color, #dee2e6) !important;
+}
+
+[data-ea-dark-scheme="true"] .ts-dropdown .option.active,
+[data-ea-dark-scheme="true"] .ts-dropdown .option:hover {
+    background-color: var(--bs-primary, #0d6efd) !important;
+    color: #fff !important;
+}
+
+[data-ea-dark-scheme="true"] .ts-dropdown .optgroup-header {
+    background-color: var(--bs-tertiary-bg, #2b3035) !important;
+    color: var(--bs-secondary-color, #a7acb1) !important;
+}
+
+/* Fix input text color */
+[data-ea-dark-scheme="true"] .ts-control input {
+    color: var(--bs-body-color, #dee2e6) !important;
+}
+
