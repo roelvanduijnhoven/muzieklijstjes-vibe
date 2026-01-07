@@ -28,15 +28,37 @@ class CriticController extends AbstractController
     }
 
     #[Route('/critic/{id}/{slug}', name: 'app_critic_show', defaults: ['slug' => null])]
-    public function show(Critic $critic, ?string $slug = null): Response
+    public function show(
+        Critic $critic, 
+        Request $request,
+        \App\Repository\AlbumListRepository $albumListRepository,
+        \App\Repository\ReviewRepository $reviewRepository,
+        ?string $slug = null
+    ): Response
     {
         $expectedSlug = $critic->getSlug();
         if ($slug !== $expectedSlug) {
-            return $this->redirectToRoute('app_critic_show', ['id' => $critic->getId(), 'slug' => $expectedSlug], 301);
+            return $this->redirectToRoute('app_critic_show', ['id' => $critic->getId(), 'slug' => $expectedSlug] + $request->query->all(), 301);
         }
+
+        // List Sorting
+        $listSort = $request->query->get('list_sort', 'title');
+        $listDir = $request->query->get('list_dir', 'asc');
+        $sortedLists = $albumListRepository->findByCritic($critic, $listSort, $listDir);
+
+        // Review Sorting
+        $reviewSort = $request->query->get('review_sort', 'album');
+        $reviewDir = $request->query->get('review_dir', 'asc');
+        $sortedReviews = $reviewRepository->findByCritic($critic, $reviewSort, $reviewDir);
 
         return $this->render('critic/show.html.twig', [
             'critic' => $critic,
+            'sortedLists' => $sortedLists,
+            'listSort' => $listSort,
+            'listDir' => $listDir,
+            'sortedReviews' => $sortedReviews,
+            'reviewSort' => $reviewSort,
+            'reviewDir' => $reviewDir,
         ]);
     }
 }

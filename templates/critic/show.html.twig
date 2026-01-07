@@ -61,22 +61,36 @@
 
     <hr>
 
+    {% set base_params = {id: critic.id, slug: critic.slug}|merge(app.request.query.all) %}
+
     <div class="row">
         <div class="col-12">
             <div id="lists" class="mt-4">
                 <h3>Lijsten</h3>
-                {% if critic.albumLists is not empty %}
+                {% if sortedLists is not empty %}
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
                                     <th style="width: 100px;">Preview</th>
-                                    <th>Lijst</th>
-                                    <th>Info</th>
+                                    <th>
+                                        {% set next_dir = (listSort == 'title' and listDir == 'asc') ? 'desc' : 'asc' %}
+                                        <a href="{{ path('app_critic_show', base_params|merge({'list_sort': 'title', 'list_dir': next_dir})) }}#lists" class="text-dark text-decoration-none">
+                                            Lijst
+                                            {% if listSort == 'title' %}{{ listDir == 'asc' ? '↑' : '↓' }}{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>
+                                        {% set next_dir = (listSort == 'type' and listDir == 'asc') ? 'desc' : 'asc' %}
+                                        <a href="{{ path('app_critic_show', base_params|merge({'list_sort': 'type', 'list_dir': next_dir})) }}#lists" class="text-dark text-decoration-none">
+                                            Type
+                                            {% if listSort == 'type' %}{{ listDir == 'asc' ? '↑' : '↓' }}{% endif %}
+                                        </a>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for list in critic.albumLists %}
+                                {% for list in sortedLists %}
                                     <tr style="cursor: pointer;" onclick="window.location='{{ path('app_list_show', {id: list.id, slug: list.slug}) }}'">
                                         <td>
                                             <div class="position-relative" style="width: 85px; height: 60px; transform: rotate(-2deg);">
@@ -102,6 +116,15 @@
                                         </td>
                                         <td>
                                             <a href="{{ path('app_list_show', {id: list.id, slug: list.slug}) }}" class="text-decoration-none fw-bold">{{ list.title }}</a>
+                                            {% if list.aggregatedIn|length > 0 %}
+                                                <br>
+                                                <small class="text-muted">
+                                                    Part of: 
+                                                    {% for aggList in list.aggregatedIn %}
+                                                        <a href="{{ path('app_list_show', {id: aggList.id, slug: aggList.slug}) }}" class="text-muted text-decoration-underline">{{ aggList.title }}</a>{% if not loop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </small>
+                                            {% endif %}
                                             <br>
                                             <small class="text-muted">
                                                 {{ list.releaseYear }}
@@ -119,7 +142,6 @@
                                                     {{ list.type|capitalize }}
                                                 {% endif %}
                                              </span>
-                                             <span class="badge bg-secondary">{{ list.listItemCount }} albums</span>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -133,20 +155,44 @@
 
             <div id="reviews" class="mt-5">
                 <h3>Recensies</h3>
-                {% if critic.reviews is not empty %}
+                {% if sortedReviews is not empty %}
                     <div class="table-responsive">
                         <table class="table table-striped align-middle">
                             <thead>
                                 <tr>
                                     <th style="width: 80px;">Cover</th>
-                                    <th>Album</th>
-                                    <th>Rating</th>
-                                    <th>Magazine</th>
-                                    <th>Jaar</th>
+                                    <th>
+                                        {% set next_dir = (reviewSort == 'album' and reviewDir == 'asc') ? 'desc' : 'asc' %}
+                                        <a href="{{ path('app_critic_show', base_params|merge({'review_sort': 'album', 'review_dir': next_dir})) }}#reviews" class="text-dark text-decoration-none">
+                                            Album
+                                            {% if reviewSort == 'album' %}{{ reviewDir == 'asc' ? '↑' : '↓' }}{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>
+                                        {% set next_dir = (reviewSort == 'rating' and reviewDir == 'asc') ? 'desc' : 'asc' %}
+                                        <a href="{{ path('app_critic_show', base_params|merge({'review_sort': 'rating', 'review_dir': next_dir})) }}#reviews" class="text-dark text-decoration-none">
+                                            Rating
+                                            {% if reviewSort == 'rating' %}{{ reviewDir == 'asc' ? '↑' : '↓' }}{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>
+                                        {% set next_dir = (reviewSort == 'magazine' and reviewDir == 'asc') ? 'desc' : 'asc' %}
+                                        <a href="{{ path('app_critic_show', base_params|merge({'review_sort': 'magazine', 'review_dir': next_dir})) }}#reviews" class="text-dark text-decoration-none">
+                                            Magazine
+                                            {% if reviewSort == 'magazine' %}{{ reviewDir == 'asc' ? '↑' : '↓' }}{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>
+                                        {% set next_dir = (reviewSort == 'year' and reviewDir == 'asc') ? 'desc' : 'asc' %}
+                                        <a href="{{ path('app_critic_show', base_params|merge({'review_sort': 'year', 'review_dir': next_dir})) }}#reviews" class="text-dark text-decoration-none">
+                                            Jaar
+                                            {% if reviewSort == 'year' %}{{ reviewDir == 'asc' ? '↑' : '↓' }}{% endif %}
+                                        </a>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for review in critic.reviews %}
+                                {% for review in sortedReviews %}
                                     <tr>
                                         <td>
                                             {% if review.album.imageUrl %}

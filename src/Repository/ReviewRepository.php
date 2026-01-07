@@ -15,5 +15,37 @@ class ReviewRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Review::class);
     }
+
+    /**
+     * @return Review[]
+     */
+    public function findByCritic(\App\Entity\Critic $critic, string $sort = 'album', string $direction = 'ASC'): array
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->leftJoin('r.album', 'a')
+            ->leftJoin('r.magazine', 'm')
+            ->where('r.critic = :critic')
+            ->setParameter('critic', $critic);
+
+        $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+
+        switch ($sort) {
+            case 'rating':
+                $qb->orderBy('r.rating', $direction);
+                break;
+            case 'magazine':
+                $qb->orderBy('m.name', $direction);
+                break;
+            case 'year':
+                $qb->orderBy('r.year', $direction);
+                break;
+            case 'album':
+            default:
+                $qb->orderBy('a.title', $direction);
+                break;
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }
 
