@@ -28,15 +28,18 @@ class ArtistController extends AbstractController
     }
 
     #[Route('/artist/{id}/{slug}', name: 'app_artist_show', defaults: ['slug' => null])]
-    public function show(Artist $artist, ?string $slug = null): Response
+    public function show(Artist $artist, ?string $slug = null, \App\Repository\AlbumRepository $albumRepository): Response
     {
         $expectedSlug = $artist->getSlug();
         if ($slug !== $expectedSlug) {
             return $this->redirectToRoute('app_artist_show', ['id' => $artist->getId(), 'slug' => $expectedSlug], 301);
         }
 
+        $albumsWithCounts = $albumRepository->findAlbumsWithCountsByArtist($artist);
+
         return $this->render('artist/show.html.twig', [
             'artist' => $artist,
+            'albumsWithCounts' => $albumsWithCounts,
         ]);
     }
 }

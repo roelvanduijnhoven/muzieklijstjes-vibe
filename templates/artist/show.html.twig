@@ -20,36 +20,125 @@
         {% endif %}
     </h1>
     
-    {% if artist.albums|length > 0 %}
+    {% if albumsWithCounts|length > 0 %}
     <h3 class="mt-4">Albums</h3>
-    <div class="list-group">
-        {# Sort albums by release year descending, though Twig sorting of collections can be tricky.
-           It's often better to sort in the Controller or Entity getter. 
-           Let's assume for now default order (which might be ID or title). 
-           Ideally, we'd update the controller to sort or use a custom getter. #}
-        {% for album in artist.albums %}
-            <a href="{{ path('app_album_show', {id: album.id, slug: album.slug}) }}" class="list-group-item list-group-item-action">
-                <div class="d-flex align-items-center">
-                    {% if album.imageUrl %}
-                        <div class="flex-shrink-0 me-3">
-                            <img src="{{ album_cover_base_url ~ album.imageUrl }}" alt="{{ album.title }}" class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;" loading="lazy">
-                        </div>
-                    {% else %}
-                        <div class="flex-shrink-0 me-3 d-flex align-items-center justify-content-center bg-light rounded" style="width: 60px; height: 60px;">
-                            <span class="text-muted small">No Img</span>
-                        </div>
-                    {% endif %}
-
-                    <div class="flex-grow-1">
-                        <h5 class="mb-1">{{ album.title }}</h5>
-                        {% if album.releaseYear %}
-                            <small class="text-muted">({{ album.releaseYear }})</small>
-                        {% endif %}
-                    </div>
-                </div>
-            </a>
-        {% endfor %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="albumsTable">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 80px;">Image</th>
+                    <th scope="col" class="sortable cursor-pointer" onclick="sortTable(1)">Title ↕</th>
+                    <th scope="col" class="sortable cursor-pointer" onclick="sortTable(2)">Year ↕</th>
+                    <th scope="col" class="sortable cursor-pointer" onclick="sortTable(3)">Reviews ↕</th>
+                    <th scope="col" class="sortable cursor-pointer" onclick="sortTable(4)">List Mentions ↕</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in albumsWithCounts %}
+                    {% set album = item.album %}
+                    <tr>
+                        <td>
+                            {% if album.imageUrl %}
+                                <img src="{{ album_cover_base_url ~ album.imageUrl }}" alt="{{ album.title }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;" loading="lazy">
+                            {% else %}
+                                <div class="d-flex align-items-center justify-content-center bg-light rounded" style="width: 60px; height: 60px;">
+                                    <span class="text-muted small">No Img</span>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ path('app_album_show', {id: album.id, slug: album.slug}) }}" class="text-decoration-none fw-bold text-dark">
+                                {{ album.title }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ album.releaseYear }}
+                        </td>
+                        <td>
+                            {{ item.reviewCount }}
+                        </td>
+                        <td>
+                            {{ item.listCount }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
     {% endif %}
 </div>
+
+<script>
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("albumsTable");
+  switching = true;
+  // Set the sorting direction to ascending:
+  dir = "asc";
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /* Check if the two rows should switch place,
+      based on the direction, asc or desc: */
+      var xContent = x.innerText.toLowerCase();
+      var yContent = y.innerText.toLowerCase();
+      
+      // Check if numeric
+      var xNum = parseFloat(xContent);
+      var yNum = parseFloat(yContent);
+      var isNumeric = !isNaN(xNum) && !isNaN(yNum);
+
+      if (dir == "asc") {
+        if (isNumeric) {
+            if (xNum > yNum) shouldSwitch = true;
+        } else {
+            if (xContent > yContent) shouldSwitch = true;
+        }
+      } else if (dir == "desc") {
+        if (isNumeric) {
+            if (xNum < yNum) shouldSwitch = true;
+        } else {
+            if (xContent < yContent) shouldSwitch = true;
+        }
+      }
+      if (shouldSwitch) {
+        /* If a switch has been marked, make the switch
+        and mark that a switch has been done: */
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        // Each time a switch is done, increase this count by 1:
+        switchcount ++;
+      } else {
+        /* If no switching has been done AND the direction is "asc",
+        set the direction to "desc" and run the while loop again. */
+        if (switchcount == 0 && dir == "asc") {
+          dir = "desc";
+          switching = true;
+        }
+      }
+    }
+  }
+}
+</script>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    .sortable:hover {
+        background-color: #f8f9fa;
+    }
+</style>
 {% endblock %}

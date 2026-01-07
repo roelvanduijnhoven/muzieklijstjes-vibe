@@ -70,7 +70,6 @@ class AlbumRepository extends ServiceEntityRepository
             ->join(
                 'App\Entity\AlbumListItem', 
                 'ali', 
-                
                 \Doctrine\ORM\Query\Expr\Join::WITH, 
                 'ali.album = a'
             )
@@ -85,6 +84,43 @@ class AlbumRepository extends ServiceEntityRepository
             ->groupBy('a')
             ->orderBy('score', 'DESC')
             ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return array<array{album: Album, reviewCount: int, listCount: int}>
+     */
+    public function findAlbumsWithCountsByArtist(\App\Entity\Artist $artist): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a as album, COUNT(DISTINCT r.id) as reviewCount, COUNT(DISTINCT al.id) as listCount')
+            ->leftJoin('a.reviews', 'r')
+            ->leftJoin(
+                'App\Entity\AlbumListItem', 
+                'ali', 
+                \Doctrine\ORM\Query\Expr\Join::WITH, 
+                'ali.album = a'
+            )
+            ->leftJoin('ali.albumList', 'al')
+            ->leftJoin('al.aggregatedIn', 'agg')
+            ->where('a.artist = :artist')
+            // Only count lists that are NOT aggregated in other lists (Top Level Lists)
+            // But we must be careful: if we filter by agg.id IS NULL, we might exclude lists that are aggregated 
+            // but effectively we want to count the "unique independent mentions".
+            // The user said "if multiple individual lists are contained in an aggregate".
+            // If we count the aggregate (which has agg.id IS NULL), and exclude the source (which has agg.id NOT NULL).
+            // This works.
+            // But we must ensure that we don't filter out the ALBUM if it has 0 lists.
+            // Since we use LEFT JOIN for list items, if no list items, count is 0.
+            // But the WHERE clause on 'agg' might filter rows?
+            // "agg.id IS NULL" matches if there is NO aggregate.
+            // If there is no list, al is null, agg is null. So it matches.
+            ->andWhere('agg.id IS NULL') 
+            ->setParameter('artist', $artist)
+            ->groupBy('a.id')
+            ->orderBy('a.releaseYear', 'ASC')
+            ->addOrderBy('a.title', 'ASC')
             ->getQuery()
             ->getResult();
     }
