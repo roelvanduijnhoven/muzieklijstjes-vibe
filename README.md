@@ -153,10 +153,3 @@ This command:
 2. Downloads the cover art (if found).
 3. Resizes it to 300x300px.
 4. Uploads it to the configured S3 bucket.
-
-
-# TO DO
-
-- The rubric of the original dataset does not contain a newsletter
-- Have the original dataset contain all rows from the stretch it
-- The list ofdescriptions Should map correctly to magazines Using their short titles
