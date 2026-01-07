@@ -27,19 +27,13 @@ class AlbumArtistsType extends AbstractType
 
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
-        // Pass initial data to the view so JS can pre-populate the select
-        $collection = $form->getData(); // This is likely the Collection (if view is built after transform?) 
-        // Wait, getData() on the form returns the model data (Collection) before transform?
-        // Or after?
-        // In buildView, `form->getData()` returns the NORMALIZED data (result of transform). 
-        // But our transformer converts to string.
-        // We need the original entities to get names.
-        
-        // Actually, we can access the model data via parent form or by checking how the data is passed.
-        // Let's assume we can't easily get the entities from the string here without re-querying.
-        
-        // However, we can use the transformer's logic or just re-fetch.
-        // But better: The `value` in the view is the string "1,2,3".
+        // Add ID attribute if missing so JS can find it easily
+        if (!isset($view->vars['attr']['id'])) {
+             // Generate a consistent ID if possible, or let Symfony do it.
+             // Symfony usually sets 'id' in $view->vars['id'].
+             // We want to force a class or specific ID if needed.
+        }
+        $view->vars['attr']['id'] = $view->vars['id']; // Ensure ID is in attrs for some JS access
         
         $value = $view->vars['value'];
         $initialOptions = [];

@@ -55,7 +55,7 @@ class AlbumCrudController extends AbstractCrudController
             ->addJsFile('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js') // Fix for TomSelect drag_drop requiring jQuery UI sortable
             ->addCssFile('https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css')
             ->addJsFile('https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js')
-            ->addJsFile('assets/js/admin/album_musicbrainz.js?v=3')
+            ->addJsFile('assets/js/admin/album_musicbrainz.js?v=4')
             ->addJsFile('assets/js/admin/album_artists.js?v=1')
             ->addCssFile('assets/css/admin/tom-select.dark.css?v=1');
     }

@@ -43,36 +43,64 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch Button Click Handler
     fetchButton.addEventListener('click', async function() {
         const titleInput = document.getElementById('Album_title');
-        const artistSelect = document.getElementById('Album_artist'); // Usually a select or autocomplete
         
-        // EasyAdmin autocomplete handling
-        // If it's an autocomplete, the actual value is in a hidden input, but the visible one is text.
-        // However, standard AssociationField usually renders a select (if strict) or autocomplete.
-        // Let's check typical EasyAdmin DOM.
-        // If it is an autocomplete, the ID is usually in `Album_artist_autocomplete` (hidden) or similar? 
-        // Actually, usually the ID is the value of the <select> or <input type="hidden">.
+        // Attempt to find the artist input using multiple strategies
+        let artistInput = document.getElementById('Album_albumArtists'); 
         
-        let artistId = null;
-        if (artistSelect) {
-            if (artistSelect.tagName === 'SELECT') {
-                 artistId = artistSelect.value;
-            } else {
-                // Check for tom-select or similar
-                // If it is an autocomplete field, the structure is complex.
-                // EasyAdmin often uses TomSelect.
-                 if (artistSelect.tomselect) {
-                     artistId = artistSelect.tomselect.getValue();
-                 } else {
-                     artistId = artistSelect.value;
-                 }
-            }
+        // Fallback: try finding by class
+        if (!artistInput) {
+            artistInput = document.querySelector('.js-album-artists-select');
         }
         
-        // Fallback for autocomplete hidden field if standard ID selection fails
+        // Fallback: try finding by name attribute
+        if (!artistInput) {
+            artistInput = document.querySelector('input[name="Album[albumArtists]"]');
+        }
+
+        let artistId = null;
+
+        if (artistInput) {
+            // Check if TomSelect is initialized
+            // Note: TomSelect might hide the original input and use its own container.
+            // But checking .tomselect property on the original input usually works.
+            
+            // Try to find the TomSelect instance on the input
+            // @ts-ignore
+            if (artistInput.tomselect) {
+                 // @ts-ignore
+                 const tsValue = artistInput.tomselect.getValue();
+                 // getValue() returns string "1,2,3" for text input mode
+                 if (tsValue) {
+                     // If multiple items, it might be an array or string depending on config.
+                     // For 'text' input based TomSelect, it updates the input value and getValue returns that string.
+                     const val = String(tsValue);
+                     const parts = val.split(',');
+                     if (parts.length > 0 && parts[0]) {
+                         artistId = parts[0];
+                     }
+                 }
+            } else {
+                // Fallback to raw input value
+                const val = artistInput.value;
+                if (val) {
+                    const parts = val.split(',');
+                    if (parts.length > 0 && parts[0]) {
+                        artistId = parts[0];
+                    }
+                }
+            }
+        } else {
+             // Debug: check if we can find any input with that ID
+             console.error('Element #Album_albumArtists not found in DOM.');
+        }
+        
+        // Debugging
         if (!artistId) {
-             // Sometimes EA appends generated IDs. 
-             // Let's assume for now it's a standard select or we can get the value.
-             // If this fails, we might need to debug the DOM structure of EA AssociationField.
+             console.warn('Could not find artist ID.', {
+                 foundInput: !!artistInput,
+                 inputValue: artistInput ? artistInput.value : null,
+                 tomSelectValue: (artistInput && artistInput.tomselect) ? artistInput.tomselect.getValue() : 'no-instance'
+             });
         }
 
         const albumTitle = titleInput ? titleInput.value : '';

@@ -35,17 +35,18 @@ class AlbumAjaxController extends AbstractController
                 return new JsonResponse(['error' => 'Artist not found'], 404);
             }
 
-            if (!$artist->getMusicBrainzId()) {
+            $artistMbid = $artist->getMusicBrainzId();
+            if (!$artistMbid) {
                 return new JsonResponse(['error' => 'Selected artist does not have a MusicBrainz ID set. Please update the artist first.'], 400);
             }
 
-            $mbid = $this->musicBrainzService->searchAlbumByArtist($artist->getMusicBrainzId(), $albumTitle);
+            $mbid = $this->musicBrainzService->searchAlbumByArtist($artistMbid, $albumTitle);
 
             if ($mbid === null) {
                  return new JsonResponse([
                      'error' => 'No album found on MusicBrainz for this artist',
-                     'api_url' => $this->musicBrainzService->getAlbumSearchUrl($artist->getMusicBrainzId(), $albumTitle),
-                     'web_url' => $this->musicBrainzService->getAlbumWebSearchUrl($artist->getMusicBrainzId(), $albumTitle)
+                     'api_url' => $this->musicBrainzService->getAlbumSearchUrl($artistMbid, $albumTitle),
+                     'web_url' => $this->musicBrainzService->getAlbumWebSearchUrl($artistMbid, $albumTitle)
                  ], 404);
             }
 
