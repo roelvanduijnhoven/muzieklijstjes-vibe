@@ -37,7 +37,7 @@
                             {% endif %}
                             
                             <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ album.title }} <small class="text-muted d-block d-sm-inline">by {{ album.artist.name }}</small></h5>
+                                <h5 class="mb-1">{{ album.title }} <small class="text-muted d-block d-sm-inline">by {{ album.artistNames }}</small></h5>
                                 {% if album.releaseYear %}
                                     <small>{{ album.releaseYear }}</small>
                                 {% endif %}
@@ -73,7 +73,7 @@
                             {% endif %}
                             
                             <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ album.title }} <small class="text-muted d-block d-sm-inline">by {{ album.artist.name }}</small></h5>
+                                <h5 class="mb-1">{{ album.title }} <small class="text-muted d-block d-sm-inline">by {{ album.artistNames }}</small></h5>
                                 {% if album.releaseYear %}
                                     <small>{{ album.releaseYear }}</small>
                                 {% endif %}

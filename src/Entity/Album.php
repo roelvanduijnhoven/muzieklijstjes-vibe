@@ -22,9 +22,9 @@ class Album
     #[ORM\Column]
     private ?int $releaseYear = null;
 
-    #[ORM\ManyToOne(inversedBy: 'albums')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Artist $artist = null;
+    #[ORM\OneToMany(mappedBy: 'album', targetEntity: AlbumArtist::class, orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $albumArtists;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
@@ -53,13 +53,30 @@ class Album
     public function __construct()
     {
         $this->reviews = new ArrayCollection();
+        $this->albumArtists = new ArrayCollection();
+    }
+
+    public function getArtistNames(): string
+    {
+        if ($this->albumArtists->isEmpty()) {
+            return 'Unknown Artist';
+        }
+
+        $names = [];
+        foreach ($this->albumArtists as $albumArtist) {
+            if ($artist = $albumArtist->getArtist()) {
+                $names[] = $artist->getName();
+            }
+        }
+        
+        return implode(', ', $names);
     }
 
     public function __toString(): string
     {
-        $artistName = $this->artist ? $this->artist->getName() : 'Unknown Artist';
+        $artistNames = $this->getArtistNames();
         $releaseYear = $this->releaseYear ? sprintf(' (%s)', $this->releaseYear) : '';
-        return sprintf('%s - %s%s', $artistName, $this->title ?? '', $releaseYear);
+        return sprintf('%s - %s%s', $artistNames, $this->title ?? '', $releaseYear);
     }
 
     public function getId(): ?int
@@ -93,12 +110,27 @@ class Album
 
     public function getArtist(): ?Artist
     {
-        return $this->artist;
+        if ($this->albumArtists->isEmpty()) {
+            return null;
+        }
+        // Assuming ordered by position due to OrderBy annotation or insertion order
+        return $this->albumArtists->first()->getArtist();
     }
 
     public function setArtist(?Artist $artist): static
     {
-        $this->artist = $artist;
+        // Remove existing artists
+        foreach ($this->albumArtists as $albumArtist) {
+            $this->removeAlbumArtist($albumArtist);
+        }
+
+        if ($artist) {
+            $albumArtist = new AlbumArtist();
+            $albumArtist->setArtist($artist);
+            $albumArtist->setAlbum($this);
+            $albumArtist->setPosition(0);
+            $this->addAlbumArtist($albumArtist);
+        }
 
         return $this;
     }
@@ -190,7 +222,8 @@ class Album
     public function getSlug(): string
     {
         $slugger = new AsciiSlugger();
-        $artistName = $this->artist ? $this->artist->getName() : '';
+        $artist = $this->getArtist();
+        $artistName = $artist ? $artist->getName() : '';
         $title = $this->getTitle() ?? '';
         return $slugger->slug(sprintf('%s-%s', $artistName, $title))->lower()->toString();
     }
@@ -234,8 +267,38 @@ class Album
                 // However, Review::setAlbum param type allows null.
                 // Let's just try to set it to null in memory.
                 // Actually, the generated code for nullable=false usually doesn't set it to null in remove, 
-                // or throws exception. But orphanRemoval=true is set in Album, so removing it from collection should delete it.
+                // or throws exception. But orphanRemoval is true in Album, so removing it from collection should delete it.
                 // So we don't need to set side to null if orphanRemoval is true.
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AlbumArtist>
+     */
+    public function getAlbumArtists(): Collection
+    {
+        return $this->albumArtists;
+    }
+
+    public function addAlbumArtist(AlbumArtist $albumArtist): static
+    {
+        if (!$this->albumArtists->contains($albumArtist)) {
+            $this->albumArtists->add($albumArtist);
+            $albumArtist->setAlbum($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAlbumArtist(AlbumArtist $albumArtist): static
+    {
+        if ($this->albumArtists->removeElement($albumArtist)) {
+            // set the owning side to null (unless already changed)
+            if ($albumArtist->getAlbum() === $this) {
+                $albumArtist->setAlbum(null);
             }
         }
 

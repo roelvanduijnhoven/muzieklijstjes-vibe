@@ -103,11 +103,11 @@
                                                                 alt="{{ previewItem.album.title }}" 
                                                                 class="img-thumbnail position-absolute" 
                                                                 style="width: 50px; height: 50px; object-fit: cover; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
-                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
+                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artistNames }}">
                                                     {% else %}
                                                         <div class="bg-light border d-flex align-items-center justify-content-center text-muted small text-center p-1 position-absolute" 
                                                                 style="width: 50px; height: 50px; font-size: 0.6rem; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
-                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
+                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artistNames }}">
                                                             No Img
                                                         </div>
                                                     {% endif %}
@@ -204,7 +204,11 @@
                                         <td>
                                             <a href="{{ path('app_album_show', {id: review.album.id}) }}" class="text-decoration-none fw-bold">{{ review.album.title }}</a>
                                             <br>
-                                            <small class="text-muted">{{ review.album.artist.name }}</small>
+                                            <small class="text-muted">
+                                                {% for albumArtist in review.album.albumArtists %}
+                                                    <a href="{{ path('app_artist_show', albumArtist.artist.routeParams) }}" class="text-muted">{{ albumArtist.artist.name }}</a>{% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </small>
                                         </td>
                                         <td>
                                             {{ rating_macros.render(review) }}

@@ -136,7 +136,11 @@
                 {% elseif list.type == 'ordered' %}
                     <td>{{ item.position }}</td>
                 {% endif %}
-                <td><a href="{{ path('app_artist_show', item.album.artist.routeParams) }}">{{ item.album.artist.name }}</a></td>
+                <td>
+                    {% for albumArtist in item.album.albumArtists %}
+                        <a href="{{ path('app_artist_show', albumArtist.artist.routeParams) }}">{{ albumArtist.artist.name }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
                 <td><a href="{{ path('app_album_show', item.album.routeParams) }}">{{ item.album.title }}</a></td>
                 <td>{{ item.album.releaseYear }}</td>
             </tr>

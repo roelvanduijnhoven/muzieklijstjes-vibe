@@ -10,7 +10,7 @@
         <div class="list-group">
             {% for album in albums %}
                 <a href="{{ path('app_album_show', album.routeParams) }}" class="list-group-item list-group-item-action">
-                    {{ album.title }} ({{ album.artist.name }})
+                    {{ album.title }} ({{ album.artistNames }})
                 </a>
             {% endfor %}
         </div>

@@ -78,7 +78,7 @@ class ArtistCrudController extends AbstractCrudController
             TextField::new('sortName')->hideOnIndex(),
             TextField::new('musicBrainzId')->hideOnIndex(),
             \EasyCorp\Bundle\EasyAdminBundle\Field\UrlField::new('wikipediaUrl')->hideOnIndex(),
-            IntegerField::new('albums.count', 'Album Count')->hideOnForm(),
+            IntegerField::new('albumArtists.count', 'Album Count')->hideOnForm(),
         ];
     }
 }

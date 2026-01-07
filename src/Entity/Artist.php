@@ -28,13 +28,12 @@ class Artist
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $musicBrainzId = null;
 
-    #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'artist')]
-    #[ORM\OrderBy(['releaseYear' => 'ASC', 'title' => 'ASC'])]
-    private Collection $albums;
+    #[ORM\OneToMany(mappedBy: 'artist', targetEntity: AlbumArtist::class)]
+    private Collection $albumArtists;
 
     public function __construct()
     {
-        $this->albums = new ArrayCollection();
+        $this->albumArtists = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -114,25 +113,76 @@ class Artist
      */
     public function getAlbums(): Collection
     {
-        return $this->albums;
+        $albums = new ArrayCollection();
+        foreach ($this->albumArtists as $albumArtist) {
+            $albums->add($albumArtist->getAlbum());
+        }
+        
+        // Emulate previous ordering: releaseYear ASC, title ASC
+        $iterator = $albums->getIterator();
+        $iterator->uasort(function ($a, $b) {
+            if ($a->getReleaseYear() === $b->getReleaseYear()) {
+                return strcmp($a->getTitle(), $b->getTitle());
+            }
+            return $a->getReleaseYear() <=> $b->getReleaseYear();
+        });
+        
+        return new ArrayCollection(iterator_to_array($iterator));
     }
 
     public function addAlbum(Album $album): static
     {
-        if (!$this->albums->contains($album)) {
-            $this->albums->add($album);
-            $album->setArtist($this);
+        foreach ($this->albumArtists as $albumArtist) {
+            if ($albumArtist->getAlbum() === $album) {
+                return $this;
+            }
         }
+
+        $albumArtist = new AlbumArtist();
+        $albumArtist->setArtist($this);
+        $albumArtist->setAlbum($album);
+        $albumArtist->setPosition(0);
+        $this->addAlbumArtist($albumArtist);
 
         return $this;
     }
 
     public function removeAlbum(Album $album): static
     {
-        if ($this->albums->removeElement($album)) {
+        foreach ($this->albumArtists as $albumArtist) {
+            if ($albumArtist->getAlbum() === $album) {
+                $this->removeAlbumArtist($albumArtist);
+                break;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AlbumArtist>
+     */
+    public function getAlbumArtists(): Collection
+    {
+        return $this->albumArtists;
+    }
+
+    public function addAlbumArtist(AlbumArtist $albumArtist): static
+    {
+        if (!$this->albumArtists->contains($albumArtist)) {
+            $this->albumArtists->add($albumArtist);
+            $albumArtist->setArtist($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAlbumArtist(AlbumArtist $albumArtist): static
+    {
+        if ($this->albumArtists->removeElement($albumArtist)) {
             // set the owning side to null (unless already changed)
-            if ($album->getArtist() === $this) {
-                $album->setArtist(null);
+            if ($albumArtist->getArtist() === $this) {
+                $albumArtist->setArtist(null);
             }
         }
 

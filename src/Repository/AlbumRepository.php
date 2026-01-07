@@ -48,8 +48,6 @@ class AlbumRepository extends ServiceEntityRepository
                 'ali.album = a'
             )
             ->join('ali.albumList', 'al')
-            ->join('a.artist', 'ar')
-            ->addSelect('ar')
             // Count lists that are important
             ->where('al.important = :important')
             ->setParameter('important', true)
@@ -74,8 +72,6 @@ class AlbumRepository extends ServiceEntityRepository
                 'ali.album = a'
             )
             ->join('ali.albumList', 'al')
-            ->join('a.artist', 'ar')
-            ->addSelect('ar')
             // Only count Top Level lists (lists that are not aggregated in others) for the year chart
             ->leftJoin('al.aggregatedIn', 'agg')
             ->where('al.releaseYear = :year')
@@ -96,6 +92,7 @@ class AlbumRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->select('a as album, COUNT(DISTINCT r.id) as reviewCount, COUNT(DISTINCT al.id) as listCount')
             ->leftJoin('a.reviews', 'r')
+            ->join('a.albumArtists', 'aa')
             ->leftJoin(
                 'App\Entity\AlbumListItem', 
                 'ali', 
@@ -104,7 +101,7 @@ class AlbumRepository extends ServiceEntityRepository
             )
             ->leftJoin('ali.albumList', 'al')
             ->leftJoin('al.aggregatedIn', 'agg')
-            ->where('a.artist = :artist')
+            ->where('aa.artist = :artist')
             // Only count lists that are NOT aggregated in other lists (Top Level Lists)
             // But we must be careful: if we filter by agg.id IS NULL, we might exclude lists that are aggregated 
             // but effectively we want to count the "unique independent mentions".

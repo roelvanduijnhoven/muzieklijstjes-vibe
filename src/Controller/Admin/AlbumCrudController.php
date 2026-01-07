@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
@@ -108,7 +109,7 @@ class AlbumCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setSearchFields(['title', 'artist.name'])
+            ->setSearchFields(['title', 'albumArtists.artist.name'])
             ->setAutofocusSearch(true);
     }
 
@@ -116,7 +117,8 @@ class AlbumCrudController extends AbstractCrudController
     {
         return [
             IdField::new('id')->hideOnForm(),
-            AssociationField::new('artist'),
+            CollectionField::new('albumArtists')
+                ->useEntryCrudForm(AlbumArtistCrudController::class),
             TextField::new('title')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             IntegerField::new('releaseYear'),
             TextField::new('label')->hideOnIndex(),

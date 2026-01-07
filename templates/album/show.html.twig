@@ -21,7 +21,10 @@
         <div class="col-md-9">
             <h1>{{ album.title }}</h1>
             <p class="lead">
-                door <a href="{{ path('app_artist_show', {id: album.artist.id, slug: album.artist.slug}) }}">{{ album.artist.name }}</a>
+                door 
+                {% for albumArtist in album.albumArtists %}
+                    <a href="{{ path('app_artist_show', albumArtist.artist.routeParams) }}">{{ albumArtist.artist.name }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
                 <br>
                 <small class="text-muted">Uitgebracht in {{ album.releaseYear }}</small>
                 {% if album.wikipediaUrl %}
