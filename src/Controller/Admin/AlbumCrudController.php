@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use App\Enum\AlbumFormat;
+use Symfony\Component\HttpFoundation\Response;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use App\Controller\Admin\ArtistCrudController;
@@ -40,6 +41,13 @@ class AlbumCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Album::class;
+    }
+
+    public function createEntity(string $entityFqcn)
+    {
+        $album = new Album();
+        $album->setFormat(AlbumFormat::CD);
+        return $album;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -143,7 +151,6 @@ class AlbumCrudController extends AbstractCrudController
             TextField::new('title')->setTemplatePath('admin/field/link_to_edit.html.twig'),
             IntegerField::new('releaseYear'),
             TextField::new('label')->hideOnIndex(),
-            TextField::new('musicBrainzId')->hideOnIndex(),
             ChoiceField::new('format')->setChoices([
                 'CD' => AlbumFormat::CD,
                 'DVD' => AlbumFormat::DVD,
@@ -151,6 +158,7 @@ class AlbumCrudController extends AbstractCrudController
                 'LP' => AlbumFormat::LP,
                 'Unknown' => AlbumFormat::UNKNOWN,
             ])->hideOnIndex(),
+            TextField::new('musicBrainzId')->hideOnIndex(),
             UrlField::new('wikipediaUrl')->hideOnIndex(),
             BooleanField::new('ownedByHans'),
             ImageField::new('imageUrl', 'Cover')
