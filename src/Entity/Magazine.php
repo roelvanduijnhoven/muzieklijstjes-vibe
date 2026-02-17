@@ -28,8 +28,8 @@ class Magazine
     #[ORM\OneToMany(targetEntity: AlbumList::class, mappedBy: 'magazine')]
     private Collection $albumLists;
 
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'magazine')]
-    private Collection $reviews;
+    #[ORM\OneToMany(targetEntity: Issue::class, mappedBy: 'magazine')]
+    private Collection $issues;
 
     #[ORM\OneToMany(targetEntity: Rubric::class, mappedBy: 'magazine', orphanRemoval: true)]
     private Collection $rubrics;
@@ -37,8 +37,8 @@ class Magazine
     public function __construct()
     {
         $this->albumLists = new ArrayCollection();
-        $this->reviews = new ArrayCollection();
         $this->rubrics = new ArrayCollection();
+        $this->issues = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -132,29 +132,29 @@ class Magazine
     }
 
     /**
-     * @return Collection<int, Review>
+     * @return Collection<int, Issue>
      */
-    public function getReviews(): Collection
+    public function getIssues(): Collection
     {
-        return $this->reviews;
+        return $this->issues;
     }
 
-    public function addReview(Review $review): static
+    public function addIssue(Issue $issue): static
     {
-        if (!$this->reviews->contains($review)) {
-            $this->reviews->add($review);
-            $review->setMagazine($this);
+        if (!$this->issues->contains($issue)) {
+            $this->issues->add($issue);
+            $issue->setMagazine($this);
         }
 
         return $this;
     }
 
-    public function removeReview(Review $review): static
+    public function removeIssue(Issue $issue): static
     {
-        if ($this->reviews->removeElement($review)) {
+        if ($this->issues->removeElement($issue)) {
             // set the owning side to null (unless already changed)
-            if ($review->getMagazine() === $this) {
-                $review->setMagazine(null);
+            if ($issue->getMagazine() === $this) {
+                $issue->setMagazine(null);
             }
         }
 

@@ -21,16 +21,6 @@ class Review
     #[ORM\JoinColumn(nullable: true)]
     private ?Critic $critic = null;
 
-    #[ORM\ManyToOne(inversedBy: 'reviews')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?Magazine $magazine = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?int $year = null;
-
-    #[ORM\Column(length: 20, nullable: true)]
-    private ?string $issueNumber = null;
-
     #[ORM\Column(nullable: true)]
     private ?float $rating = null;
 
@@ -39,6 +29,10 @@ class Review
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
     private ?Rubric $rubric = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Issue $issue = null;
 
     public function getId(): ?int
     {
@@ -71,38 +65,17 @@ class Review
 
     public function getMagazine(): ?Magazine
     {
-        return $this->magazine;
-    }
-
-    public function setMagazine(?Magazine $magazine): static
-    {
-        $this->magazine = $magazine;
-
-        return $this;
+        return $this->getIssue()?->getMagazine();
     }
 
     public function getYear(): ?int
     {
-        return $this->year;
-    }
-
-    public function setYear(?int $year): static
-    {
-        $this->year = $year;
-
-        return $this;
+        return $this->getIssue()?->getYear();
     }
 
     public function getIssueNumber(): ?string
     {
-        return $this->issueNumber;
-    }
-
-    public function setIssueNumber(?string $issueNumber): static
-    {
-        $this->issueNumber = $issueNumber;
-
-        return $this;
+        return $this->getIssue()?->getIssueNumber();
     }
 
     public function getRating(): ?float
@@ -137,6 +110,18 @@ class Review
     public function setRubric(?Rubric $rubric): static
     {
         $this->rubric = $rubric;
+
+        return $this;
+    }
+
+    public function getIssue(): ?Issue
+    {
+        return $this->issue;
+    }
+
+    public function setIssue(?Issue $issue): static
+    {
+        $this->issue = $issue;
 
         return $this;
     }

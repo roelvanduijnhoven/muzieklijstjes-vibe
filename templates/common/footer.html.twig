@@ -25,6 +25,10 @@
                 {% set target_controller = 'App\\Controller\\Admin\\MagazineCrudController' %}
                 {% set target_id = magazine.id %}
                 {% set admin_label = 'Bewerk Tijdschrift' %}
+            {% elseif issue is defined and issue.id is defined %}
+                {% set target_controller = 'App\\Controller\\Admin\\IssueCrudController' %}
+                {% set target_id = issue.id %}
+                {% set admin_label = 'Bewerk Uitgave' %}
             {% elseif list is defined and list.id is defined and list.type is defined %}
                 {% set target_controller = 'App\\Controller\\Admin\\OrderedAlbumListCrudController' %}
                 {% if list.type == 'unordered' %}

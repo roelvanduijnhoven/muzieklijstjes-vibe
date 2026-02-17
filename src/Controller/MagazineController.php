@@ -18,13 +18,23 @@ class MagazineController extends AbstractController
             return $this->redirectToRoute('app_magazine_show', ['id' => $magazine->getId(), 'slug' => $expectedSlug], 301);
         }
 
-        // Get critics who reviewed the most for this magazine
-        // We need to count reviews by critic where magazine is this magazine
-        $criticsStats = $magazineRepository->findTopCritics($magazine, 10);
+        // Fetch issues
+        $issues = $magazine->getIssues()->toArray();
+        usort($issues, function ($a, $b) {
+            if ($a->getYear() !== $b->getYear()) {
+                return $b->getYear() <=> $a->getYear(); // DESC year
+            }
+            return strnatcmp((string)$a->getIssueNumber(), (string)$b->getIssueNumber()); // ASC number
+        });
+
+        $groupedIssues = [];
+        foreach ($issues as $issue) {
+            $groupedIssues[$issue->getYear()][] = $issue;
+        }
 
         return $this->render('magazine/show.html.twig', [
             'magazine' => $magazine,
-            'criticsStats' => $criticsStats,
+            'groupedIssues' => $groupedIssues,
         ]);
     }
 

@@ -17,7 +17,7 @@ In the world of music journalism, critics frequently publish lists of their favo
 *   **Magazine Filtering:** Filter lists and aggregates based on the source publication (Magazine/Newsletter).
     
 
-🗂 Data Model & Logic
+🗂 Data Model & Logic 
 ---------------------
 
 ### 1. The Album Entity

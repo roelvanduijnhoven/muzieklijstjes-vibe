@@ -69,8 +69,10 @@ class SyncCoversFromBucketCommand extends Command
         // Use DQL with Array Hydration for memory efficiency and speed
         $query = $this->entityManager->createQuery(
             'SELECT a.id, a.title, art.name as artistName, a.imageUrl 
-             FROM App\Entity\Album a 
-             JOIN a.artist art'
+             FROM App\Entity\AlbumArtist aa
+             JOIN aa.album a
+             JOIN aa.artist art
+             WHERE aa.position = 0'
         );
         
         $iterable = $query->toIterable([], Query::HYDRATE_ARRAY);

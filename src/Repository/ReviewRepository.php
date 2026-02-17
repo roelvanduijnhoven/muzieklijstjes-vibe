@@ -23,7 +23,8 @@ class ReviewRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('r')
             ->leftJoin('r.album', 'a')
-            ->leftJoin('r.magazine', 'm')
+            ->leftJoin('r.issue', 'i')
+            ->leftJoin('i.magazine', 'm')
             ->where('r.critic = :critic')
             ->setParameter('critic', $critic);
 
@@ -37,7 +38,7 @@ class ReviewRepository extends ServiceEntityRepository
                 $qb->orderBy('m.name', $direction);
                 break;
             case 'year':
-                $qb->orderBy('r.year', $direction);
+                $qb->orderBy('i.year', $direction);
                 break;
             case 'album':
             default:

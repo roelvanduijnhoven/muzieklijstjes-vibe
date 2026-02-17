@@ -9,6 +9,7 @@ use App\Entity\Artist;
 use App\Entity\Critic;
 use App\Entity\Feature;
 use App\Entity\Genre;
+use App\Entity\Issue;
 use App\Entity\Magazine;
 use App\Entity\Review;
 use App\Entity\Rubric;
@@ -39,6 +40,7 @@ class ImportLegacyCommand extends Command
     private array $soortMap = []; // key: id (int) -> ID (int) (for 'soort' table)
     private array $featureMap = []; // key: id (int) -> ID (int)
     private array $rubricMap = []; // key: legacy_id (int|string) -> ID (int)
+    private array $issueMap = []; // key: "magId-year-issueNum" -> ID (int)
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -75,6 +77,9 @@ class ImportLegacyCommand extends Command
 
         $io->section('Importing Magazines');
         $this->importMagazines($io);
+        
+        $io->section('Importing Issues');
+        $this->importIssues($io);
 
         $io->section('Importing Rubrics');
         $this->importRubrics($io);
@@ -130,7 +135,9 @@ class ImportLegacyCommand extends Command
             'album_list_item',
             'album_list_album_list',
             'album_list',
+            'album_artist',
             'review',
+            'issue',
             'album',
             'artist',
             'critic_genre',
@@ -386,6 +393,70 @@ class ImportLegacyCommand extends Command
         $io->progressFinish();
     }
 
+    private function importIssues(SymfonyStyle $io): void
+    {
+        // Import distinct issues from review table
+        $rows = $this->legacyConnection->fetchAllAssociative(
+            'SELECT DISTINCT tijdschrift_id, jaar, nummer FROM recensie 
+             WHERE tijdschrift_id IS NOT NULL AND jaar IS NOT NULL'
+        );
+        
+        $io->text('Importing Issues from reviews...');
+        $io->progressStart(count($rows));
+        
+        $batch = [];
+        $i = 0;
+
+        foreach ($rows as $row) {
+            $magId = $row['tijdschrift_id'];
+            if (!isset($this->magazineMap[$magId])) {
+                continue;
+            }
+
+            $year = (int)$row['jaar'];
+            // Normalize issue number logic matching importReviews
+            $rawNum = $row['nummer'];
+            // Use 'n/a' for missing issue numbers to satisfy NOT NULL constraint
+            $issueNum = ($rawNum !== '0' && $rawNum !== '' && $rawNum !== null) ? (string)$rawNum : 'n/a';
+
+            // Create key for map
+            $key = sprintf('%d-%d-%s', $magId, $year, $issueNum);
+            
+            if (isset($this->issueMap[$key])) {
+                continue;
+            }
+
+            $issue = new Issue();
+            $magRef = $this->entityManager->getReference(Magazine::class, $this->magazineMap[$magId]);
+            $issue->setMagazine($magRef);
+            $issue->setYear($year);
+            $issue->setIssueNumber($issueNum);
+
+            $this->entityManager->persist($issue);
+            
+            $batch[] = ['entity' => $issue, 'key' => $key];
+
+            if ((++$i % 1000) === 0) {
+                $this->entityManager->flush();
+                foreach ($batch as $item) {
+                    $this->issueMap[$item['key']] = $item['entity']->getId();
+                }
+                $this->entityManager->clear();
+                $batch = [];
+            }
+            
+            $io->progressAdvance();
+        }
+
+        $this->entityManager->flush();
+        foreach ($batch as $item) {
+            $this->issueMap[$item['key']] = $item['entity']->getId();
+        }
+        $this->entityManager->clear();
+        
+        $io->progressFinish();
+    }
+
     private function importRubrics(SymfonyStyle $io): void
     {
         // Import from 'rubriek' table
@@ -617,28 +688,38 @@ class ImportLegacyCommand extends Command
                 $review->setCritic($criticRef);
             }
 
-            if ($row['tijdschrift_id'] && isset($this->magazineMap[$row['tijdschrift_id']])) {
-                $magRef = $this->entityManager->getReference(Magazine::class, $this->magazineMap[$row['tijdschrift_id']]);
-                $review->setMagazine($magRef);
-            }
-
             // Fields
-            $review->setYear($row['jaar'] ? (int)$row['jaar'] : null);
-            // Removed month
-            $review->setIssueNumber($row['nummer'] !== '0' ? $row['nummer'] : null);
             $review->setRating($row['waardering'] !== null ? (float)$row['waardering'] : null);
             
-            if ($row['rubriek']) {
-                $legacyRubricId = $row['rubriek'];
-                $review->setLegacyRubric($legacyRubricId);
+            // Link to Issue
+            if ($row['tijdschrift_id'] && $row['jaar']) {
+                $rawNum = $row['nummer'];
+                $issueNum = ($rawNum !== '0' && $rawNum !== '' && $rawNum !== null) ? (string)$rawNum : 'n/a';
                 
-                if (isset($this->rubricMap[$legacyRubricId])) {
-                    $rubricRef = $this->entityManager->getReference(Rubric::class, $this->rubricMap[$legacyRubricId]);
-                    $review->setRubric($rubricRef);
+                 $issueKey = sprintf('%d-%d-%s', 
+                    $row['tijdschrift_id'], 
+                    (int)$row['jaar'], 
+                    $issueNum
+                );
+                
+                if (isset($this->issueMap[$issueKey])) {
+                    $issueRef = $this->entityManager->getReference(Issue::class, $this->issueMap[$issueKey]);
+                    $review->setIssue($issueRef);
+
+                    if ($row['rubriek']) {
+                        $legacyRubricId = $row['rubriek'];
+                        $review->setLegacyRubric($legacyRubricId);
+                        
+                        if (isset($this->rubricMap[$legacyRubricId])) {
+                            $rubricRef = $this->entityManager->getReference(Rubric::class, $this->rubricMap[$legacyRubricId]);
+                            $review->setRubric($rubricRef);
+                        }
+                    }
+                    
+                    // Only persist review if issue is found
+                    $this->entityManager->persist($review);
                 }
             }
-
-            $this->entityManager->persist($review);
 
             if ((++$i % $batchSize) === 0) {
                 $this->entityManager->flush();

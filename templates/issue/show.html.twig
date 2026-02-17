@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('app_magazine_show', issue.magazine.routeParams) }}">{{ issue.magazine.name }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">#{{ issue.issueNumber }} ({{ issue.year }})</li>
+      </ol>
+    </nav>
+
+    <h1>{{ issue.magazine.name }} - #{{ issue.issueNumber }}</h1>
+    <p class="lead">Published in {{ issue.year }}</p>
+
+    <h3>Reviews</h3>
+    {% if issue.reviews is not empty %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Artist</th>
+                    <th>Album</th>
+                    <th>Rating</th>
+                    <th>Rubric</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in issue.reviews %}
+                    <tr>
+                        <td>{{ review.album.artist.name }}</td>
+                        <td><a href="{{ path('app_album_show', review.album.routeParams) }}">{{ review.album.title }}</a></td>
+                        <td>{{ review.rating ?? '-' }}</td>
+                        <td>{{ review.rubric ? review.rubric.name : '-' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No reviews found for this issue.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -3,6 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Review;
+use App\Entity\Issue;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -17,15 +20,36 @@ class ReviewCrudController extends AbstractCrudController
         return Review::class;
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(EntityFilter::new('issue'));
+    }
+
+    public function createEntity(string $entityFqcn)
+    {
+        $entity = parent::createEntity($entityFqcn);
+        
+        $issueId = $this->getContext()->getRequest()->query->get('issue_id');
+        if ($issueId) {
+            $issue = $this->container->get('doctrine')->getRepository(Issue::class)->find($issueId);
+            if ($issue) {
+                $entity->setIssue($issue);
+            }
+        }
+
+        return $entity;
+    }
+
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm()->setTemplatePath('admin/field/link_to_edit.html.twig');
         yield AssociationField::new('album')->autocomplete();
         yield AssociationField::new('critic')->autocomplete();
-        yield AssociationField::new('magazine')->autocomplete();
+        yield AssociationField::new('issue')->autocomplete();
         yield NumberField::new('rating');
-        yield IntegerField::new('year');
-        yield TextField::new('issueNumber');
+        yield IntegerField::new('year')->hideOnForm();
+        yield TextField::new('issueNumber')->hideOnForm();
         yield AssociationField::new('rubric')->autocomplete();
     }
 }
