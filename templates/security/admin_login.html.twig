@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin login{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center mt-5">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-3 text-center">Admin login</h1>
+                    <p class="text-muted text-center">Log in to access the beheeromgeving.</p>
+
+                    {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{{ path('app_admin_login') }}">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Gebruikersnaam</label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="_username"
+                                class="form-control"
+                                value="{{ last_username }}"
+                                autocomplete="username"
+                                required
+                                autofocus
+                            >
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Wachtwoord</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="_password"
+                                class="form-control"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Inloggen</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
