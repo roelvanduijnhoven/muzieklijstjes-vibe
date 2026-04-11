@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Artist;
+use App\Repository\AlbumRepository;
 use App\Repository\ArtistRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +29,7 @@ class ArtistController extends AbstractController
     }
 
     #[Route('/artist/{id}/{slug}', name: 'app_artist_show', defaults: ['slug' => null])]
-    public function show(Artist $artist, ?string $slug = null, \App\Repository\AlbumRepository $albumRepository): Response
+    public function show(Artist $artist, AlbumRepository $albumRepository, ?string $slug = null): Response
     {
         $expectedSlug = $artist->getSlug();
         if ($slug !== $expectedSlug) {
