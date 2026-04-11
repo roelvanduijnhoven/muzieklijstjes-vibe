@@ -11,7 +11,13 @@
     </nav>
 
     <h1>{{ magazine.name }}</h1>
-    
+
+    <p class="mb-4">
+        <a href="#issues" class="btn btn-sm btn-outline-secondary">
+            Naar uitgaves <span class="badge bg-secondary text-white ms-1">{{ magazine.issues|length }}</span>
+        </a>
+    </p>
+
     <div class="row mt-4" id="lists">
         <div class="col-12">
             <h3>Lijsten</h3>
