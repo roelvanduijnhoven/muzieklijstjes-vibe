@@ -96,5 +96,9 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Issues', 'fas fa-book-open', \App\Entity\Issue::class);
         yield MenuItem::linkToCrud('Rubrics', 'fas fa-columns', \App\Entity\Rubric::class);
         yield MenuItem::linkToCrud('Reviews', 'fas fa-star', \App\Entity\Review::class);
+
+        yield MenuItem::section('Developer Tools');
+        yield MenuItem::linkToCrud('Audit Log', 'fas fa-history', \App\Entity\AuditLog::class)
+            ->setController(AuditLogCrudController::class);
     }
 }
