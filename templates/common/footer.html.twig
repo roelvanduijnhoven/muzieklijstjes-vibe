@@ -3,10 +3,12 @@
         <span class="text-muted">&copy; {{ "now"|date("Y") }} Muzieklijstjes. Alle rechten voorbehouden.</span>
         <div class="mt-2">
             <a href="#" class="text-decoration-none text-secondary mx-2">Contact</a>
+            <span class="text-muted mx-1">|</span>
+
+            {% set admin_url = path('admin') %}
+            {% set admin_label = 'Admin' %}
+
             {% if is_granted('ROLE_ADMIN') %}
-                <span class="text-muted mx-1">|</span>
-                {% set admin_url = path('admin') %}
-                {% set admin_label = 'Admin' %}
                 {% set target_controller = null %}
                 {% set target_id = null %}
 
@@ -50,8 +52,10 @@
                         .setEntityId(target_id)
                         .generateUrl() %}
                 {% endif %}
+            {% endif %}
 
-                <a href="{{ admin_url }}" class="text-decoration-none text-secondary mx-2">{{ admin_label }}</a>
+            <a href="{{ admin_url }}" class="text-decoration-none text-secondary mx-2">{{ admin_label }}</a>
+            {% if is_granted('ROLE_ADMIN') %}
                 <span class="text-muted mx-1">|</span>
                 <a href="{{ path('app_admin_logout') }}" class="text-decoration-none text-secondary mx-2">Uitloggen</a>
             {% endif %}

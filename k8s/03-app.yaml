@@ -61,6 +61,16 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: ALBUM_COVER_BASE_URL
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: ADMIN_USERNAME
+            - name: ADMIN_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: ADMIN_PASSWORD_HASH
 ---
 apiVersion: v1
 kind: Service
