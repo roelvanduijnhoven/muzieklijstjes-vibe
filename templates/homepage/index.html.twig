@@ -12,7 +12,7 @@
             <p class="small text-muted">
                 Deze website bevat recensies en lijsten van onder andere: 
                 {% for source in sources %}
-                    <a href="{{ path('app_magazine_show_by_name', {name: source}) }}" class="text-muted">{{ source }}</a>{% if not loop.last %}, {% endif %}
+                    <a href="{{ path('app_magazine_show', {id: source.id, slug: source.slug}) }}" class="text-muted">{{ source.name }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
             </p>
         </div>
