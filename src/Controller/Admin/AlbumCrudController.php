@@ -75,6 +75,15 @@ class AlbumCrudController extends AbstractCrudController
                 return $album->getRouteParams();
             });
 
+        $viewReviews = Action::new('viewReviews', 'Reviews', 'fa fa-star')
+            ->linkToUrl(function (Album $album) {
+                return $this->adminUrlGenerator
+                    ->setController(ReviewCrudController::class)
+                    ->setAction(Action::INDEX)
+                    ->set('filters', ['album' => ['comparison' => '=', 'value' => $album->getId()]])
+                    ->generateUrl();
+            });
+
         $refreshCover = Action::new('refreshCover', 'Refresh cover', 'fa fa-image')
             ->linkToCrudAction('refreshCover')
             ->displayIf(fn (Album $album) => $album->getMusicBrainzId() !== null);
@@ -93,6 +102,8 @@ class AlbumCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $viewOnSite)
             ->add(Crud::PAGE_DETAIL, $viewOnSite)
             ->add(Crud::PAGE_EDIT, $viewOnSite)
+            ->add(Crud::PAGE_DETAIL, $viewReviews)
+            ->add(Crud::PAGE_EDIT, $viewReviews)
             ->add(Crud::PAGE_DETAIL, $refreshCover)
             ->add(Crud::PAGE_EDIT, $refreshCover)
             ->add(Crud::PAGE_DETAIL, $jumpToArtist)

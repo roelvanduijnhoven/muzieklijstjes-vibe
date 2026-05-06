@@ -26,7 +26,7 @@
                     <a href="{{ path('app_artist_show', albumArtist.artist.routeParams) }}">{{ albumArtist.artist.name }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
                 <br>
-                <small class="text-muted">Uitgebracht in {{ album.releaseYear }}</small>
+                <small class="text-muted">Uitgebracht in {{ album.releaseYear }}{% if album.label %} op <span class="fw-semibold">{{ album.label }}</span>{% endif %}</small>
                 {% if album.wikipediaUrl %}
                     <br>
                     <small><a href="{{ album.wikipediaUrl }}" target="_blank" rel="noopener noreferrer">Wikipedia</a></small>
@@ -134,6 +134,7 @@
                                     <th>Jaar</th>
                                     <th>Editie</th>
                                     <th>Rubriek</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -175,6 +176,13 @@
                                                 {{ review.rubric.name }}
                                             {% else %}
                                                 <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            {% if review.sourceUrl %}
+                                                <a href="{{ review.sourceUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">
+                                                    Bron
+                                                </a>
                                             {% endif %}
                                         </td>
                                     </tr>

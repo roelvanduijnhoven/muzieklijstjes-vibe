@@ -37,7 +37,6 @@ class ImportLegacyCommand extends Command
     private array $albumMap = []; // key: id (int) -> ID (int)
     private array $listMap = []; // key: id (int) -> ID (int)
     private array $genreMap = []; // key: id (int) -> ID (int) (for 'genre' table)
-    private array $soortMap = []; // key: id (int) -> ID (int) (for 'soort' table)
     private array $featureMap = []; // key: id (int) -> ID (int)
     private array $rubricMap = []; // key: legacy_id (int|string) -> ID (int)
     private array $issueMap = []; // key: "magId-year-issueNum" -> ID (int)
@@ -168,32 +167,7 @@ class ImportLegacyCommand extends Command
 
     private function importGenres(SymfonyStyle $io): void
     {
-        // Import 'soort' table
-        $soortRows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM soort');
-        $io->text('Importing from table `soort`...');
-        
         $existingGenres = []; // lower(name) => ID
-
-        foreach ($soortRows as $row) {
-            $name = trim($row['soort']);
-            if ($name === '') continue;
-            
-            $key = strtolower($name);
-
-            if (isset($existingGenres[$key])) {
-                $this->soortMap[$row['soort_id']] = $existingGenres[$key];
-                continue;
-            }
-
-            $genre = new Genre();
-            $genre->setName($name);
-            $this->entityManager->persist($genre);
-            $this->entityManager->flush();
-
-            $id = $genre->getId();
-            $this->soortMap[$row['soort_id']] = $id;
-            $existingGenres[$key] = $id;
-        }
 
         // Import 'genre' table
         $genreRows = $this->legacyConnection->fetchAllAssociative('SELECT * FROM genre');
@@ -572,13 +546,7 @@ class ImportLegacyCommand extends Command
             $criticId = $row['recensent_id'];
             $genreId = $row['genre_id'];
             
-            // Try finding genre ID in genreMap first, then soortMap
-            $targetGenreId = null;
-            if (isset($this->genreMap[$genreId])) {
-                $targetGenreId = $this->genreMap[$genreId];
-            } elseif (isset($this->soortMap[$genreId])) {
-                $targetGenreId = $this->soortMap[$genreId];
-            }
+            $targetGenreId = $this->genreMap[$genreId] ?? null;
 
             if (isset($this->criticMap[$criticId]) && $targetGenreId !== null) {
                 $critic = $this->entityManager->find(Critic::class, $this->criticMap[$criticId]);
@@ -603,7 +571,7 @@ class ImportLegacyCommand extends Command
         $io->progressFinish();
         
         if ($linkedCount === 0) {
-            $io->warning('No genre links were created for critics. Check if genre2recensent IDs match genre/soort tables.');
+            $io->warning('No genre links were created for critics. Check if genre2recensent IDs match the genre table.');
         } else {
             $io->text(sprintf('Linked %d genres to critics.', $linkedCount));
         }
@@ -770,16 +738,22 @@ class ImportLegacyCommand extends Command
             if (isset($this->magazineMap[$bron])) {
                 $magRef = $this->entityManager->getReference(Magazine::class, $this->magazineMap[$bron]);
                 $list->setMagazine($magRef);
-            } elseif (isset($this->criticMap[$bron])) {
-                $criticRef = $this->entityManager->getReference(Critic::class, $this->criticMap[$bron]);
-                $list->setCritic($criticRef);
             }
 
-            // Map Genre (soort_id)
-            if (isset($this->soortMap[$row['soort_id']])) {
-                $genreRef = $this->entityManager->getReference(Genre::class, $this->soortMap[$row['soort_id']]);
-                $list->setGenre($genreRef);
+            // Prefer the explicit recensent_id link; fall back to the legacy `bron` name lookup.
+            $criticId = null;
+            if (!empty($row['recensent_id']) && isset($this->criticMap[(int)$row['recensent_id']])) {
+                $criticId = $this->criticMap[(int)$row['recensent_id']];
+            } elseif (!$list->getMagazine() && isset($this->criticMap[$bron])) {
+                $criticId = $this->criticMap[$bron];
             }
+            if ($criticId !== null) {
+                $list->setCritic($this->entityManager->getReference(Critic::class, $criticId));
+            }
+
+            // Import legacy `soort` (free-text string) as category
+            $category = isset($row['soort']) ? trim((string)$row['soort']) : '';
+            $list->setCategory($category !== '' ? $category : null);
 
             $this->entityManager->persist($list);
             $batch[$row['id']] = $list;

@@ -34,6 +34,9 @@ class Review
     #[ORM\JoinColumn(nullable: false)]
     private ?Issue $issue = null;
 
+    #[ORM\Column(length: 2048, nullable: true)]
+    private ?string $sourceUrl = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -122,6 +125,18 @@ class Review
     public function setIssue(?Issue $issue): static
     {
         $this->issue = $issue;
+
+        return $this;
+    }
+
+    public function getSourceUrl(): ?string
+    {
+        return $this->sourceUrl;
+    }
+
+    public function setSourceUrl(?string $sourceUrl): static
+    {
+        $this->sourceUrl = $sourceUrl;
 
         return $this;
     }

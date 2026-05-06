@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Album;
 use App\Entity\Review;
 use App\Entity\Issue;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -12,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 
 class ReviewCrudController extends AbstractCrudController
 {
@@ -23,6 +25,7 @@ class ReviewCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
+            ->add(EntityFilter::new('album'))
             ->add(EntityFilter::new('issue'));
     }
 
@@ -48,6 +51,9 @@ class ReviewCrudController extends AbstractCrudController
         yield AssociationField::new('critic')->autocomplete();
         yield AssociationField::new('issue')->autocomplete();
         yield NumberField::new('rating');
+        yield UrlField::new('sourceUrl')
+            ->setHelp('Optional: link to the online page where this review was originally published.')
+            ->hideOnIndex();
         yield IntegerField::new('year')->hideOnForm();
         yield TextField::new('issueNumber')->hideOnForm();
         yield AssociationField::new('rubric')->autocomplete();

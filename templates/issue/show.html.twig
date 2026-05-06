@@ -22,6 +22,7 @@
                     <th>Album</th>
                     <th>Rating</th>
                     <th>Rubric</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -31,6 +32,13 @@
                         <td><a href="{{ path('app_album_show', review.album.routeParams) }}">{{ review.album.title }}</a></td>
                         <td>{{ review.rating ?? '-' }}</td>
                         <td>{{ review.rubric ? review.rubric.name : '-' }}</td>
+                        <td class="text-end">
+                            {% if review.sourceUrl %}
+                                <a href="{{ review.sourceUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">
+                                    Bron
+                                </a>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

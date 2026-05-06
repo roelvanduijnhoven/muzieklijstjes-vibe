@@ -30,6 +30,9 @@
         {% if list.genre %}
             <span class="badge bg-success">{{ list.genre.name }}</span>
         {% endif %}
+        {% if list.category %}
+            <span class="badge bg-warning text-dark">{{ list.category }}</span>
+        {% endif %}
         {% if list.type == 'aggregate' %}
             <span class="badge bg-primary">Verzamelijst</span>
         {% endif %}

@@ -39,6 +39,9 @@
                     {% else %}
                         {{ list.type|capitalize }}
                     {% endif %}
+                    {% if list.category %}
+                        &middot; <span class="badge bg-warning text-dark">{{ list.category }}</span>
+                    {% endif %}
                 {% endif %}
             </small>
         </div>

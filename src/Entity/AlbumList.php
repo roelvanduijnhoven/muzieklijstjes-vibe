@@ -28,6 +28,9 @@ class AlbumList
     private ?string $type = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    private ?string $category = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $code = null;
 
     #[ORM\Column(nullable: true)]
@@ -115,6 +118,18 @@ class AlbumList
     public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?string $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }
