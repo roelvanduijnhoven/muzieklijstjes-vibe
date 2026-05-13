@@ -15,10 +15,10 @@ class CriticController extends AbstractController
     public function search(Request $request, CriticRepository $criticRepository): Response
     {
         $query = $request->query->get('q');
-        $critics = $criticRepository->searchByName($query);
+        $critics = $criticRepository->searchByNameWithCounts($query);
 
         if (count($critics) === 1) {
-            return $this->redirectToRoute('app_critic_show', ['id' => $critics[0]->getId(), 'slug' => $critics[0]->getSlug()]);
+            return $this->redirectToRoute('app_critic_show', ['id' => $critics[0]['critic']->getId(), 'slug' => $critics[0]['critic']->getSlug()]);
         }
 
         return $this->render('critic/search.html.twig', [
@@ -46,10 +46,7 @@ class CriticController extends AbstractController
         $listDir = $request->query->get('list_dir', 'asc');
         $sortedLists = $albumListRepository->findByCritic($critic, $listSort, $listDir);
 
-        // Review Sorting
-        $reviewSort = $request->query->get('review_sort', 'album');
-        $reviewDir = $request->query->get('review_dir', 'asc');
-        $sortedReviews = $reviewRepository->findByCritic($critic, $reviewSort, $reviewDir);
+        $sortedReviews = $reviewRepository->findByCritic($critic);
 
         return $this->render('critic/show.html.twig', [
             'critic' => $critic,
@@ -57,8 +54,6 @@ class CriticController extends AbstractController
             'listSort' => $listSort,
             'listDir' => $listDir,
             'sortedReviews' => $sortedReviews,
-            'reviewSort' => $reviewSort,
-            'reviewDir' => $reviewDir,
         ]);
     }
 }

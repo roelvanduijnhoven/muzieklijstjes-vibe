@@ -7,16 +7,152 @@
     <h1>Zoekresultaten voor "{{ query }}"</h1>
 
     {% if artists|length > 0 %}
-        <div class="list-group">
-            {% for artist in artists %}
-                <a href="{{ path('app_artist_show', artist.routeParams) }}" class="list-group-item list-group-item-action">
-                    {{ artist.name }}
-                </a>
-            {% endfor %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" data-artist-search-table data-default-sort-key="artist" data-default-sort-direction="asc">
+                <thead>
+                    <tr>
+                        <th>
+                            <button type="button" class="btn btn-link p-0 text-dark text-decoration-none fw-semibold" data-artist-search-sort-key="artist" data-artist-search-sort-type="text">
+                                Artiest <span class="artist-search-sort-indicator text-muted" aria-hidden="true">&varr;</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link p-0 text-dark text-decoration-none fw-semibold" data-artist-search-sort-key="albums" data-artist-search-sort-type="number">
+                                Albums (aantal) <span class="artist-search-sort-indicator text-muted" aria-hidden="true">&varr;</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link p-0 text-dark text-decoration-none fw-semibold" data-artist-search-sort-key="reviews" data-artist-search-sort-type="number">
+                                Recensies (aantal) <span class="artist-search-sort-indicator text-muted" aria-hidden="true">&varr;</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link p-0 text-dark text-decoration-none fw-semibold" data-artist-search-sort-key="lists" data-artist-search-sort-type="number">
+                                Lijsten (aantal) <span class="artist-search-sort-indicator text-muted" aria-hidden="true">&varr;</span>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in artists %}
+                        {% set artist = item.artist %}
+                        <tr>
+                            <td data-sort-key="artist" data-sort-value="{{ (artist.sortName ?: artist.name)|lower }}">
+                                <a href="{{ path('app_artist_show', artist.routeParams) }}" class="text-decoration-none fw-bold">{{ artist.name }}</a>
+                            </td>
+                            <td data-sort-key="albums" data-sort-value="{{ item.albumCount }}">
+                                {{ item.albumCount }}
+                            </td>
+                            <td data-sort-key="reviews" data-sort-value="{{ item.reviewCount }}">
+                                {{ item.reviewCount }}
+                            </td>
+                            <td data-sort-key="lists" data-sort-value="{{ item.listCount }}">
+                                {{ item.listCount }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     {% else %}
         <p>Geen artiesten gevonden.</p>
     {% endif %}
 </div>
+
+<script>
+    (function () {
+        function parseNumber(value) {
+            var number = parseFloat(String(value).replace(',', '.'));
+
+            return Number.isNaN(number) ? null : number;
+        }
+
+        function compareValues(left, right, type, direction) {
+            if (left === '' && right === '') {
+                return 0;
+            }
+
+            if (left === '') {
+                return 1;
+            }
+
+            if (right === '') {
+                return -1;
+            }
+
+            if (type === 'number') {
+                var leftNumber = parseNumber(left);
+                var rightNumber = parseNumber(right);
+
+                if (leftNumber !== null && rightNumber !== null && leftNumber !== rightNumber) {
+                    return direction === 'asc' ? leftNumber - rightNumber : rightNumber - leftNumber;
+                }
+            }
+
+            var comparison = left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' });
+
+            return direction === 'asc' ? comparison : -comparison;
+        }
+
+        function updateIndicators(table, activeButton, direction) {
+            table.querySelectorAll('.artist-search-sort-indicator').forEach(function (indicator) {
+                indicator.innerHTML = '&varr;';
+                indicator.classList.add('text-muted');
+            });
+
+            var indicator = activeButton.querySelector('.artist-search-sort-indicator');
+            if (indicator) {
+                indicator.innerHTML = direction === 'asc' ? '&uarr;' : '&darr;';
+                indicator.classList.remove('text-muted');
+            }
+        }
+
+        function getInitialDirection(type) {
+            return type === 'number' ? 'desc' : 'asc';
+        }
+
+        function sortTable(table, button, forcedDirection) {
+            var key = button.dataset.artistSearchSortKey;
+            var type = button.dataset.artistSearchSortType || 'text';
+            var currentDirection = button.dataset.artistSearchSortDirection;
+            var direction = forcedDirection || (currentDirection ? (currentDirection === 'asc' ? 'desc' : 'asc') : getInitialDirection(type));
+            var tbody = table.querySelector('tbody');
+            var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+
+            rows.sort(function (leftRow, rightRow) {
+                var leftCell = leftRow.querySelector('[data-sort-key="' + key + '"]');
+                var rightCell = rightRow.querySelector('[data-sort-key="' + key + '"]');
+                var leftValue = leftCell ? leftCell.dataset.sortValue || '' : '';
+                var rightValue = rightCell ? rightCell.dataset.sortValue || '' : '';
+
+                return compareValues(leftValue, rightValue, type, direction);
+            });
+
+            rows.forEach(function (row) {
+                tbody.appendChild(row);
+            });
+
+            table.querySelectorAll('[data-artist-search-sort-key]').forEach(function (sortButton) {
+                delete sortButton.dataset.artistSearchSortDirection;
+            });
+
+            button.dataset.artistSearchSortDirection = direction;
+            updateIndicators(table, button, direction);
+        }
+
+        document.querySelectorAll('[data-artist-search-table]').forEach(function (table) {
+            table.querySelectorAll('[data-artist-search-sort-key]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    sortTable(table, button);
+                });
+            });
+
+            var defaultButton = table.querySelector('[data-artist-search-sort-key="' + table.dataset.defaultSortKey + '"]');
+            if (defaultButton) {
+                sortTable(table, defaultButton, table.dataset.defaultSortDirection || getInitialDirection(defaultButton.dataset.artistSearchSortType || 'text'));
+            }
+        });
+    })();
+</script>
 {% endblock %}
 

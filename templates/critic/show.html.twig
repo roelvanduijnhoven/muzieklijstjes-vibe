@@ -1,5 +1,4 @@
 {% extends 'base.html.twig' %}
-{% import 'macros/rating.html.twig' as rating_macros %}
 
 {% block body %}
 <div class="container mt-4">
@@ -156,90 +155,10 @@
             <div id="reviews" class="mt-5">
                 <h3>Recensies</h3>
                 {% if sortedReviews is not empty %}
-                    <div class="table-responsive">
-                        <table class="table table-striped align-middle">
-                            <thead>
-                                <tr>
-                                    <th style="width: 80px;">Cover</th>
-                                    <th>
-                                        {% set next_dir = (reviewSort == 'album' and reviewDir == 'asc') ? 'desc' : 'asc' %}
-                                        <a href="{{ path('app_critic_show', base_params|merge({'review_sort': 'album', 'review_dir': next_dir})) }}#reviews" class="text-dark text-decoration-none">
-                                            Album
-                                            {% if reviewSort == 'album' %}{{ reviewDir == 'asc' ? '↑' : '↓' }}{% endif %}
-                                        </a>
-                                    </th>
-                                    <th>
-                                        {% set next_dir = (reviewSort == 'rating' and reviewDir == 'asc') ? 'desc' : 'asc' %}
-                                        <a href="{{ path('app_critic_show', base_params|merge({'review_sort': 'rating', 'review_dir': next_dir})) }}#reviews" class="text-dark text-decoration-none">
-                                            Rating
-                                            {% if reviewSort == 'rating' %}{{ reviewDir == 'asc' ? '↑' : '↓' }}{% endif %}
-                                        </a>
-                                    </th>
-                                    <th>
-                                        {% set next_dir = (reviewSort == 'magazine' and reviewDir == 'asc') ? 'desc' : 'asc' %}
-                                        <a href="{{ path('app_critic_show', base_params|merge({'review_sort': 'magazine', 'review_dir': next_dir})) }}#reviews" class="text-dark text-decoration-none">
-                                            Magazine
-                                            {% if reviewSort == 'magazine' %}{{ reviewDir == 'asc' ? '↑' : '↓' }}{% endif %}
-                                        </a>
-                                    </th>
-                                    <th>
-                                        {% set next_dir = (reviewSort == 'year' and reviewDir == 'asc') ? 'desc' : 'asc' %}
-                                        <a href="{{ path('app_critic_show', base_params|merge({'review_sort': 'year', 'review_dir': next_dir})) }}#reviews" class="text-dark text-decoration-none">
-                                            Jaar
-                                            {% if reviewSort == 'year' %}{{ reviewDir == 'asc' ? '↑' : '↓' }}{% endif %}
-                                        </a>
-                                    </th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for review in sortedReviews %}
-                                    <tr>
-                                        <td>
-                                            {% if review.album.imageUrl %}
-                                                <img src="{{ album_cover_base_url ~ review.album.imageUrl }}" alt="{{ review.album.title }}" class="img-fluid rounded" style="width: 50px; height: 50px; object-fit: cover;">
-                                            {% else %}
-                                                <div class="bg-light border rounded d-flex align-items-center justify-content-center text-muted small" style="width: 50px; height: 50px; font-size: 0.6rem;">No Img</div>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <a href="{{ path('app_album_show', {id: review.album.id}) }}" class="text-decoration-none fw-bold">{{ review.album.title }}</a>
-                                            <br>
-                                            <small class="text-muted">
-                                                {% for albumArtist in review.album.albumArtists %}
-                                                    <a href="{{ path('app_artist_show', albumArtist.artist.routeParams) }}" class="text-muted">{{ albumArtist.artist.name }}</a>{% if not loop.last %}, {% endif %}
-                                                {% endfor %}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            {{ rating_macros.render(review) }}
-                                        </td>
-                                        <td>
-                                            {% if review.magazine %}
-                                                {{ review.magazine.name }}
-                                            {% else %}
-                                                <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if review.year %}
-                                                {{ review.year }}
-                                            {% else %}
-                                                <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-end">
-                                            {% if review.sourceUrl %}
-                                                <a href="{{ review.sourceUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">
-                                                    Bron
-                                                </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                    {% include 'review/_table.html.twig' with {
+                        reviews: sortedReviews,
+                        columns: ['cover', 'album', 'magazine', 'year', 'issue', 'rubric', 'rating', 'source']
+                    } %}
                 {% else %}
                     <p class="text-muted">Geen recensies gevonden voor deze recensent.</p>
                 {% endif %}

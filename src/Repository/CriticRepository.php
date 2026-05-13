@@ -33,5 +33,22 @@ class CriticRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array<array{critic: Critic, reviewCount: int, listCount: int}>
+     */
+    public function searchByNameWithCounts(string $query): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c as critic, COUNT(DISTINCT review.id) as reviewCount, COUNT(DISTINCT albumList.id) as listCount')
+            ->leftJoin('c.reviews', 'review')
+            ->leftJoin('c.albumLists', 'albumList')
+            ->andWhere('c.name LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->groupBy('c.id')
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
 

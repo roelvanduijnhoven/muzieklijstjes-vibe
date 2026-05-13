@@ -33,5 +33,30 @@ class ArtistRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array<array{artist: Artist, albumCount: int, reviewCount: int, listCount: int}>
+     */
+    public function searchByNameWithCounts(string $query): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a as artist, COUNT(DISTINCT album.id) as albumCount, COUNT(DISTINCT review.id) as reviewCount, COUNT(DISTINCT albumList.id) as listCount')
+            ->leftJoin('a.albumArtists', 'albumArtist')
+            ->leftJoin('albumArtist.album', 'album')
+            ->leftJoin('album.reviews', 'review')
+            ->leftJoin(
+                'App\Entity\AlbumListItem',
+                'albumListItem',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'albumListItem.album = album'
+            )
+            ->leftJoin('albumListItem.albumList', 'albumList')
+            ->andWhere('a.name LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->groupBy('a.id')
+            ->orderBy('a.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
 

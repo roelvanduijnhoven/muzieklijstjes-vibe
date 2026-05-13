@@ -35,6 +35,29 @@ class AlbumRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return array<array{album: Album, reviewCount: int, listCount: int}>
+     */
+    public function searchByTitleWithCounts(string $query): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a as album, COUNT(DISTINCT r.id) as reviewCount, COUNT(DISTINCT al.id) as listCount')
+            ->leftJoin('a.reviews', 'r')
+            ->leftJoin(
+                'App\Entity\AlbumListItem',
+                'ali',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'ali.album = a'
+            )
+            ->leftJoin('ali.albumList', 'al')
+            ->andWhere('a.title LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->groupBy('a.id')
+            ->orderBy('a.title', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * @return array<array{album: Album, score: int}>
      */
     public function findMostListedAlbums(int $limit = 50): array

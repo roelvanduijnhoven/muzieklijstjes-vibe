@@ -1,0 +1,138 @@
+{% import 'macros/rating.html.twig' as rating_macros %}
+
+{% set review_table_columns = columns|default(['magazine', 'critic', 'year', 'issue', 'rubric', 'rating']) %}
+{% set review_table_classes = table_classes|default('table-striped align-middle') %}
+{% set review_column_labels = {
+    cover: 'Cover',
+    artist: 'Artiest',
+    album: 'Album',
+    magazine: 'Tijdschrift',
+    critic: 'Recensent',
+    year: 'Jaar',
+    issue: 'Editie',
+    rubric: 'Rubriek',
+    rating: 'Rating',
+    source: ''
+} %}
+{% set review_numeric_columns = ['year', 'issue', 'rating'] %}
+{% set review_unsortable_columns = ['cover', 'source'] %}
+
+<div class="table-responsive">
+    <table class="table {{ review_table_classes }}" data-review-table>
+        <thead>
+            <tr>
+                {% for column in review_table_columns %}
+                    {% set is_sortable = column not in review_unsortable_columns %}
+                    <th{% if column == 'cover' %} style="width: 80px;"{% endif %}{% if column == 'source' %} class="text-end"{% endif %}>
+                        {% if is_sortable %}
+                            <button
+                                type="button"
+                                class="btn btn-link p-0 text-dark text-decoration-none fw-semibold"
+                                data-review-sort-key="{{ column }}"
+                                data-review-sort-type="{{ column in review_numeric_columns ? 'number' : 'text' }}"
+                            >
+                                {{ review_column_labels[column]|default(column|title) }}
+                                <span class="review-sort-indicator text-muted" aria-hidden="true">&varr;</span>
+                            </button>
+                        {% else %}
+                            {{ review_column_labels[column]|default(column|title) }}
+                        {% endif %}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+                {% set rating_max_score = review.magazine ? review.magazine.highestPossibleRating : null %}
+                {% set rating_sort_value = review.rating is not null ? (rating_max_score and rating_max_score > 0 ? (review.rating / rating_max_score) * 5 : review.rating) : '' %}
+                <tr>
+                    {% for column in review_table_columns %}
+                        {% if column == 'cover' %}
+                            <td>
+                                {% if review.album.imageUrl %}
+                                    <img src="{{ album_cover_base_url ~ review.album.imageUrl }}" alt="{{ review.album.title }}" class="img-fluid rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light border rounded d-flex align-items-center justify-content-center text-muted small" style="width: 50px; height: 50px; font-size: 0.6rem;">No Img</div>
+                                {% endif %}
+                            </td>
+                        {% elseif column == 'artist' %}
+                            <td data-sort-key="{{ column }}" data-sort-value="{{ review.album.artistNames|lower }}">
+                                {% for albumArtist in review.album.albumArtists %}
+                                    <a href="{{ path('app_artist_show', albumArtist.artist.routeParams) }}">{{ albumArtist.artist.name }}</a>{% if not loop.last %}, {% endif %}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endfor %}
+                            </td>
+                        {% elseif column == 'album' %}
+                            <td data-sort-key="{{ column }}" data-sort-value="{{ review.album.title|lower }}">
+                                <a href="{{ path('app_album_show', {id: review.album.id}) }}" class="text-decoration-none fw-bold">{{ review.album.title }}</a>
+                                <br>
+                                <small class="text-muted">
+                                    {% for albumArtist in review.album.albumArtists %}
+                                        <a href="{{ path('app_artist_show', albumArtist.artist.routeParams) }}" class="text-muted">{{ albumArtist.artist.name }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </small>
+                            </td>
+                        {% elseif column == 'magazine' %}
+                            <td data-sort-key="{{ column }}" data-sort-value="{{ review.magazine ? review.magazine.name|lower : '' }}">
+                                {% if review.magazine %}
+                                    {{ review.magazine.name }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        {% elseif column == 'critic' %}
+                            <td data-sort-key="{{ column }}" data-sort-value="{{ review.critic ? (review.critic.sortName ?: review.critic.name)|lower : '' }}">
+                                {% if review.critic %}
+                                    <a href="{{ path('app_critic_show', review.critic.routeParams) }}">{{ review.critic.name }}</a>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        {% elseif column == 'year' %}
+                            <td data-sort-key="{{ column }}" data-sort-value="{{ review.year ?? '' }}">
+                                {% if review.year %}
+                                    {{ review.year }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        {% elseif column == 'issue' %}
+                            <td data-sort-key="{{ column }}" data-sort-value="{{ review.issueNumber ?? '' }}">
+                                {% if review.issueNumber %}
+                                    {{ review.issueNumber }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        {% elseif column == 'rubric' %}
+                            <td data-sort-key="{{ column }}" data-sort-value="{{ review.rubric ? review.rubric.name|lower : '' }}">
+                                {% if review.rubric %}
+                                    {{ review.rubric.name }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        {% elseif column == 'rating' %}
+                            <td data-sort-key="{{ column }}" data-sort-value="{{ rating_sort_value }}">
+                                {% if review.rating is not null %}
+                                    {{ rating_macros.render(review) }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        {% elseif column == 'source' %}
+                            <td class="text-end">
+                                {% if review.sourceUrl %}
+                                    <a href="{{ review.sourceUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">
+                                        Bron
+                                    </a>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

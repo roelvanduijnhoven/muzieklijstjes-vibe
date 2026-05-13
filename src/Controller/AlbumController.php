@@ -18,10 +18,10 @@ class AlbumController extends AbstractController
     public function search(Request $request, AlbumRepository $albumRepository): Response
     {
         $query = $request->query->get('q');
-        $albums = $albumRepository->searchByTitle($query);
+        $albums = $albumRepository->searchByTitleWithCounts($query);
 
         if (count($albums) === 1) {
-            return $this->redirectToRoute('app_album_show', ['id' => $albums[0]->getId()]);
+            return $this->redirectToRoute('app_album_show', ['id' => $albums[0]['album']->getId()]);
         }
 
         return $this->render('album/search.html.twig', [

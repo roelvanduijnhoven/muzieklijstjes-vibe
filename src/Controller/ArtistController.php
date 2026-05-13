@@ -16,10 +16,10 @@ class ArtistController extends AbstractController
     public function search(Request $request, ArtistRepository $artistRepository): Response
     {
         $query = $request->query->get('q');
-        $artists = $artistRepository->searchByName($query);
+        $artists = $artistRepository->searchByNameWithCounts($query);
 
         if (count($artists) === 1) {
-            return $this->redirectToRoute('app_artist_show', ['id' => $artists[0]->getId(), 'slug' => $artists[0]->getSlug()]);
+            return $this->redirectToRoute('app_artist_show', ['id' => $artists[0]['artist']->getId(), 'slug' => $artists[0]['artist']->getSlug()]);
         }
 
         return $this->render('artist/search.html.twig', [

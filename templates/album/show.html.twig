@@ -1,5 +1,4 @@
 {% extends 'base.html.twig' %}
-{% import 'macros/rating.html.twig' as rating_macros %}
 
 {% block body %}
 <div class="container mt-4">
@@ -60,26 +59,28 @@
                                     {% set list = item.albumList %}
                                     <tr style="cursor: pointer;" onclick="window.location='{{ path('app_list_show', {id: list.id, slug: list.slug}) }}'">
                                         <td>
-                                            <div class="position-relative" style="width: 85px; height: 60px; transform: rotate(-2deg);">
-                                                {% for previewItem in list.previewItems(3) %}
-                                                    {% set offsetLeft = (loop.index0 * 15) %}
-                                                    {% set offsetTop = (loop.index0 * 4) %}
-                                                    {% set zIndex = 10 - loop.index0 %}
-                                                    {% if previewItem.album.imageUrl %}
-                                                        <img src="{{ album_cover_base_url ~ previewItem.album.imageUrl }}" 
-                                                                alt="{{ previewItem.album.title }}" 
-                                                                class="img-thumbnail position-absolute" 
-                                                                style="width: 50px; height: 50px; object-fit: cover; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
-                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
-                                                    {% else %}
-                                                        <div class="bg-light border d-flex align-items-center justify-content-center text-muted small text-center p-1 position-absolute" 
-                                                                style="width: 50px; height: 50px; font-size: 0.6rem; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
-                                                                title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
-                                                            No Img
-                                                        </div>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
+                                            {% if list.type == 'ordered' %}
+                                                <div class="position-relative" style="width: 85px; height: 60px; transform: rotate(-2deg);">
+                                                    {% for previewItem in list.previewItems(3) %}
+                                                        {% set offsetLeft = (loop.index0 * 15) %}
+                                                        {% set offsetTop = (loop.index0 * 4) %}
+                                                        {% set zIndex = 10 - loop.index0 %}
+                                                        {% if previewItem.album.imageUrl %}
+                                                            <img src="{{ album_cover_base_url ~ previewItem.album.imageUrl }}" 
+                                                                    alt="{{ previewItem.album.title }}" 
+                                                                    class="img-thumbnail position-absolute" 
+                                                                    style="width: 50px; height: 50px; object-fit: cover; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
+                                                                    title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
+                                                        {% else %}
+                                                            <div class="bg-light border d-flex align-items-center justify-content-center text-muted small text-center p-1 position-absolute" 
+                                                                    style="width: 50px; height: 50px; font-size: 0.6rem; top: {{ offsetTop }}px; left: {{ offsetLeft }}px; z-index: {{ zIndex }};"
+                                                                    title="{{ previewItem.album.title }} - {{ previewItem.album.artist.name }}">
+                                                                No Img
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             <a href="{{ path('app_list_show', {id: list.id, slug: list.slug}) }}" class="text-decoration-none fw-bold">{{ list.title }}</a>
@@ -124,72 +125,10 @@
             <div id="reviews" class="mt-5">
                 <h3>Recensies</h3>
                 {% if album.reviews is not empty %}
-                    <div class="table-responsive">
-                        <table class="table table-striped align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Tijdschrift</th>
-                                    <th>Recensent</th>
-                                    <th>Rating</th>
-                                    <th>Jaar</th>
-                                    <th>Editie</th>
-                                    <th>Rubriek</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for review in album.reviews %}
-                                    <tr>
-                                        <td>
-                                            {% if review.magazine %}
-                                                {{ review.magazine.name }}
-                                            {% else %}
-                                                <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if review.critic %}
-                                                <a href="{{ path('app_critic_show', {id: review.critic.id, slug: review.critic.slug}) }}">{{ review.critic.name }}</a>
-                                            {% else %}
-                                                <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {{ rating_macros.render(review) }}
-                                        </td>
-                                        <td>
-                                            {% if review.year %}
-                                                {{ review.year }}
-                                            {% else %}
-                                                <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if review.issueNumber %}
-                                                {{ review.issueNumber }}
-                                            {% else %}
-                                                <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if review.rubric %}
-                                                {{ review.rubric.name }}
-                                            {% else %}
-                                                <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-end">
-                                            {% if review.sourceUrl %}
-                                                <a href="{{ review.sourceUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">
-                                                    Bron
-                                                </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                    {% include 'review/_table.html.twig' with {
+                        reviews: album.reviews,
+                        columns: ['magazine', 'critic', 'year', 'issue', 'rubric', 'rating', 'source']
+                    } %}
                 {% else %}
                     <p class="text-muted">Geen recensies gevonden voor dit album.</p>
                 {% endif %}

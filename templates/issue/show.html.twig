@@ -15,34 +15,11 @@
 
     <h3>Reviews</h3>
     {% if issue.reviews is not empty %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Artist</th>
-                    <th>Album</th>
-                    <th>Rating</th>
-                    <th>Rubric</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for review in issue.reviews %}
-                    <tr>
-                        <td>{{ review.album.artist.name }}</td>
-                        <td><a href="{{ path('app_album_show', review.album.routeParams) }}">{{ review.album.title }}</a></td>
-                        <td>{{ review.rating ?? '-' }}</td>
-                        <td>{{ review.rubric ? review.rubric.name : '-' }}</td>
-                        <td class="text-end">
-                            {% if review.sourceUrl %}
-                                <a href="{{ review.sourceUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">
-                                    Bron
-                                </a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% include 'review/_table.html.twig' with {
+            reviews: issue.reviews,
+            columns: ['artist', 'album', 'critic', 'rubric', 'rating', 'source'],
+            table_classes: 'table-striped align-middle'
+        } %}
     {% else %}
         <p>No reviews found for this issue.</p>
     {% endif %}
